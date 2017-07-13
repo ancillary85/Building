@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+
+<root>
+    <entity id = "worker" name = "Worker" hp = "1">Worker flavor text?</entity>
+    <entity id = "soldier" name = "Soldier Ant" hp = "3">I'm a soldier!</entity>
+    <entity id = "drone" name = "Drone Ant" hp = "4"></entity>
+    <entity id = "queen" name = "Queen Ant" hp = "5"></entity>
+</root>

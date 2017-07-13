@@ -1,0 +1,36 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Jun 16, 2017, 5:08:03 PM
+    Author     : Mike
+*/
+#center-text {
+    
+}
+
+#top-tool-bar {
+    
+}
+
+#main-pane {
+    
+}
+
+#center-grid {
+/*    -fx-grid-lines-visible:true;*/
+}
+
+#center-grid-button {
+    -fx-base:brown;
+    -fx-border-radius:0;
+    -fx-background-radius:0;
+    
+    
+/*    -fx-background-image: url("stone.jpg");
+    -fx-background-size: 350px 350px;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;*/
+}

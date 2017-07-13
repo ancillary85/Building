@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<root>
+    <task name = "Dig" duration = "2" costs = "2 apples,2 shovels" requirements = "hands" results = "1 space,2 dirt">Chop, chop, dig, dig!</task>
+    <task name = "Feet" duration = "2" costs = "2 apples,2 shovels" requirements = "footsies" results = "1 space,2 dirt">Chop, chop, dig, dig!</task>
+</root>
