@@ -51,7 +51,7 @@ public abstract class Entity {
         this.id = id;
         this.name = new SimpleStringProperty(name);
         this.active = new SimpleBooleanProperty(active);
-        busy = new SimpleBooleanProperty(false);
+        this.busy = new SimpleBooleanProperty(false);
         this.location = new SimpleStringProperty(location);
     }
     

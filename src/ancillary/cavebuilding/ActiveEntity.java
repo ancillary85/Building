@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import javafx.beans.property.SimpleBooleanProperty;
 
 /**
  *
@@ -20,12 +21,14 @@ public class ActiveEntity extends Entity {
     private ArrayList<Task> tasks;
     private int taskTimer;
     private Task currentTask;
+    private SimpleBooleanProperty taskCompleted;
     
     public ActiveEntity() {
         super();
-        tasks = new ArrayList<Task>();
-        taskTimer = 0;
-        currentTask = new Task();
+        this.tasks = new ArrayList<Task>();
+        this.taskTimer = 0;
+        this.currentTask = new Task();
+        this.taskCompleted = new SimpleBooleanProperty(false);
     }
     
     
@@ -39,8 +42,9 @@ public class ActiveEntity extends Entity {
     public ActiveEntity(String id, String name, String location, List<Task> tasks) {
         super(id, name, true, location);
         this.tasks = new ArrayList<Task>(tasks);
-        taskTimer = 0;
-        currentTask = new Task();
+        this.taskTimer = 0;
+        this.currentTask = new Task();
+        this.taskCompleted = new SimpleBooleanProperty(false);
     }
     
     /**
@@ -98,7 +102,7 @@ public class ActiveEntity extends Entity {
     }
     
     /**
-     * Sets the Entity's current Task and marks it as busy.
+     * Sets the Entity's current Task, marks it as busy, and taskCompleted to false.
      * The parameter is used as the index of the Entity's List of Tasks.
      * If the given index is outside of the range, no changes are made.
      * 
@@ -111,12 +115,13 @@ public class ActiveEntity extends Entity {
         
         currentTask = tasks.get(taskNumber);
         super.setBusy();
+        taskCompleted.set(false);
     }
     
     /**
-     * Sets the Entity's current Task and marks it as busy.
-     * If the provided Task is not in the Entity's List of Tasks,
-     * no changes are made.
+     * Sets the Entity's current Task, marks it as busy, and taskCompleted to false.
+     * If the provided Task is not in the Entity's List of Tasks, no changes are made.
+     * 
      * The Entity's taskTimer is NOT set by this method. 
      * Calling setTaskTimerFromCurrentTask() afterwards is recommended.
      * @param newTask the Task to use
@@ -128,12 +133,13 @@ public class ActiveEntity extends Entity {
         
         currentTask = newTask;
         super.setBusy();
+        taskCompleted.set(false);
     }
     
     /**
-     * Sets the Entity's current Task and marks it as busy.
-     * If the provided Task is not in the Entity's List of Tasks,
-     * it is added to the List beforehand.
+     * Sets the Entity's current Task, marks it as busy, and taskCompleted to false.
+     * If the provided Task is not in the Entity's List of Tasks, it is added to the List beforehand.
+     * 
      * The Entity's taskTimer is NOT set by this method. 
      * Calling setTaskTimerFromCurrentTask() afterwards is recommended.
      * @param newTask the Task to use
@@ -145,9 +151,31 @@ public class ActiveEntity extends Entity {
         
         currentTask = newTask;
         super.setBusy();
+        taskCompleted.set(false);
     }
     
+    /**
+     * @return taskCompleted as a boolean 
+     */
+    public boolean getTaskCompleted() {
+        return taskCompleted.get();
+    }
+    
+    /**
+     * @return the Entity's "taskCompleted" property
+     */
+    public SimpleBooleanProperty getTaskCompletedProp() {
+        return taskCompleted;
+    }
 
+    /**
+     * Sets the Entity's taskCompleted property
+     * @param taskStatus 
+     */
+    public void setTaskCompleted(boolean taskStatus) {
+        taskCompleted.set(taskStatus);
+    }
+    
     /**
      * Mostly just tests right now
      * The taskTimer is decremented. If it reaches zero or less, it is set to 0, 
@@ -179,9 +207,27 @@ public class ActiveEntity extends Entity {
                 " Task Duration: " + currentTask.getDuration());
         System.out.println();
         
+        completeTask();
+    }
+    
+    /**
+     * Sets the Entity's taskTimer to zero, currentTask to "no task," taskCompleted to true, and marks it not busy
+     */
+    public void completeTask() {
         taskTimer = 0;
         currentTask.setNoTask();      
         super.setNotBusy();
+        taskCompleted.set(true);
+    }
+    
+    /**
+     * Sets the Entity's taskTimer to zero, currentTask to "no task," taskCompleted to false, and marks it not busy
+     */
+    public void cancelTask() {
+        taskTimer = 0;
+        currentTask.setNoTask();
+        super.setNotBusy();
+        taskCompleted.set(false);
     }
     
 }
