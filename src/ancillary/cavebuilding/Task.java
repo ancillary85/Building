@@ -23,27 +23,81 @@ public class Task {
     private SimpleStringProperty[] results;
     private SimpleStringProperty flavor;
     
+    public Task() {
+        name = new SimpleStringProperty("no task");
+        duration = new SimpleIntegerProperty(0);
+        setUpCosts(null);
+        setUpRequirements(null);
+        setUpResults(null);
+        setUpFlavor(null);
+    }
+    
     public Task(String initName, int initDuration, String[] initCosts , 
        String[] initRequirements, String[] initResults, String initFlavor) {
         name = new SimpleStringProperty(initName);
         duration = new SimpleIntegerProperty(initDuration);
         
+         setUpCosts(initCosts);
+         setUpRequirements(initRequirements);
+         setUpResults(initResults);        
+         setUpFlavor(initFlavor);        
+    }
+    
+    private void setUpCosts(String[] initCosts) {
+        if(initCosts == null) {
+            costs = new SimpleStringProperty[1];
+            costs[0] = new SimpleStringProperty("none");
+            return;
+        }
+        
         costs = new SimpleStringProperty[initCosts.length];
         for(int i = 0; i < initCosts.length; i++) {
             costs[i] = new SimpleStringProperty(initCosts[i]);
         }
+    }
+    
+    private void setUpRequirements(String[] initRequirements) {
+        if(initRequirements == null) {
+            requirements = new SimpleStringProperty[1];
+            requirements[0] = new SimpleStringProperty("none");
+            return;
+        }
         
-         requirements = new SimpleStringProperty[initRequirements.length];
-         for(int i = 0; i < initRequirements.length; i++) {
+        requirements = new SimpleStringProperty[initRequirements.length];
+        for(int i = 0; i < initRequirements.length; i++) {
             requirements[i] = new SimpleStringProperty(initRequirements[i]);
-         }
-         
-         results = new SimpleStringProperty[initResults.length];
-         for(int i = 0; i < initResults.length; i++) {
+        }
+    }
+    
+    private void setUpResults(String[] initResults) {
+        if(initResults == null) {
+            results = new SimpleStringProperty[1];
+            results[0] = new SimpleStringProperty("none");
+            return;
+        }
+        
+        results = new SimpleStringProperty[initResults.length];
+        for(int i = 0; i < initResults.length; i++) {
             results[i] = new SimpleStringProperty(initResults[i]);
-         }
+        }
+    }
+    
+    private void setUpFlavor(String initFlavor) {
+        if(initFlavor == null) {
+            flavor = new SimpleStringProperty("Idle");
+            return;
+        }
         
         flavor = new SimpleStringProperty(initFlavor);
+    }
+    
+    public boolean isNoTask() {
+        return name.get().equals("no task") && duration.get() < 1;
+    }
+    
+    public void setNoTask() {
+        name.set("no task");
+        duration.set(0);
     }
     
     @Override

@@ -14,17 +14,18 @@ import java.util.List;
  *
  * @author Mike
  */
+
 public class ActiveEntity extends Entity {
 
     private ArrayList<Task> tasks;
     private int taskTimer;
-    private int currentTask;
+    private Task currentTask;
     
     public ActiveEntity() {
         super();
         tasks = new ArrayList<Task>();
         taskTimer = 0;
-        currentTask = -1;
+        currentTask = new Task();
     }
     
     
@@ -39,7 +40,7 @@ public class ActiveEntity extends Entity {
         super(id, name, true, location);
         this.tasks = new ArrayList<Task>(tasks);
         taskTimer = 0;
-        currentTask = -1;
+        currentTask = new Task();
     }
     
     /**
@@ -63,6 +64,20 @@ public class ActiveEntity extends Entity {
         tasks.addAll(tasks);
     }
     
+    /**
+     * Removes a Task. If that Task is the current Task, then the 
+     * current Task is set to "no task," and the Entity is marked not busy.
+     * @param oldTask 
+     */
+    public void removeTask(Task oldTask) {
+        tasks.remove(oldTask);
+        if(currentTask.equals(oldTask)) {
+            currentTask.setNoTask();
+        }
+        
+        super.setNotBusy();
+    }
+    
     public int getTaskTimer() {
         return taskTimer;
     }
@@ -75,10 +90,10 @@ public class ActiveEntity extends Entity {
      * Sets the taskTimer by looking up the duration of the current Task
      */
     public void setTaskTimerFromCurrentTask() {
-        taskTimer = tasks.get(currentTask).getDurationProp().get();
+        taskTimer = currentTask.getDuration();
     }
     
-    public int getCurrentTask() {
+    public Task getCurrentTask() {
         return currentTask;
     }
     
@@ -94,24 +109,54 @@ public class ActiveEntity extends Entity {
     public void setCurrentTask(int taskNumber) {
         if(taskNumber >= tasks.size() || taskNumber < 0) {return;}
         
-        currentTask = taskNumber;
+        currentTask = tasks.get(taskNumber);
         super.setBusy();
     }
     
-    @Override
-    public void setName(String name) {
-        super.name = name;
+    /**
+     * Sets the Entity's current Task and marks it as busy.
+     * If the provided Task is not in the Entity's List of Tasks,
+     * no changes are made.
+     * The Entity's taskTimer is NOT set by this method. 
+     * Calling setTaskTimerFromCurrentTask() afterwards is recommended.
+     * @param newTask the Task to use
+     */
+    public void setCurrentTask(Task newTask) {
+        if(!tasks.contains(newTask)) {
+            return;
+        }
+        
+        currentTask = newTask;
+        super.setBusy();
     }
+    
+    /**
+     * Sets the Entity's current Task and marks it as busy.
+     * If the provided Task is not in the Entity's List of Tasks,
+     * it is added to the List beforehand.
+     * The Entity's taskTimer is NOT set by this method. 
+     * Calling setTaskTimerFromCurrentTask() afterwards is recommended.
+     * @param newTask the Task to use
+     */
+    public void addAndSetCurrentTask(Task newTask) {
+        if(!tasks.contains(newTask)) {
+            tasks.add(newTask);
+        }
+        
+        currentTask = newTask;
+        super.setBusy();
+    }
+    
 
     /**
      * Mostly just tests right now
      * The taskTimer is decremented. If it reaches zero or less, it is set to 0, 
-     * currentTask is set to -1, and the Entity is marked not busy.
+     * currentTask is set to NoTask, and the Entity is marked not busy.
      * @param args 
      */
     @Override
     public void update(String[] args) {
-        if(currentTask == -1) {
+        if(currentTask.isNoTask()) {
             return;
         }
         
@@ -119,7 +164,7 @@ public class ActiveEntity extends Entity {
             System.out.println("UPADTE ID: " + super.getID() + " Name: " + 
                 super.getName() + " Active?: " +super.isActive() + 
                 " Location: " + getLocation() + " Current Task: " + 
-                tasks.get(currentTask).getNameProp() + " Remaining Duration: " + 
+                currentTask.getName() + " Remaining Duration: " + 
                 taskTimer);
             System.out.println();    
             
@@ -130,23 +175,13 @@ public class ActiveEntity extends Entity {
         
         System.out.println("ID: " + super.getID() + " Name: " + super.getName() + 
                 " Active?: " +super.isActive() + " Location: " + getLocation() +
-                " Task Complete: " + tasks.get(currentTask).getNameProp() + 
-                " Task Duration: " + tasks.get(currentTask).getDurationProp());
+                " Task Complete: " + currentTask.getName() + 
+                " Task Duration: " + currentTask.getDuration());
         System.out.println();
         
         taskTimer = 0;
-        currentTask = -1;      
+        currentTask.setNoTask();      
         super.setNotBusy();
-    }
-
-    @Override
-    public String getLocation() {
-        return super.location;
-    }
-
-    @Override
-    public void setLocation(String location) {
-        super.location = location;
     }
     
 }

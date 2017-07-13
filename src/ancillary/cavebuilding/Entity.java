@@ -5,6 +5,9 @@
  */
 package ancillary.cavebuilding;
 
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+
 /**
  *
  * @author Mike
@@ -19,37 +22,37 @@ public abstract class Entity {
     /**
      * The Entity's name, to be displayed to the player
      */
-    protected String name;
+    protected SimpleStringProperty name;
     
     /**
      * Whether the Entity can act
      */
-    protected final boolean active;
+    protected final SimpleBooleanProperty active;
     
     /**
      * Whether the Entity is busy
      */
-    protected boolean busy;
+    protected SimpleBooleanProperty busy;
     
     /**
      * The Entity's location
      */
-    protected String location;
+    protected SimpleStringProperty location;
     
     public Entity() {
-        id = "placeholder";
-        name = "blank";
-        active = false;
-        busy = false;
-        location = "nowhere";
+        this.id = "placeholder";
+        this.name = new SimpleStringProperty("blank");
+        this.active = new SimpleBooleanProperty(false);
+        this.busy = new SimpleBooleanProperty(false);
+        this.location = new SimpleStringProperty("nowhere");
     }
     
     public Entity(String id, String name, boolean active, String location) {
         this.id = id;
-        this.name = name;
-        this.active = active;
-        busy = false;
-        this.location = location;
+        this.name = new SimpleStringProperty(name);
+        this.active = new SimpleBooleanProperty(active);
+        busy = new SimpleBooleanProperty(false);
+        this.location = new SimpleStringProperty(location);
     }
     
     /**
@@ -63,7 +66,25 @@ public abstract class Entity {
      * @return the Entity's name as a String
      */
     public String getName() {
+        return name.get();
+    }
+    
+    /**
+     * @return the Entity's name SimpleStringProperty
+     */
+    public SimpleStringProperty getNameProp() {
         return name;
+    }
+    
+    public void setName(String newName) {
+        name.set(newName);
+    }
+    
+    /**
+     * @return the Entity's "active" SimpleBooleanProperty
+     */
+    public SimpleBooleanProperty getActiveProp() {
+        return active;
     }
     
     /**
@@ -71,7 +92,14 @@ public abstract class Entity {
      * @return true if the Entity is an active one
      */
     public boolean isActive() {
-        return active;
+        return active.get();
+    }
+    
+    /**
+     * @return the Entity's "busy" SimpleBooleanProperty
+     */
+    public SimpleBooleanProperty getBusyProp() {
+        return busy;
     }
     
     /**
@@ -79,26 +107,45 @@ public abstract class Entity {
      * @return true if the Entity is busy
      */
     public boolean isBusy() {
-        return busy;
+        return busy.get();
     }
     
     /**
      * Set the Entity's status to busy
      */
     public void setBusy() {
-        busy = true;
+        busy.set(true);
     }
     
     /**
      * Set the Entity's status to not busy.
      */
     public void setNotBusy() {
-        busy = false;
+        busy.set(false);
     }
     
-    public abstract void setName(String name);
+    /**
+     * @return the Entity's location as a String
+     */
+    public String getLocation() {
+        return location.get();
+    }
+    
+    /**
+     * Set the Entity's location to newLocation
+     * @param newLocation 
+     */
+    public void setLocation(String newLocation) {
+        location.set(newLocation);
+    }
+    
+    /**
+     * @return the Entity's "location" SimpleStringProperty
+     */
+    public SimpleStringProperty getLocationProp() {
+        return location;
+    }
+    
     public abstract void update(String[] args);
-    public abstract String getLocation();
-    public abstract void setLocation(String arg);
     
 }
