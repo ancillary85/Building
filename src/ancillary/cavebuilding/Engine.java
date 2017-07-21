@@ -5,6 +5,7 @@
  */
 package ancillary.cavebuilding;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,10 +13,14 @@ import java.util.List;
  * @author Mike
  */
 public abstract class Engine {
-    protected List<Room> rooms;    
-    
-    public abstract void action();
+
     public abstract void addRoom(Room r);
     public abstract List<Room> getRooms();
-    
+    public abstract void setRooms(List<Room> newRooms);
+    public abstract void removeRoom(Room r);
+    public abstract void addEntity(Entity e);
+    public abstract List<Entity> getEntities();
+    public abstract void setEntities(List<Entity> newEntities);
+    public abstract void removeEntity(Entity e);
+    public abstract void update();    
 }

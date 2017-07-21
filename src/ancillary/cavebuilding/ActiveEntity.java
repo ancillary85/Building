@@ -47,6 +47,14 @@ public class ActiveEntity extends Entity {
         this.taskCompleted = new SimpleBooleanProperty(false);
     }
     
+    public ActiveEntity(Entity e) {
+        super(e.id, e.name.get(), true, e.location.get());
+        this.tasks = new ArrayList<Task>(tasks);
+        this.taskTimer = 0;
+        this.currentTask = new Task();
+        this.taskCompleted = new SimpleBooleanProperty(false);
+    }
+    
     /**
      * Return an unmodifiable List of the Entity's tasks.
      * Attempts to modify it will get an UnsupportedOperationException
@@ -127,9 +135,7 @@ public class ActiveEntity extends Entity {
      * @param newTask the Task to use
      */
     public void setCurrentTask(Task newTask) {
-        if(!tasks.contains(newTask)) {
-            return;
-        }
+        if(!tasks.contains(newTask)) {return;}
         
         currentTask = newTask;
         super.setBusy();
@@ -177,35 +183,28 @@ public class ActiveEntity extends Entity {
     }
     
     /**
+     * Presently does nothing!
+     */
+    public void idle() {
+        
+    }
+    
+    /**
      * Mostly just tests right now
      * The taskTimer is decremented. If it reaches zero or less, it is set to 0, 
      * currentTask is set to NoTask, and the Entity is marked not busy.
      * @param args 
      */
     @Override
-    public void update(String[] args) {
+    public void entityUpdate(String[] args) {
         if(currentTask.isNoTask()) {
-            return;
+            idle();
         }
         
-        if(taskTimer > 0) {
-            System.out.println("UPADTE ID: " + super.getID() + " Name: " + 
-                super.getName() + " Active?: " +super.isActive() + 
-                " Location: " + getLocation() + " Current Task: " + 
-                currentTask.getName() + " Remaining Duration: " + 
-                taskTimer);
-            System.out.println();    
-            
+        if(taskTimer > 0) {            
             taskTimer--;
             return;
-        }
-        
-        
-        System.out.println("ID: " + super.getID() + " Name: " + super.getName() + 
-                " Active?: " +super.isActive() + " Location: " + getLocation() +
-                " Task Complete: " + currentTask.getName() + 
-                " Task Duration: " + currentTask.getDuration());
-        System.out.println();
+        }       
         
         completeTask();
     }

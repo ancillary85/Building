@@ -8,27 +8,25 @@ package ancillary.cavebuilding;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  *
  * @author Mike
  */
-public class CaveEngine extends Engine {
-       
-    private ArrayList<InactiveEntity> inactives;
-    private ArrayList<ActiveEntity> actives;
+public class AntHillEngine extends Engine{
+
+    private ArrayList<ActiveEntity> ants;
     private ArrayList<Room> rooms;
     
-    public CaveEngine(){
+    public AntHillEngine(){
         setUpEntities(null);
         setUpRooms(null);
     }
     
-    public CaveEngine(List<Room> initRooms, List<Entity> initEntities) {
+    public AntHillEngine(List<Room> initRooms, List<Entity> initEntities) {
         setUpEntities(initEntities);
         setUpRooms(initRooms);
     }
-    
+       
     @Override
     public void addRoom(Room r) {
         rooms.add(r);
@@ -52,73 +50,49 @@ public class CaveEngine extends Engine {
     @Override
     public void addEntity(Entity e) {
         if(e.isActive()) {
-            actives.add(new ActiveEntity(e));
-        }
-        else {
-            inactives.add(new InactiveEntity(e));
+            ants.add(new ActiveEntity(e));
         }
     }
 
     @Override
     public List<Entity> getEntities() {
-        ArrayList<Entity> entities = new ArrayList();
-        entities.addAll(actives);
-        entities.addAll(inactives);        
+        ArrayList<Entity> entities = new ArrayList(ants);       
         return entities;
     }
 
     @Override
     public void setEntities(List<Entity> newEntities) {
-        inactives = null;
-        actives = null;
+        ants = null;
         setUpEntities(newEntities);
     }
 
     @Override
     public void removeEntity(Entity e) {
         if(e.isActive()) {
-            actives.remove(e);
-        }
-        else {
-            inactives.remove(e);
+            ants.remove(e);
         }
     }
     
-    public void addActive(ActiveEntity a) {
-        actives.add(a);
+    public void addAnt(ActiveEntity a) {
+        ants.add(a);
     }  
 
-    public List<ActiveEntity> getActives() {
-        return actives;
+    public List<ActiveEntity> getAnts() {
+        return ants;
     }
 
-    public void setActives(List<ActiveEntity> newActives) {
-        actives = new ArrayList<ActiveEntity>(newActives);
+    public void setAnts(List<ActiveEntity> newActives) {
+        ants = new ArrayList<ActiveEntity>(newActives);
     }
     
-    public void removeActive(ActiveEntity a) {
-        actives.remove(a);
+    public void removeAnt(ActiveEntity a) {
+        ants.remove(a);
     }
     
-    public void addInactive(InactiveEntity i) {
-        inactives.add(i);
-    }
-    
-    public List<InactiveEntity> getInactives() {
-        return inactives;
-    }
-    
-    public void setInactives(List<InactiveEntity> newInactives) {
-        inactives = new ArrayList<InactiveEntity>(newInactives);
-    }
-            
-    public void removeInactive(InactiveEntity i) {
-        inactives.remove(i);
-    }
 
     @Override
     public void update() {
-        for(ActiveEntity a :actives) {
+        for(ActiveEntity a :ants) {
             a.entityUpdate(null);
         }
         
@@ -138,8 +112,7 @@ public class CaveEngine extends Engine {
     
     private void setUpEntities(List<Entity> initEntities) {
         if(initEntities == null) {
-            actives = new ArrayList<ActiveEntity>();
-            inactives = new ArrayList<InactiveEntity>();
+            ants = new ArrayList<ActiveEntity>();
         }
         else {
             for(Entity e : initEntities) {
@@ -147,7 +120,4 @@ public class CaveEngine extends Engine {
             }
         }
     }
-
- 
-
 }

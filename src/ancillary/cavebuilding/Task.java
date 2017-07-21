@@ -47,12 +47,12 @@ public class Task {
         if(initCosts == null) {
             costs = new SimpleStringProperty[1];
             costs[0] = new SimpleStringProperty("none");
-            return;
         }
-        
-        costs = new SimpleStringProperty[initCosts.length];
-        for(int i = 0; i < initCosts.length; i++) {
-            costs[i] = new SimpleStringProperty(initCosts[i]);
+        else {
+            costs = new SimpleStringProperty[initCosts.length];
+            for(int i = 0; i < initCosts.length; i++) {
+                costs[i] = new SimpleStringProperty(initCosts[i]);
+            }
         }
     }
     
@@ -60,12 +60,12 @@ public class Task {
         if(initRequirements == null) {
             requirements = new SimpleStringProperty[1];
             requirements[0] = new SimpleStringProperty("none");
-            return;
         }
-        
-        requirements = new SimpleStringProperty[initRequirements.length];
-        for(int i = 0; i < initRequirements.length; i++) {
-            requirements[i] = new SimpleStringProperty(initRequirements[i]);
+        else {
+            requirements = new SimpleStringProperty[initRequirements.length];
+            for(int i = 0; i < initRequirements.length; i++) {
+                requirements[i] = new SimpleStringProperty(initRequirements[i]);
+            }
         }
     }
     
@@ -73,22 +73,22 @@ public class Task {
         if(initResults == null) {
             results = new SimpleStringProperty[1];
             results[0] = new SimpleStringProperty("none");
-            return;
         }
-        
-        results = new SimpleStringProperty[initResults.length];
-        for(int i = 0; i < initResults.length; i++) {
-            results[i] = new SimpleStringProperty(initResults[i]);
+        else {
+            results = new SimpleStringProperty[initResults.length];
+            for(int i = 0; i < initResults.length; i++) {
+                results[i] = new SimpleStringProperty(initResults[i]);
+            }
         }
     }
     
     private void setUpFlavor(String initFlavor) {
         if(initFlavor == null) {
             flavor = new SimpleStringProperty("Idle");
-            return;
         }
-        
-        flavor = new SimpleStringProperty(initFlavor);
+        else {
+            flavor = new SimpleStringProperty(initFlavor);
+        }
     }
     
     public boolean isNoTask() {

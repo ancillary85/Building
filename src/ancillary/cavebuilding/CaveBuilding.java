@@ -141,7 +141,7 @@ public class CaveBuilding extends Application {
                     @Override
                     public void handle(ActionEvent e) {
                         
-                        motor.action();
+                        motor.update();
                     }
                 });
                 
@@ -153,7 +153,6 @@ public class CaveBuilding extends Application {
 
     private void getEngine(Stage primaryStage) {
         //motor = new CaveEngine(primaryStage); 
-        motor = new testEngine(primaryStage);
     }
     
     private void getOccupants(Stage primaryStage) {
@@ -188,19 +187,19 @@ public class CaveBuilding extends Application {
         ants.get(3).setTaskTimerFromCurrentTask();
         
         for(int i = 0; i < ants.size(); i++) {
-            ants.get(i).update(null);
+            ants.get(i).entityUpdate(null);
         }
         System.out.println("NEW TIME STEP");
         for(int i = 0; i < ants.size(); i++) {
-            ants.get(i).update(null);
+            ants.get(i).entityUpdate(null);
         }
         System.out.println("NEW TIME STEP");
         for(int i = 0; i < ants.size(); i++) {
-            ants.get(i).update(null);
+            ants.get(i).entityUpdate(null);
         }
         System.out.println("NEW TIME STEP");
         for(int i = 0; i < ants.size(); i++) {
-            ants.get(i).update(null);
+            ants.get(i).entityUpdate(null);
         }
         
     }

@@ -146,6 +146,6 @@ public abstract class Entity {
         return location;
     }
     
-    public abstract void update(String[] args);
+    public abstract void entityUpdate(String[] args);
     
 }
