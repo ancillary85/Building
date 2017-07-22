@@ -14,8 +14,6 @@ import java.util.List;
  */
 public class AntHillEngine extends Engine{
 
-    private enum Ant {EGG, LARVA, PUPA, WORKER, SOLDIER, DRONE, QUEEN}
-    
     private ArrayList<ActiveEntity> ants;
     private ArrayList<Room> rooms;
     
@@ -51,7 +49,7 @@ public class AntHillEngine extends Engine{
     
     @Override
     public void addEntity(Entity e) {
-        if(e.isActive()) {
+        if(e.isActive() && validateAnt(e)) {
             ants.add(new ActiveEntity(e));
         }
     }
@@ -70,34 +68,25 @@ public class AntHillEngine extends Engine{
 
     @Override
     public void removeEntity(Entity e) {
-        if(e.isActive()) {
-            ants.remove(e);
-        }
+        ants.remove(e);
     }
     
-    public void addAnt(ActiveEntity a) {
-        ants.add(a);
-    }  
-
     public List<ActiveEntity> getAnts() {
         return ants;
     }
-
-    public void setAnts(List<ActiveEntity> newActives) {
-        ants = new ArrayList<ActiveEntity>(newActives);
-    }
-    
-    public void removeAnt(ActiveEntity a) {
-        ants.remove(a);
-    }
     
     /**
-     * Takes an ActiveEntity and attempts to confirm that it is an ant by checking its name and traits.
-     * @param a The ActiveEntity to be validated
-     * @return A new ActiveEntity, 
+     * Takes an Entity and attempts to confirm that it is an ant by checking its id.
+     * @param a The Entity to be validated
+     * @return true if we have an ant, false otherwise
      */
-    public ActiveEntity validateAnt(ActiveEntity a) {
-        return null;
+    public boolean validateAnt(Entity a) {
+        if(a.getID().equalsIgnoreCase("ant") || a.getID().startsWith("ant ") || a.getID().endsWith(" ant")) {
+            if(a.isActive() && a instanceof ActiveEntity) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -109,6 +98,16 @@ public class AntHillEngine extends Engine{
         for(Room r : rooms) {
             // CURRENTLY NOTHING!
         }
+    }
+    
+    public String antToString(Entity e) {
+        if(!validateAnt(e)) {
+            return e.getName() + " is not an ant";
+        }
+        
+        String s = new String(e.getName());
+        
+        return s;
     }
     
     private void setUpRooms(List<Room> initRooms) {
