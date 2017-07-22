@@ -14,6 +14,8 @@ import java.util.List;
  */
 public class AntHillEngine extends Engine{
 
+    private enum Ant {EGG, LARVA, PUPA, WORKER, SOLDIER, DRONE, QUEEN}
+    
     private ArrayList<ActiveEntity> ants;
     private ArrayList<Room> rooms;
     
@@ -89,6 +91,14 @@ public class AntHillEngine extends Engine{
         ants.remove(a);
     }
     
+    /**
+     * Takes an ActiveEntity and attempts to confirm that it is an ant by checking its name and traits.
+     * @param a The ActiveEntity to be validated
+     * @return A new ActiveEntity, 
+     */
+    public ActiveEntity validateAnt(ActiveEntity a) {
+        return null;
+    }
 
     @Override
     public void update() {

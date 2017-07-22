@@ -13,8 +13,8 @@ import javafx.beans.property.SimpleStringProperty;
  * @author Mike
  */
 public abstract class Entity {
-    
-    /**
+
+ /**
      * The Entity's id
      */
     protected String id;
@@ -38,6 +38,11 @@ public abstract class Entity {
      * The Entity's location
      */
     protected SimpleStringProperty location;
+    
+    /**
+     * The Entity's traits
+     */
+    private SimpleStringProperty traits;
     
     public Entity() {
         this.id = "placeholder";
@@ -144,6 +149,27 @@ public abstract class Entity {
      */
     public SimpleStringProperty getLocationProp() {
         return location;
+    }
+    
+    /**
+     * @return the traits as a String
+     */
+    public String getTraits() {
+        return traits.get();
+    }
+
+    /**
+     * @return the Entity's "trait" SimpleStringProperty
+     */
+    public SimpleStringProperty getTraitsProp() {
+        return traits;
+    }
+    
+    /**
+     * @param traits the traits to set
+     */
+    public void setTraits(SimpleStringProperty traits) {
+        this.traits = traits;
     }
     
     public abstract void entityUpdate(String[] args);
