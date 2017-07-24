@@ -3,8 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ancillary.cavebuilding;
+package ants;
 
+import ancillary.cavebuilding.ActiveEntity;
+import ancillary.cavebuilding.Engine;
+import ancillary.cavebuilding.Entity;
+import ancillary.cavebuilding.Room;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,8 +84,8 @@ public class AntHillEngine extends Engine{
      * @param a The Entity to be validated
      * @return true if we have an ant, false otherwise
      */
-    public boolean validateAnt(Entity a) {
-        if(a.getID().equalsIgnoreCase("ant") || a.getID().startsWith("ant ") || a.getID().endsWith(" ant")) {
+    public static boolean validateAnt(Entity a) {
+        if(a.getID().equals("ant") || a.getID().startsWith("ant ") || a.getID().endsWith(" ant")) {
             if(a.isActive() && a instanceof ActiveEntity) {
                 return true;
             }
