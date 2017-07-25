@@ -16,6 +16,14 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class Task {
 
+    public final static String RESOURCE = "r";
+    public final static String PERSONAL_RESOURCE = "pr";
+    public final static String OTHER_ENTITY_RESOURCE = "oer";
+    public final static String ENTITY = "e";
+    public final static String STATUS = "s";
+    public final static String OTHER_ENTITY_STATUS = "oes";
+    public final static String SELF = "self";
+    
     private SimpleStringProperty name;
     private SimpleIntegerProperty duration;
     private SimpleStringProperty[] costs;
@@ -41,6 +49,15 @@ public class Task {
          setUpRequirements(initRequirements);
          setUpResults(initResults);        
          setUpFlavor(initFlavor);        
+    }
+    
+    public Task(Task t) {
+        name = new SimpleStringProperty(t.getName());
+        duration = new SimpleIntegerProperty(t.getDuration());
+        setUpCosts(t.getCosts());
+        setUpRequirements(t.getRequirements());
+        setUpResults(t.getResults());
+        setUpFlavor(t.getFlavor());
     }
     
     private void setUpCosts(String[] initCosts) {
@@ -292,10 +309,17 @@ public class Task {
     }
 
     /**
-     * @return the flavor
+     * @return the flavor property
      */
     public SimpleStringProperty getFlavorProp() {
         return flavor;
+    }
+    
+    /**
+     * @return the flavor as a String
+     */
+    public String getFlavor() {
+        return flavor.get();
     }
 
     /**
