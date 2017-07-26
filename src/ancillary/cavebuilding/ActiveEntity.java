@@ -39,9 +39,12 @@ public class ActiveEntity extends Entity {
      * @param location
      * @param tasks 
      */
-    public ActiveEntity(String id, String name, String location, List<Task> tasks) {
+    public ActiveEntity(String id, String name, String location, List<Task> newTasks) {
         super(id, name, true, location);
-        this.tasks = new ArrayList<Task>(tasks);
+        
+        if(newTasks == null)    {this.tasks = new ArrayList<Task>();}
+        else    {this.tasks = new ArrayList<Task>(newTasks);}
+        
         this.taskTimer = 0;
         this.currentTask = new Task();
         this.taskCompleted = new SimpleBooleanProperty(false);
@@ -65,15 +68,32 @@ public class ActiveEntity extends Entity {
     }
     
     public void setTasks(List<Task> newTasks) {
-        tasks = new ArrayList<Task>(newTasks);
+        if(newTasks == null) {
+            tasks = new ArrayList<Task>();
+        }
+        else {
+            tasks = new ArrayList<Task>(newTasks);
+        }
     }
     
     public void addTask(Task newTask){
-        tasks.add(newTask);
+        if(newTask == null) {
+            tasks.add(new Task());
+        }
+        else {
+            tasks.add(new Task(newTask));
+        }
     }
     
     public void addTasks(List<Task> newTasks) {
-        tasks.addAll(tasks);
+        if(newTasks == null) {
+            addTask(null);
+        }
+        else {
+            for(Task t : newTasks) {
+                addTask(t);
+            }
+        }
     }
     
     /**

@@ -68,7 +68,7 @@ public class Task {
         else {
             costs = new SimpleStringProperty[initCosts.length];
             for(int i = 0; i < initCosts.length; i++) {
-                costs[i] = new SimpleStringProperty(initCosts[i]);
+                costs[i] = new SimpleStringProperty(new String(initCosts[i]));
             }
         }
     }
@@ -81,7 +81,7 @@ public class Task {
         else {
             requirements = new SimpleStringProperty[initRequirements.length];
             for(int i = 0; i < initRequirements.length; i++) {
-                requirements[i] = new SimpleStringProperty(initRequirements[i]);
+                requirements[i] = new SimpleStringProperty(new String(initRequirements[i]));
             }
         }
     }
@@ -94,7 +94,7 @@ public class Task {
         else {
             results = new SimpleStringProperty[initResults.length];
             for(int i = 0; i < initResults.length; i++) {
-                results[i] = new SimpleStringProperty(initResults[i]);
+                results[i] = new SimpleStringProperty(new String(initResults[i]));
             }
         }
     }
@@ -104,7 +104,7 @@ public class Task {
             flavor = new SimpleStringProperty("Idle");
         }
         else {
-            flavor = new SimpleStringProperty(initFlavor);
+            flavor = new SimpleStringProperty(new String(initFlavor));
         }
     }
     
