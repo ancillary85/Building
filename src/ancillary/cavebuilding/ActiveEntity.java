@@ -105,9 +105,8 @@ public class ActiveEntity extends Entity {
         tasks.remove(oldTask);
         if(currentTask.equals(oldTask)) {
             currentTask.setNoTask();
-        }
-        
-        super.setNotBusy();
+            super.setNotBusy();
+        }       
     }
     
     public int getTaskTimer() {
@@ -148,14 +147,15 @@ public class ActiveEntity extends Entity {
     
     /**
      * Sets the Entity's current Task, marks it as busy, and taskCompleted to false.
-     * If the provided Task is not in the Entity's List of Tasks, no changes are made.
+     * If the provided Task is null or is not in the Entity's List of Tasks, no changes are made.
      * 
      * The Entity's taskTimer is NOT set by this method. 
      * Calling setTaskTimerFromCurrentTask() afterwards is recommended.
      * @param newTask the Task to use
      */
     public void setCurrentTask(Task newTask) {
-        if(!tasks.contains(newTask)) {return;}
+        
+        if(newTask == null || !tasks.contains(newTask)) {return;}
         
         currentTask = newTask;
         super.setBusy();
@@ -165,15 +165,15 @@ public class ActiveEntity extends Entity {
     /**
      * Sets the Entity's current Task, marks it as busy, and taskCompleted to false.
      * If the provided Task is not in the Entity's List of Tasks, it is added to the List beforehand.
+     * If the provided Task is null, no changes are made.
      * 
      * The Entity's taskTimer is NOT set by this method. 
      * Calling setTaskTimerFromCurrentTask() afterwards is recommended.
      * @param newTask the Task to use
      */
     public void addAndSetCurrentTask(Task newTask) {
-        if(!tasks.contains(newTask)) {
-            tasks.add(newTask);
-        }
+        if(newTask == null) {return;}
+        if(!tasks.contains(newTask)) {tasks.add(newTask);}
         
         currentTask = newTask;
         super.setBusy();

@@ -156,12 +156,12 @@ public class Task {
         if(!(t instanceof Task)) {return false;} //is it a Task?
         
         Task temp = (Task) t;
-        if(!name.equals(temp.getNameProp())) {return false;} //same name?
-        if(!duration.equals(temp.getDurationProp())) {return false;} //same duration?
-        if(!Arrays.deepEquals(costs, temp.getCostsProp())) {return false;} //same costs?
-        if(!Arrays.deepEquals(requirements, temp.getRequirementsProp())) {return false;} //same requirements?
-        if(!Arrays.deepEquals(results, temp.getResultsProp())) {return false;} //same results?
-        return this.getFlavorProp().equals(temp.getFlavorProp()); //same flavor?
+        if(!this.getName().equals(temp.getName())) {return false;} //same name?
+        if(this.getDuration() != temp.getDuration()) {return false;} //same duration?
+        if(!Arrays.deepEquals(this.getCosts(), temp.getCosts())) {return false;} //same costs?
+        if(!Arrays.deepEquals(this.getRequirements(), temp.getRequirements())) {return false;} //same requirements?
+        if(!Arrays.deepEquals(this.getResults(), temp.getResults())) {return false;} //same results?
+        return this.getFlavor().equals(temp.getFlavor()); //same flavor?
     }
 
     @Override
