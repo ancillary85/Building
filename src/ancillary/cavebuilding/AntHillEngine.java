@@ -5,30 +5,34 @@
  */
 package ancillary.cavebuilding;
 
+import ancillary.cavebuilding.AntBuilder;
+import ancillary.cavebuilding.ActiveEntity;
+import ancillary.cavebuilding.Engine;
+import ancillary.cavebuilding.Entity;
+import ancillary.cavebuilding.InactiveEntity;
+import ancillary.cavebuilding.Room;
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  *
  * @author Mike
  */
-public class CaveEngine extends Engine {
-       
-    private ArrayList<InactiveEntity> inactives;
-    private ArrayList<ActiveEntity> actives;
+public class AntHillEngine extends Engine{
+
+    private ArrayList<ActiveEntity> ants;
     private ArrayList<Room> rooms;
     
-    public CaveEngine(){
-        setUpEntities(null);
+    public AntHillEngine(){
+        setUpActiveEntities(null);
         setUpRooms(null);
     }
     
-    public CaveEngine(List<Room> initRooms, List<ActiveEntity> initEntities) {
-        setUpEntities(initEntities);
+    public AntHillEngine(List<Room> initRooms, List<ActiveEntity> initEntities) {
         setUpRooms(initRooms);
+        setUpActiveEntities(initEntities);
     }
-    
+       
     @Override
     public void addRoom(Room r) {
         rooms.add(r);
@@ -49,47 +53,45 @@ public class CaveEngine extends Engine {
         rooms = new ArrayList<Room>(newRooms);
     }
     
-    public void addActive(ActiveEntity a) {
-        actives.add(a);
-    }  
-
-    public List<ActiveEntity> getActives() {
-        return actives;
-    }
-
-    public void setActives(List<ActiveEntity> newActives) {
-        actives = new ArrayList<ActiveEntity>(newActives);
+    public List<ActiveEntity> getAnts() {
+        return ants;
     }
     
-    public void removeActive(ActiveEntity a) {
-        actives.remove(a);
-    }
-    
-    public void addInactive(InactiveEntity i) {
-        inactives.add(i);
-    }
-    
-    public List<InactiveEntity> getInactives() {
-        return inactives;
-    }
-    
-    public void setInactives(List<InactiveEntity> newInactives) {
-        inactives = new ArrayList<InactiveEntity>(newInactives);
-    }
-            
-    public void removeInactive(InactiveEntity i) {
-        inactives.remove(i);
+    /**
+     * Takes an Entity and attempts to confirm that it is an ant by checking its id.
+     * @param a The Entity to be validated
+     * @return true if we have an ant, false otherwise
+     */
+    public static boolean validateAnt(ActiveEntity a) {
+        if(a.getID().equals(AntBuilder.ANT) 
+                || a.getID().startsWith(AntBuilder.ANT + " ") 
+                || a.getID().endsWith(" " + AntBuilder.ANT)) {
+            if(a.isActive()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public void update() {
-        for(ActiveEntity a :actives) {
+        for(ActiveEntity a :ants) {
             a.entityUpdate(null);
         }
         
         for(Room r : rooms) {
             // CURRENTLY NOTHING!
         }
+    }
+    
+    public String antToString(ActiveEntity e) {
+        if(!validateAnt(e)) {
+            return e.getName() + " is not an ant";
+        }
+        
+        String s = e.getName();
+        
+        return s;
     }
     
     private void setUpRooms(List<Room> initRooms) {
@@ -101,12 +103,12 @@ public class CaveEngine extends Engine {
         }
     }
     
-    private void setUpEntities(List<ActiveEntity> initEntities) {
+    private void setUpActiveEntities(List<ActiveEntity> initEntities) {
         if(initEntities == null) {
-            actives = new ArrayList<ActiveEntity>();
-            inactives = new ArrayList<InactiveEntity>();
+            ants = new ArrayList<ActiveEntity>();
         }
         else {
+            ants = new ArrayList<ActiveEntity>();
             for(ActiveEntity e : initEntities) {
                 addActiveEntity(e);
             }
@@ -115,7 +117,7 @@ public class CaveEngine extends Engine {
 
     @Override
     public void addActiveEntity(ActiveEntity e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ants.add(e);
     }
 
     @Override
@@ -125,7 +127,7 @@ public class CaveEngine extends Engine {
 
     @Override
     public List<ActiveEntity> getActiveEntities() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return ants;
     }
 
     @Override
@@ -135,7 +137,7 @@ public class CaveEngine extends Engine {
 
     @Override
     public void setActiveEntities(List<ActiveEntity> newEntities) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ants = new ArrayList(newEntities);
     }
 
     @Override
@@ -145,14 +147,11 @@ public class CaveEngine extends Engine {
 
     @Override
     public void removeActiveEntity(ActiveEntity e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ants.remove(e);
     }
 
     @Override
     public void removeInactiveEntity(InactiveEntity e) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
- 
-
 }

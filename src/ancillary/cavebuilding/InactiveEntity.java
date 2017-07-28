@@ -19,7 +19,6 @@ public class InactiveEntity extends Entity {
         super(e.id, e.name.get(), false, e.location.get());
     }
     
-    @Override
     public void entityUpdate(String[] args) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

@@ -12,7 +12,7 @@ import javafx.beans.property.SimpleStringProperty;
  *
  * @author Mike
  */
-public abstract class Entity {
+public class Entity {
 
  /**
      * The Entity's id
@@ -58,6 +58,23 @@ public abstract class Entity {
         this.active = new SimpleBooleanProperty(active);
         this.busy = new SimpleBooleanProperty(false);
         this.location = new SimpleStringProperty(location);
+    }
+    
+    public Entity(Entity e) {
+        if(e == null) {
+            this.id = "placeholder";
+            this.name = new SimpleStringProperty("blank");
+            this.active = new SimpleBooleanProperty(false);
+            this.busy = new SimpleBooleanProperty(false);
+            this.location = new SimpleStringProperty("nowhere");
+        }
+        else {
+            this.id = e.getID();
+            this.name = new SimpleStringProperty(e.getName());
+            this.active = new SimpleBooleanProperty(e.isActive());
+            this.busy = new SimpleBooleanProperty(false);
+            this.location = new SimpleStringProperty(e.getLocation());
+        }
     }
     
     /**
@@ -170,8 +187,5 @@ public abstract class Entity {
      */
     public void setTraits(SimpleStringProperty traits) {
         this.traits = traits;
-    }
-    
-    public abstract void entityUpdate(String[] args);
-    
+    }    
 }

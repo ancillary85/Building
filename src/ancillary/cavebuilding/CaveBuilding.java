@@ -172,10 +172,10 @@ public class CaveBuilding extends Application {
         tasks.add(forage);
         tasks.add(fight);
         
-        ants.add(new ActiveEntity("worker", "Worker 1", "Hill", tasks));
-        ants.add(new ActiveEntity("worker", "Worker 2", "Burrow", tasks));
-        ants.add(new ActiveEntity("worker", "Worker 3", "Hill", tasks));
-        ants.add(new ActiveEntity("worker", "Worker 4", "Outside", tasks));
+        ants.add(new ActiveEntity("worker", "Worker 1", "Hill", tasks, null));
+        ants.add(new ActiveEntity("worker", "Worker 2", "Burrow", tasks, null));
+        ants.add(new ActiveEntity("worker", "Worker 3", "Hill", tasks, null));
+        ants.add(new ActiveEntity("worker", "Worker 4", "Outside", tasks, null));
         
         ants.get(0).setCurrentTask(0);
         ants.get(0).setTaskTimerFromCurrentTask();
