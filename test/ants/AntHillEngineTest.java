@@ -5,6 +5,7 @@
  */
 package ants;
 
+import ancillary.cavebuilding.AntHillEngine;
 import ancillary.cavebuilding.ActiveEntity;
 import ancillary.cavebuilding.Entity;
 import ancillary.cavebuilding.Room;
@@ -95,14 +96,13 @@ public class AntHillEngineTest {
     }
 
     /**
-     * Test of addEntity method, of class AntHillEngine.
+     * Test of addActiveEntity method, of class AntHillEngine.
      */
     @Test
-    public void testAddEntity() {
-        System.out.println("addEntity");
-        Entity e = null;
+    public void testAddActiveEntity() {
+        ActiveEntity e = null;
         AntHillEngine instance = new AntHillEngine();
-        instance.addEntity(e);
+        instance.addActiveEntity(e);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
@@ -111,11 +111,10 @@ public class AntHillEngineTest {
      * Test of getEntities method, of class AntHillEngine.
      */
     @Test
-    public void testGetEntities() {
-        System.out.println("getEntities");
+    public void testGetActiveEntities() {
         AntHillEngine instance = new AntHillEngine();
-        List<Entity> expResult = null;
-        List<Entity> result = instance.getEntities();
+        List<ActiveEntity> expResult = null;
+        List<ActiveEntity> result = instance.getActiveEntities();
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
@@ -125,11 +124,11 @@ public class AntHillEngineTest {
      * Test of setEntities method, of class AntHillEngine.
      */
     @Test
-    public void testSetEntities() {
+    public void testSetActiveEntities() {
         System.out.println("setEntities");
-        List<Entity> newEntities = null;
+        List<ActiveEntity> newEntities = null;
         AntHillEngine instance = new AntHillEngine();
-        instance.setEntities(newEntities);
+        instance.setActiveEntities(newEntities);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
@@ -138,11 +137,11 @@ public class AntHillEngineTest {
      * Test of removeEntity method, of class AntHillEngine.
      */
     @Test
-    public void testRemoveEntity() {
+    public void testRemoveActiveEntity() {
         System.out.println("removeEntity");
-        Entity e = null;
+        ActiveEntity e = null;
         AntHillEngine instance = new AntHillEngine();
-        instance.removeEntity(e);
+        instance.removeActiveEntity(e);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
@@ -167,7 +166,7 @@ public class AntHillEngineTest {
     @Test
     public void testValidateAnt() {
         System.out.println("validateAnt");
-        Entity a = null;
+        ActiveEntity a = null;
         boolean expResult = false;
         boolean result = AntHillEngine.validateAnt(a);
         assertEquals(expResult, result);
@@ -193,7 +192,7 @@ public class AntHillEngineTest {
     @Test
     public void testAntToString() {
         System.out.println("antToString");
-        Entity e = null;
+        ActiveEntity e = null;
         AntHillEngine instance = new AntHillEngine();
         String expResult = "";
         String result = instance.antToString(e);

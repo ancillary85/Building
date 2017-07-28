@@ -7,7 +7,6 @@ package ancillary.cavebuilding;
 
 import java.util.ArrayList;
 import java.util.List;
-import javafx.beans.property.SimpleBooleanProperty;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -63,7 +62,7 @@ public class ActiveEntityTest {
         ArrayList<Task> testTasks = new ArrayList();
         testTasks.add(t);
         testTasks.add(DIG);
-        ActiveEntity instance = new ActiveEntity("test", "Tester", "nowhere", testTasks);
+        ActiveEntity instance = new ActiveEntity("test", "Tester", "nowhere", testTasks, null);
         List<Task> expResult = new ArrayList();
         expResult.add(t);
         expResult.add(DIG);
@@ -82,7 +81,7 @@ public class ActiveEntityTest {
          ArrayList<Task> testTasks = new ArrayList();
          testTasks.add(t);
          testTasks.add(DIG);
-         ActiveEntity instance = new ActiveEntity("test", "Tester", "nowhere", testTasks);
+         ActiveEntity instance = new ActiveEntity("test", "Tester", "nowhere", testTasks, null);
          instance.getTasks().add(new Task());
     }
     
@@ -120,7 +119,7 @@ public class ActiveEntityTest {
          ArrayList<Task> testTasks = new ArrayList();
          testTasks.add(t);
          testTasks.add(DIG);
-         ActiveEntity instance = new ActiveEntity("test", "Tester", "nowhere", testTasks);
+         ActiveEntity instance = new ActiveEntity("test", "Tester", "nowhere", testTasks, null);
          instance.setTasks(newTasks);
         assertTrue(instance.getTasks().isEmpty());
     }
@@ -154,7 +153,7 @@ public class ActiveEntityTest {
          ArrayList<Task> testTasks = new ArrayList();
          testTasks.add(t);
          testTasks.add(DIG);
-         ActiveEntity instance = new ActiveEntity("test", "Tester", "nowhere", testTasks);
+         ActiveEntity instance = new ActiveEntity("test", "Tester", "nowhere", testTasks, null);
          instance.setTasks(testTasks);
         assertTrue(instance.getTasks().size() == 2);
         assertTrue(instance.getTasks().get(0).getName().equals("no task"));
@@ -365,14 +364,14 @@ public class ActiveEntityTest {
         assertFalse(instance.isBusy());
         
         ArrayList<Task> testTasks = new ArrayList();
-        instance = new ActiveEntity("test", "Tester", null, testTasks);
+        instance = new ActiveEntity("test", "Tester", null, testTasks, null);
         instance.setCurrentTask(0);
         assertTrue(instance.getTasks().isEmpty());
         assertFalse(instance.isBusy());
         
         testTasks.add(new Task());
         testTasks.add(new Task("Dig", 1, null, null, null, "Expand the colony"));
-        instance = new ActiveEntity("test", "Tester", null, testTasks);
+        instance = new ActiveEntity("test", "Tester", null, testTasks, null);
         instance.setCurrentTask(0);
         assertFalse(instance.getTasks().isEmpty());
         assertTrue(instance.isBusy());
@@ -402,7 +401,7 @@ public class ActiveEntityTest {
         ArrayList<Task> testTasks = new ArrayList();
         testTasks.add(new Task());
         testTasks.add(new Task("Dig", 1, null, null, null, "Expand the colony"));
-        instance = new ActiveEntity("test", "Tester", null, testTasks);
+        instance = new ActiveEntity("test", "Tester", null, testTasks, null);
         
         instance.setCurrentTask(newTask);
         assertFalse(instance.isBusy());
@@ -458,7 +457,7 @@ public class ActiveEntityTest {
         ArrayList<Task> testTasks = new ArrayList();
         testTasks.add(new Task());
         testTasks.add(new Task("Dig", 1, null, null, null, "Expand the colony"));
-        instance = new ActiveEntity("test", "Tester", null, testTasks);
+        instance = new ActiveEntity("test", "Tester", null, testTasks, null);
         assertFalse(instance.getTaskCompleted());
         instance.setCurrentTask(1);
         assertFalse(instance.getTaskCompleted());

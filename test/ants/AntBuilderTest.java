@@ -5,6 +5,7 @@
  */
 package ants;
 
+import ancillary.cavebuilding.AntBuilder;
 import ancillary.cavebuilding.ActiveEntity;
 import org.junit.After;
 import org.junit.AfterClass;
