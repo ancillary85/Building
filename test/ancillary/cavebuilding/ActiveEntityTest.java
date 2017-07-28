@@ -193,7 +193,7 @@ public class ActiveEntityTest {
         assertTrue(instance.getTasks().get(1).getDuration() == 0);
         newTask = new Task("Dig", 1, null, null, new String[]{"+1 " + Task.RESOURCE +  " space"}, "Expand the colony");
         assertTrue(instance.getTasks().get(0).getDuration() == 0);
-        assertTrue(instance.getTasks().size() == 1);
+        assertTrue(instance.getTasks().size() == 2);
     }
 
     /**
@@ -211,8 +211,14 @@ public class ActiveEntityTest {
         newTasks.add(new Task());
         assertTrue(instance.getTasks().get(0).getDuration() == 0);
         assertTrue(instance.getTasks().size() == 1);
+        instance.addTasks(newTasks);
         assertTrue(instance.getTasks().get(1).getDuration() == 0);
         assertTrue(instance.getTasks().size() == 2);
+        
+        newTasks.add(new Task());
+        instance.addTasks(newTasks);
+        assertTrue(instance.getTasks().get(3).getDuration() == 0);
+        assertTrue(instance.getTasks().size() == 4);
     }
 
     /**
@@ -447,36 +453,31 @@ public class ActiveEntityTest {
     @Test
     public void testGetTaskCompleted() {
         ActiveEntity instance = new ActiveEntity();
-        boolean expResult = false;
-        boolean result = instance.getTaskCompleted();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertFalse(instance.getTaskCompleted());
+        
+        ArrayList<Task> testTasks = new ArrayList();
+        testTasks.add(new Task());
+        testTasks.add(new Task("Dig", 1, null, null, null, "Expand the colony"));
+        instance = new ActiveEntity("test", "Tester", null, testTasks);
+        assertFalse(instance.getTaskCompleted());
+        instance.setCurrentTask(1);
+        assertFalse(instance.getTaskCompleted());
+        instance.completeTask();
+        assertTrue(instance.getTaskCompleted());
     }
 
-    /**
-     * Test of getTaskCompletedProp method, of class ActiveEntity.
-     */
-    @Test
-    public void testGetTaskCompletedProp() {
-        ActiveEntity instance = new ActiveEntity();
-        SimpleBooleanProperty expResult = null;
-        SimpleBooleanProperty result = instance.getTaskCompletedProp();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
 
     /**
      * Test of setTaskCompleted method, of class ActiveEntity.
      */
     @Test
     public void testSetTaskCompleted() {
-        boolean taskStatus = false;
         ActiveEntity instance = new ActiveEntity();
-        instance.setTaskCompleted(taskStatus);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertFalse(instance.getTaskCompleted());
+        instance.setTaskCompleted(false);
+        assertFalse(instance.getTaskCompleted());
+        instance.setTaskCompleted(true);
+        assertTrue(instance.getTaskCompleted());
     }
 
     /**
@@ -486,8 +487,7 @@ public class ActiveEntityTest {
     public void testIdle() {
         ActiveEntity instance = new ActiveEntity();
         instance.idle();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        //Expecting nothing!
     }
 
     /**
@@ -495,11 +495,28 @@ public class ActiveEntityTest {
      */
     @Test
     public void testEntityUpdate() {
-        String[] args = null;
         ActiveEntity instance = new ActiveEntity();
-        instance.entityUpdate(args);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertTrue(instance.getTaskTimer() == 0);
+        instance.entityUpdate(null);
+        assertTrue(instance.getTaskTimer() == 0);
+        
+        instance.addAndSetCurrentTask(new Task("Dig", 2, null, null, null, "Expand the colony"));
+        instance.setTaskTimerFromCurrentTask();
+        assertFalse(instance.getTaskCompleted());
+        assertTrue(instance.getTaskTimer() == 2);
+        assertTrue(instance.getCurrentTask().getName().equals("Dig"));
+        instance.entityUpdate(null);
+        assertFalse(instance.getTaskCompleted());
+        assertTrue(instance.getTaskTimer() == 1);
+        assertTrue(instance.getCurrentTask().getName().equals("Dig"));
+        instance.entityUpdate(null);
+        assertFalse(instance.getTaskCompleted());
+        assertTrue(instance.getTaskTimer() == 0);
+        assertTrue(instance.getCurrentTask().getName().equals("Dig"));
+        instance.entityUpdate(null);
+        assertTrue(instance.getTaskCompleted());
+        assertTrue(instance.getTaskTimer() == 0);
+        assertTrue(instance.getCurrentTask().getName().equals("no task"));
     }
 
     /**
@@ -508,9 +525,11 @@ public class ActiveEntityTest {
     @Test
     public void testCompleteTask() {
         ActiveEntity instance = new ActiveEntity();
+        assertFalse(instance.getTaskCompleted());
         instance.completeTask();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertTrue(instance.getTaskCompleted());
+        instance.completeTask();
+        assertTrue(instance.getTaskCompleted());
     }
 
     /**
@@ -519,9 +538,39 @@ public class ActiveEntityTest {
     @Test
     public void testCancelTask() {
         ActiveEntity instance = new ActiveEntity();
+        assertTrue(instance.getCurrentTask().getDuration() == 0);
+        assertTrue(instance.getCurrentTask().isNoTask());
+        assertFalse(instance.isBusy());
+        assertFalse(instance.getTaskCompleted());
+ 
         instance.cancelTask();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertTrue(instance.getCurrentTask().getDuration() == 0);
+        assertTrue(instance.getCurrentTask().isNoTask());
+        assertFalse(instance.isBusy());
+        assertFalse(instance.getTaskCompleted());
+        
+        instance.addAndSetCurrentTask(new Task());
+        assertTrue(instance.getCurrentTask().isNoTask());
+        assertTrue(instance.isBusy());
+        assertFalse(instance.getTaskCompleted());
+        
+        instance.cancelTask();
+        assertTrue(instance.getCurrentTask().getDuration() == 0);
+        assertTrue(instance.getCurrentTask().isNoTask());
+        assertFalse(instance.isBusy());
+        assertFalse(instance.getTaskCompleted());
+        
+        instance.addAndSetCurrentTask(new Task("Dig", 1, null, null, null, "Expand the colony"));
+        assertTrue(instance.getCurrentTask().getDuration() == 1);
+        assertFalse(instance.getCurrentTask().isNoTask());
+        assertTrue(instance.isBusy());
+        assertFalse(instance.getTaskCompleted());
+        
+        instance.cancelTask();
+        assertTrue(instance.getCurrentTask().getDuration() == 0);
+        assertTrue(instance.getCurrentTask().isNoTask());
+        assertFalse(instance.isBusy());
+        assertFalse(instance.getTaskCompleted());
     }
     
 }
