@@ -219,6 +219,7 @@ public class ActiveEntity extends Entity {
     public void entityUpdate(String[] args) {
         if(currentTask.isNoTask()) {
             idle();
+            return;
         }
         
         if(taskTimer > 0) {            

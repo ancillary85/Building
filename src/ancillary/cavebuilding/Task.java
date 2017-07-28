@@ -167,12 +167,12 @@ public class Task {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 53 * hash + Objects.hashCode(this.getNameProp());
-        hash = 53 * hash + Objects.hashCode(this.getDurationProp());
-        hash = 53 * hash + Arrays.deepHashCode(this.getCostsProp());
-        hash = 53 * hash + Arrays.deepHashCode(this.getRequirementsProp());
-        hash = 53 * hash + Arrays.deepHashCode(this.getResultsProp());
-        hash = 53 * hash + Objects.hashCode(this.getFlavorProp());
+        hash = 53 * hash + Objects.hashCode(this.getName());
+        hash = 53 * hash + Objects.hashCode(this.getDuration());
+        hash = 53 * hash + Arrays.deepHashCode(this.getCosts());
+        hash = 53 * hash + Arrays.deepHashCode(this.getRequirements());
+        hash = 53 * hash + Arrays.deepHashCode(this.getResults());
+        hash = 53 * hash + Objects.hashCode(this.getFlavor());
         return hash;
     }
     
