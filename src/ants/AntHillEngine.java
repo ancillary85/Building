@@ -27,8 +27,8 @@ public class AntHillEngine extends Engine{
     }
     
     public AntHillEngine(List<Room> initRooms, List<Entity> initEntities) {
-        setUpEntities(initEntities);
         setUpRooms(initRooms);
+        setUpEntities(initEntities);
     }
        
     @Override
@@ -53,8 +53,9 @@ public class AntHillEngine extends Engine{
     
     @Override
     public void addEntity(Entity e) {
-        if(e.isActive() && validateAnt(e)) {
-            ants.add(new ActiveEntity(e));
+        if(e.isActive() && AntHillEngine.validateAnt(e)) {
+            ActiveEntity bug = new ActiveEntity(e);
+            ants.add(bug);
         }
     }
 
@@ -85,7 +86,9 @@ public class AntHillEngine extends Engine{
      * @return true if we have an ant, false otherwise
      */
     public static boolean validateAnt(Entity a) {
-        if(a.getID().equals("ant") || a.getID().startsWith("ant ") || a.getID().endsWith(" ant")) {
+        if(a.getID().equals(AntBuilder.ANT) 
+                || a.getID().startsWith(AntBuilder.ANT + " ") 
+                || a.getID().endsWith(" " + AntBuilder.ANT)) {
             if(a.isActive() && a instanceof ActiveEntity) {
                 return true;
             }
@@ -109,7 +112,7 @@ public class AntHillEngine extends Engine{
             return e.getName() + " is not an ant";
         }
         
-        String s = new String(e.getName());
+        String s = e.getName();
         
         return s;
     }
