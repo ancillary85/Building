@@ -23,6 +23,14 @@ public class AntBuilder {
     public final static String EGG = "egg";
     public final static String LARVA = "larva";
     public final static String PUPA = "pupa";
+    public final static String WORKER_IDLE = "";
+    public final static String SOLDIER_IDLE = "";
+    public final static String DRONE_IDLE = "";
+    public final static String QUEEN_IDLE = "";
+    public final static String EGG_IDLE = "";
+    public final static String LARVA_IDLE = "";
+    public final static String PUPA_IDLE = "";
+    
     
      //  public ActiveEntity(String id, String name, String location, List<Task> tasks)
     public final static ActiveEntity makeWorker(String name, String location) {
@@ -30,7 +38,7 @@ public class AntBuilder {
         if(name == null || name.equals("")) {name = "Random Worker";}
         if(location == null || location.equals("")) {location = "somewhere";}
         List<Task> tasks = Arrays.asList(AntTaskBuilder.workerTasks());
-        ActiveEntity w = new ActiveEntity(WORKER + " " + ANT, name, location, tasks);
+        ActiveEntity w = new ActiveEntity(WORKER + " " + ANT, name, location, tasks, WORKER_IDLE);
         return w;
     }
     
@@ -39,7 +47,7 @@ public class AntBuilder {
         if(name == null || name.equals("")) {name = "Random Soldier";}
         if(location == null || location.equals("")) {location = "somewhere";}
         List<Task> tasks = Arrays.asList(AntTaskBuilder.soldierTasks());
-        ActiveEntity s = new ActiveEntity(SOLDIER + " " + ANT, name, location, tasks);
+        ActiveEntity s = new ActiveEntity(SOLDIER + " " + ANT, name, location, tasks, SOLDIER_IDLE);
         return s;
     }
 }

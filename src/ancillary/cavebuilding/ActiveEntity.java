@@ -337,6 +337,10 @@ public class ActiveEntity {
         return idleText;
     }
     
+    public void setIdleText(String newIdle) {
+        idleText.set(newIdle);
+    }
+    
     /**
      * @return the Entity's name as a String
      */

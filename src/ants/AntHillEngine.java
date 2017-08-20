@@ -8,6 +8,7 @@ package ants;
 import ancillary.cavebuilding.ActiveEntity;
 import ancillary.cavebuilding.Engine;
 import ancillary.cavebuilding.Entity;
+import ancillary.cavebuilding.InactiveEntity;
 import ancillary.cavebuilding.Room;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,14 +53,6 @@ public class AntHillEngine extends Engine{
     }
     
     @Override
-    public void addEntity(Entity e) {
-        if(e.isActive() && AntHillEngine.validateAnt(e)) {
-            ActiveEntity bug = new ActiveEntity(e);
-            ants.add(bug);
-        }
-    }
-
-    @Override
     public List<Entity> getEntities() {
         ArrayList<Entity> entities = new ArrayList(ants);       
         return entities;
@@ -85,13 +78,9 @@ public class AntHillEngine extends Engine{
      * @param a The Entity to be validated
      * @return true if we have an ant, false otherwise
      */
-    public static boolean validateAnt(Entity a) {
-        if(a.getID().equals(AntBuilder.ANT) 
-                || a.getID().startsWith(AntBuilder.ANT + " ") 
-                || a.getID().endsWith(" " + AntBuilder.ANT)) {
-            if(a.isActive() && a instanceof ActiveEntity) {
-                return true;
-            }
+    public static boolean validateAnt(ActiveEntity a) {
+        if(a.getID().equals(AntBuilder.ANT) || a.getID().startsWith(AntBuilder.ANT + " ")  || a.getID().endsWith(" " + AntBuilder.ANT)) {
+             return true;
         }
         return false;
     }
@@ -107,7 +96,7 @@ public class AntHillEngine extends Engine{
         }
     }
     
-    public String antToString(Entity e) {
+    public String antToString(ActiveEntity e) {
         if(!validateAnt(e)) {
             return e.getName() + " is not an ant";
         }
@@ -135,5 +124,48 @@ public class AntHillEngine extends Engine{
                 addEntity(e);
             }
         }
+    }
+
+    @Override
+    public void addActiveEntity(ActiveEntity e) {
+        if(e.isActive() && AntHillEngine.validateAnt(e)) {
+            ActiveEntity bug = new ActiveEntity(e);
+            ants.add(bug);
+        }
+    }
+
+    @Override
+    public void addInactiveEntity(InactiveEntity e) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<ActiveEntity> getActiveEntities() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<InactiveEntity> getInactiveEntities() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setActiveEntities(List<ActiveEntity> newEntities) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setInactiveEntities(List<InactiveEntity> newEntities) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void removeActiveEntity(ActiveEntity e) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void removeInactiveEntity(InactiveEntity e) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
