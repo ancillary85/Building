@@ -106,6 +106,7 @@ public class ActiveEntity {
             this.busy = new SimpleBooleanProperty(false);
             this.location = new SimpleStringProperty(e.getLocation());
             this.setUpTasks(e.getTasks());
+            this.idleText = new SimpleStringProperty(e.getIdleText());
         }
         
         this.taskTimer = 0;
@@ -319,7 +320,23 @@ public class ActiveEntity {
     public String getID() {
         return id;
     }
-            
+     
+    /**
+     * 
+     * @return  the Entity's idle text
+     */
+    public String getIdleText(){
+        return idleText.get();
+    }
+    
+    /**
+     * 
+     * @return the Entity's idle text SimpleStringProperty
+     */
+    public SimpleStringProperty getIdleTextProp() {
+        return idleText;
+    }
+    
     /**
      * @return the Entity's name as a String
      */
