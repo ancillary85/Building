@@ -5,8 +5,6 @@
  */
 package ancillary.cavebuilding;
 
-import ancillary.cavebuilding.AntBuilder;
-import ancillary.cavebuilding.Task;
 import java.util.Arrays;
 
 /**

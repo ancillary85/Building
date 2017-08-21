@@ -5,12 +5,6 @@
  */
 package ancillary.cavebuilding;
 
-import ancillary.cavebuilding.AntBuilder;
-import ancillary.cavebuilding.ActiveEntity;
-import ancillary.cavebuilding.Engine;
-import ancillary.cavebuilding.Entity;
-import ancillary.cavebuilding.InactiveEntity;
-import ancillary.cavebuilding.Room;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,13 +18,13 @@ public class AntHillEngine extends Engine{
     private ArrayList<Room> rooms;
     
     public AntHillEngine(){
-        setUpActiveEntities(null);
+        setUpEntities(null);
         setUpRooms(null);
     }
     
     public AntHillEngine(List<Room> initRooms, List<ActiveEntity> initEntities) {
         setUpRooms(initRooms);
-        setUpActiveEntities(initEntities);
+        setUpEntities(initEntities);
     }
        
     @Override
@@ -63,12 +57,8 @@ public class AntHillEngine extends Engine{
      * @return true if we have an ant, false otherwise
      */
     public static boolean validateAnt(ActiveEntity a) {
-        if(a.getID().equals(AntBuilder.ANT) 
-                || a.getID().startsWith(AntBuilder.ANT + " ") 
-                || a.getID().endsWith(" " + AntBuilder.ANT)) {
-            if(a.isActive()) {
-                return true;
-            }
+        if(a.getID().equals(AntBuilder.ANT) || a.getID().startsWith(AntBuilder.ANT + " ")  || a.getID().endsWith(" " + AntBuilder.ANT)) {
+             return true;
         }
         return false;
     }
@@ -103,12 +93,12 @@ public class AntHillEngine extends Engine{
         }
     }
     
-    private void setUpActiveEntities(List<ActiveEntity> initEntities) {
+    private void setUpEntities(List<ActiveEntity> initEntities) {
         if(initEntities == null) {
             ants = new ArrayList<ActiveEntity>();
         }
         else {
-            ants = new ArrayList<ActiveEntity>();
+            ants = new ArrayList<ActiveEntity>(initEntities.size());
             for(ActiveEntity e : initEntities) {
                 addActiveEntity(e);
             }
@@ -117,7 +107,10 @@ public class AntHillEngine extends Engine{
 
     @Override
     public void addActiveEntity(ActiveEntity e) {
-        ants.add(e);
+        if(e != null && e.isActive() && AntHillEngine.validateAnt(e)) {
+            ActiveEntity bug = new ActiveEntity(e);
+            ants.add(bug);
+        }
     }
 
     @Override
@@ -137,7 +130,8 @@ public class AntHillEngine extends Engine{
 
     @Override
     public void setActiveEntities(List<ActiveEntity> newEntities) {
-        ants = new ArrayList(newEntities);
+        ants = null;
+        setUpEntities(newEntities);
     }
 
     @Override

@@ -100,8 +100,8 @@ public class ActiveEntity {
             this.idleText = new SimpleStringProperty("doing nothing");
         }
         else            {
-            this.id = "placeholder";
-            this.name = new SimpleStringProperty("blank");
+            this.id = e.getID();
+            this.name = new SimpleStringProperty(e.getName());
             this.active = new SimpleBooleanProperty(true);
             this.busy = new SimpleBooleanProperty(false);
             this.location = new SimpleStringProperty(e.getLocation());
@@ -444,5 +444,17 @@ public class ActiveEntity {
      */
     public void setTraits(SimpleStringProperty traits) {
         this.traits = traits;
+    }
+    
+    /**
+     * @return the entity's idle text if it is not busy, and returns it's current task's flavor if it is busy
+     */
+    public String status() {
+        if(isBusy()) {
+            return currentTask.getFlavor();
+        }
+        else {
+            return idleText.get();
+        }
     }
 }

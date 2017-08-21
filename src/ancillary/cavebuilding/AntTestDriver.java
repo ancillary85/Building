@@ -5,10 +5,6 @@
  */
 package ancillary.cavebuilding;
 
-import ancillary.cavebuilding.AntHillEngine;
-import ancillary.cavebuilding.AntBuilder;
-import ancillary.cavebuilding.ActiveEntity;
-import ancillary.cavebuilding.Entity;
 import java.util.ArrayList;
 
 /**
@@ -16,19 +12,33 @@ import java.util.ArrayList;
  * @author Mike
  */
 public class AntTestDriver {
+    private static ArrayList<ActiveEntity> ants;
+    private static AntHillEngine choochoo;
     
     public static void main(String[] args) {
-        ArrayList<ActiveEntity> ants = new ArrayList();
+        ants = new ArrayList();
         ants.add(AntBuilder.makeSoldier("Bob", null));
         ants.add(AntBuilder.makeSoldier("Rambo", null));
         ants.add(AntBuilder.makeWorker("Alice", null));
         ants.add(AntBuilder.makeWorker("Beatrice", null));
         
-        AntHillEngine choochoo = new AntHillEngine(null, ants);
+        choochoo = new AntHillEngine(null, ants);
 
-        ActiveEntity test = new ActiveEntity(null, null, null, null, null);
-        
-
-        
+        System.out.println("ANT TEST! " + choochoo.getAnts().size());
+        printAnts();
+        System.out.println();
+        System.out.println(choochoo.getAnts().get(0).getName());
+        System.out.println(choochoo.getAnts().get(0).getCurrentTask().getName());
+        choochoo.getAnts().get(0).setCurrentTask(AntTaskBuilder.dig());
+        System.out.println(choochoo.getAnts().get(0).getName());
+        System.out.println(choochoo.getAnts().get(0).getCurrentTask().getName());
+        System.out.println();
+        printAnts();
+    }
+    
+    public static void printAnts() {
+        for(ActiveEntity bug : choochoo.getAnts()) {
+            System.out.println(choochoo.antToString(bug) + ": \"" + bug.status() + "\"");
+        }
     }
 }
