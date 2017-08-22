@@ -107,7 +107,7 @@ public class AntHillEngine extends Engine{
 
     @Override
     public void addActiveEntity(ActiveEntity e) {
-        if(e != null && e.isActive() && AntHillEngine.validateAnt(e)) {
+        if(e != null && AntHillEngine.validateAnt(e)) {
             ActiveEntity bug = new ActiveEntity(e);
             ants.add(bug);
         }

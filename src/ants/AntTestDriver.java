@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class AntTestDriver {
     
     public static void main(String[] args) {
-        ArrayList<Entity> ants = new ArrayList();
+        ArrayList<ActiveEntity> ants = new ArrayList();
         ants.add(AntBuilder.makeSoldier("Bob", null));
         ants.add(AntBuilder.makeSoldier("Rambo", null));
         ants.add(AntBuilder.makeWorker("Alice", null));
@@ -25,7 +25,7 @@ public class AntTestDriver {
         AntHillEngine choochoo = new AntHillEngine(null, ants);
         
         for(ActiveEntity bug : choochoo.getAnts()) {
-            System.out.println(bug.toString());
+            System.out.println(choochoo.antToString(bug));
         }
     }
 }

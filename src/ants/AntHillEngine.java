@@ -27,7 +27,7 @@ public class AntHillEngine extends Engine{
         setUpRooms(null);
     }
     
-    public AntHillEngine(List<Room> initRooms, List<Entity> initEntities) {
+    public AntHillEngine(List<Room> initRooms, List<ActiveEntity> initEntities) {
         setUpRooms(initRooms);
         setUpEntities(initEntities);
     }
@@ -50,23 +50,6 @@ public class AntHillEngine extends Engine{
     @Override
     public void setRooms(List<Room> newRooms) {
         rooms = new ArrayList<Room>(newRooms);
-    }
-    
-    @Override
-    public List<Entity> getEntities() {
-        ArrayList<Entity> entities = new ArrayList(ants);       
-        return entities;
-    }
-
-    @Override
-    public void setEntities(List<Entity> newEntities) {
-        ants = null;
-        setUpEntities(newEntities);
-    }
-
-    @Override
-    public void removeEntity(Entity e) {
-        ants.remove(e);
     }
     
     public List<ActiveEntity> getAnts() {
@@ -115,22 +98,23 @@ public class AntHillEngine extends Engine{
         }
     }
     
-    private void setUpEntities(List<Entity> initEntities) {
+    private void setUpEntities(List<ActiveEntity> initEntities) {
         if(initEntities == null) {
             ants = new ArrayList<ActiveEntity>();
         }
         else {
-            for(Entity e : initEntities) {
-                addEntity(e);
+            ants = new ArrayList<ActiveEntity>(initEntities.size());
+            for(ActiveEntity e : initEntities) {
+                addActiveEntity(e);
             }
         }
     }
 
     @Override
     public void addActiveEntity(ActiveEntity e) {
-        if(e.isActive() && AntHillEngine.validateAnt(e)) {
-            ActiveEntity bug = new ActiveEntity(e);
-            ants.add(bug);
+        if(e != null && e.isActive() && AntHillEngine.validateAnt(e)) {
+//            ActiveEntity bug = new ActiveEntity(e);
+//            ants.add(bug);
         }
     }
 
@@ -141,7 +125,7 @@ public class AntHillEngine extends Engine{
 
     @Override
     public List<ActiveEntity> getActiveEntities() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return ants;
     }
 
     @Override
@@ -151,7 +135,8 @@ public class AntHillEngine extends Engine{
 
     @Override
     public void setActiveEntities(List<ActiveEntity> newEntities) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ants = null;
+        setUpEntities(newEntities);
     }
 
     @Override
@@ -161,7 +146,7 @@ public class AntHillEngine extends Engine{
 
     @Override
     public void removeActiveEntity(ActiveEntity e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ants.remove(e);
     }
 
     @Override

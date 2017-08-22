@@ -34,6 +34,9 @@ public class AntTestDriver {
         System.out.println(choochoo.getAnts().get(0).getCurrentTask().getName());
         System.out.println();
         printAnts();
+        choochoo.update();
+        System.out.println();
+        printAnts();
     }
     
     public static void printAnts() {
