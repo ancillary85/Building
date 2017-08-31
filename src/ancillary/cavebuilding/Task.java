@@ -8,6 +8,7 @@ package ancillary.cavebuilding;
 import java.util.Arrays;
 import java.util.Objects;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 /**
@@ -15,7 +16,7 @@ import javafx.beans.property.SimpleStringProperty;
  * @author Mike
  */
 public class Task {
-
+//public static enum trait_type{FLAVOR, COMBAT, RESOURCE, PRODUCTION, EACHTURN, MULTI}
     public final static String RESOURCE = "r";
     public final static String PERSONAL_RESOURCE = "pr";
     public final static String OTHER_ENTITY_RESOURCE = "oer";
@@ -28,7 +29,7 @@ public class Task {
     private SimpleIntegerProperty duration;
     private SimpleStringProperty[] costs;
     private SimpleStringProperty[] requirements;
-    private SimpleStringProperty[] results;
+    private SimpleObjectProperty<Trait[]> results;
     private SimpleStringProperty flavor;
     
     public Task() {
@@ -41,7 +42,7 @@ public class Task {
     }
     
     public Task(String initName, int initDuration, String[] initCosts , 
-       String[] initRequirements, String[] initResults, String initFlavor) {
+       String[] initRequirements, Trait[] initResults, String initFlavor) {
         name = new SimpleStringProperty(initName);
         duration = new SimpleIntegerProperty(initDuration);
         
@@ -51,14 +52,14 @@ public class Task {
          setUpFlavor(initFlavor);        
     }
     
-    public Task(Task t) {
-        name = new SimpleStringProperty(t.getName());
-        duration = new SimpleIntegerProperty(t.getDuration());
-        setUpCosts(t.getCosts());
-        setUpRequirements(t.getRequirements());
-        setUpResults(t.getResults());
-        setUpFlavor(t.getFlavor());
-    }
+//    public Task(Task t) {
+//        name = new SimpleStringProperty(t.getName());
+//        duration = new SimpleIntegerProperty(t.getDuration());
+//        setUpCosts(t.getCosts());
+//        setUpRequirements(t.getRequirements());
+//        setUpResults(t.getResults());
+//        setUpFlavor(t.getFlavor());
+//    }
     
     private void setUpCosts(String[] initCosts) {
         if(initCosts == null) {
@@ -68,7 +69,7 @@ public class Task {
         else {
             costs = new SimpleStringProperty[initCosts.length];
             for(int i = 0; i < initCosts.length; i++) {
-                costs[i] = new SimpleStringProperty(new String(initCosts[i]));
+                costs[i] = new SimpleStringProperty(initCosts[i]);
             }
         }
     }
@@ -81,30 +82,36 @@ public class Task {
         else {
             requirements = new SimpleStringProperty[initRequirements.length];
             for(int i = 0; i < initRequirements.length; i++) {
-                requirements[i] = new SimpleStringProperty(new String(initRequirements[i]));
+                requirements[i] = new SimpleStringProperty(initRequirements[i]);
             }
         }
     }
     
-    private void setUpResults(String[] initResults) {
-        if(initResults == null) {
-            results = new SimpleStringProperty[1];
-            results[0] = new SimpleStringProperty("none");
+    private boolean validateTraitArray(Trait[] t) {
+        if(t == null) {return false;} //is the array null?
+        //are any of the Traits in the array null?
+        for(Trait temp : t) {
+            if(temp == null) {return false;}
+        }
+        
+        return true;
+    }
+    
+    private void setUpResults(Trait[] initResults) {
+        if(!validateTraitArray(initResults)) {
+            results = new SimpleObjectProperty<>(new Trait[]{new Trait()});
         }
         else {
-            results = new SimpleStringProperty[initResults.length];
-            for(int i = 0; i < initResults.length; i++) {
-                results[i] = new SimpleStringProperty(new String(initResults[i]));
-            }
+            results = new SimpleObjectProperty<>(initResults);
         }
     }
-    
+
     private void setUpFlavor(String initFlavor) {
         if(initFlavor == null) {
             flavor = new SimpleStringProperty("Idle");
         }
         else {
-            flavor = new SimpleStringProperty(new String(initFlavor));
+            flavor = new SimpleStringProperty(initFlavor);
         }
     }
     
@@ -115,6 +122,7 @@ public class Task {
     public void setNoTask() {
         name.set("no task");
         duration.set(0);
+        flavor.set("Doing nothing");
     }
     
     @Override
@@ -138,15 +146,31 @@ public class Task {
         s += String.join(", ", requirementArray);
         s += "\nResults: ";
         
-        String[] resultArray = new String[results.length];
-        for(int i = 0; i < results.length; i++) {
-            resultArray[i] = results[i].get();
+        String[] resultArray = new String[results.get().length];
+        for(int i = 0; i < results.get().length; i++) {
+            resultArray[i] = results.get()[i].toString();
         }
         
         s += String.join(", ", resultArray);
         s += "\n";
         s += "\"" + flavor.get() + "\"";
         return s;
+    }
+    
+    /**
+     * Sets all the Task's properties to the ones in the given Task
+     *
+     * NEEDS TO BE UPDATED AS THE PROPERTIES ARE CHANGED
+     * 
+     * @param t the Task to match
+     */
+    public void setToNewTask(Task t) {
+        this.setName(t.getName());
+        this.setDuration(t.getDuration());
+        this.setCostsProp(t.getCostsProp());
+        this.setRequirementsProp(t.getRequirementsProp());
+        this.setResults(t.getResults());
+        this.setFlavor(t.getFlavor());
     }
     
     @Override
@@ -226,16 +250,26 @@ public class Task {
     }
     
     /**
-     * @return the results as an array of Strings
+     * @return the results as an array of Traits
      */
-    public String[] getResults() {
-        String[] resultArray = new String[results.length];
-        
-        for(int i = 0; i < results.length; i++) {
-            resultArray[i] = results[i].get();
+    public Trait[] getResults() {
+        return results.get();
+    }
+    
+    /**
+     * @param newResults the results to set
+     */
+    public void setResults(Trait[] newResults) {
+        if(!validateTraitArray(newResults)) {
+            this.results.set(new Trait[]{new Trait()});
         }
-        
-        return resultArray;
+        else {
+            this.results.set(newResults);
+        }
+    }
+    
+    public SimpleObjectProperty<Trait[]> getResultsProp() {
+        return results;
     }
     
     /**
@@ -295,20 +329,6 @@ public class Task {
     }
 
     /**
-     * @return the results
-     */
-    public SimpleStringProperty[] getResultsProp() {
-        return results;
-    }
-
-    /**
-     * @param results the results to set
-     */
-    public void setResultsProp(SimpleStringProperty[] results) {
-        this.results = results;
-    }
-
-    /**
      * @return the flavor property
      */
     public SimpleStringProperty getFlavorProp() {
@@ -322,6 +342,13 @@ public class Task {
         return flavor.get();
     }
 
+    /**
+     * @param newFlavor the flavor to set
+     */
+    public void setFlavor(String newFlavor) {
+        this.flavor.set(newFlavor);
+    }
+    
     /**
      * @param flavor the flavor to set
      */

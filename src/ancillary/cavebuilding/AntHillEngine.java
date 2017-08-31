@@ -65,13 +65,15 @@ public class AntHillEngine extends Engine{
 
     @Override
     public void update() {
-        for(ActiveEntity a :ants) {
-            a.entityUpdate(null);
-        }
+        super.update();
         
-        for(Room r : rooms) {
-            // CURRENTLY NOTHING!
-        }
+//        for(ActiveEntity a :ants) {
+//            a.entityUpdate(null);
+//        }
+//        
+//        for(Room r : rooms) {
+//            // CURRENTLY NOTHING!
+//        }
     }
     
     public String antToString(ActiveEntity e) {
@@ -105,11 +107,14 @@ public class AntHillEngine extends Engine{
         }
     }
 
+    /**
+     * Adds the given ActiveEntity e if it is not null, validateAnt(e) returns true, and e does not already exist 
+     * @param e The ActiveEntity to add
+     */
     @Override
     public void addActiveEntity(ActiveEntity e) {
-        if(e != null && AntHillEngine.validateAnt(e)) {
-            ActiveEntity bug = new ActiveEntity(e);
-            ants.add(bug);
+        if(e != null && AntHillEngine.validateAnt(e) && !ants.contains(e)) {
+            ants.add(e);
         }
     }
 

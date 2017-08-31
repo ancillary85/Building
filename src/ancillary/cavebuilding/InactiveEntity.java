@@ -16,7 +16,7 @@ public class InactiveEntity extends Entity {
     }
     
     public InactiveEntity(Entity e) {
-        super(e.id, e.name.get(), false, e.location.get());
+        super(e.id, e.name.get(), false, e.location.get(), e.traits.get());
     }
     
     public void entityUpdate(String[] args) {

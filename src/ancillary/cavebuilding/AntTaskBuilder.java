@@ -12,15 +12,17 @@ import java.util.Arrays;
  * @author Alecto
  */
 
-//public Task(String Name, int Duration, String[] Costs , String[] Requirements, String[] Results, String Flavor)
 
 public class AntTaskBuilder {
  
+    private static final Trait.trait_type[] rPR = TraitBuilder.resourceProductionResult;
+    private static final Trait.trait_type[] pRR = TraitBuilder.personalResourceResult;
+    
     public static Task dig() {
         Task DIG = new Task("Dig", 1, 
             null, 
-            null, 
-            new String[]{"+1 " + Task.RESOURCE +  " space"}, 
+            null,
+            new Trait[]{new Trait("Space", 1.0, rPR)},
             "Expand the colony");
         return DIG;
     }
@@ -28,31 +30,31 @@ public class AntTaskBuilder {
         Task FORAGE = new Task("Forage", 2, 
             null, 
             null, 
-            new String[]{"+1 " + Task.RESOURCE +  " food"}, 
+            new Trait[]{new Trait("Food", 1.0, rPR)},
             "Search for food");
         return FORAGE;
     }
     public static Task hunt() {
         Task HUNT = new Task("Hunt", 3, 
-            new String[]{"-1 " + Task.PERSONAL_RESOURCE + " stamina"}, 
-            new String[]{">0 " + Task.RESOURCE + " stamina"}, 
-            new String[]{"+2 " + Task.RESOURCE + " food"}, 
+            new String[]{"Stamina -1 " + Task.PERSONAL_RESOURCE}, 
+            new String[]{"Stamina >0 " + Task.RESOURCE}, 
+            new Trait[]{new Trait("Food", 2.0, rPR)},
             "Hunt for food");
         return HUNT;
     }
     public static Task larvaCare() {
         Task LARVA_CARE = new Task("Tend to Larva", 1, 
-            new String[]{"-1 " + Task.RESOURCE + " food", Task.SELF + " = " + AntBuilder.WORKER}, 
-            new String[]{">0 " + Task.RESOURCE + " food", ">0 " + Task.ENTITY + " larva"}, 
-            new String[]{"+1 " + Task.OTHER_ENTITY_RESOURCE + " larva stamina"}, 
+            new String[]{"Food -1 " + Task.RESOURCE, Task.SELF + " = " + AntBuilder.WORKER}, 
+            new String[]{"Food >0 " + Task.RESOURCE, "Larva >0 " + Task.ENTITY}, 
+            new Trait[]{new Trait("Larva Stamina", 1.0, pRR)}, 
             "Care for growing larval ants");
         return LARVA_CARE;
     }
     public static Task eat() {
         Task EAT = new Task("Eat", 2, 
-            new String[]{"-1 " + Task.RESOURCE + " food"}, 
-            new String[]{">0 " + Task.RESOURCE + " food"}, 
-            new String[]{"+4 " + Task.PERSONAL_RESOURCE + " stamina"}, 
+            new String[]{"Food -1 " + Task.RESOURCE}, 
+            new String[]{"Food >0 " + Task.RESOURCE}, 
+            new Trait[]{new Trait("Stamina", 4.0, rPR)},
             "Eat some food");
         return EAT;
     }
@@ -60,16 +62,16 @@ public class AntTaskBuilder {
         Task REST = new Task("Rest", 1, 
             null, 
             null, 
-            new String[]{"+1 " + Task.PERSONAL_RESOURCE + " stamina"}, 
+            new Trait[]{new Trait("Stamina", 1.0, pRR)},
             "Take a rest");
         return REST;
     }
     
     public static Task fight() {
         Task FIGHT = new Task("Fight", 1,
-            new String[]{"-2 " + Task.PERSONAL_RESOURCE + " stamina"},
-            new String[]{">1 " + Task.PERSONAL_RESOURCE + " stamina"},
-            new String[]{"-1 " + Task.RESOURCE + " enemy"},
+            new String[]{"Stamina -2 " + Task.PERSONAL_RESOURCE},
+            new String[]{"Stamina >1 " + Task.PERSONAL_RESOURCE},
+            new Trait[]{new Trait("Enemies", -1.0, rPR)},
             "Fight an enemy");
         return FIGHT;
     }

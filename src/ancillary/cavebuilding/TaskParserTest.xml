@@ -6,6 +6,6 @@ and open the template in the editor.
 -->
 
 <root>
-    <task name = "Dig" duration = "2" costs = "2 apples,2 shovels" requirements = "hands" results = "1 space,2 dirt">Chop, chop, dig, dig!</task>
-    <task name = "Feet" duration = "2" costs = "2 apples,2 shovels" requirements = "footsies" results = "1 space,2 dirt">Chop, chop, dig, dig!</task>
+    <task name = "Dig" duration = "2" costs = "apples:2,shovels:2" requirements = "hands" results = "space:1,dirt:2">Chop, chop, dig, dig!</task>
+    <task name = "Feet" duration = "2" costs = "apples:2,shovels:2" requirements = "footsies" results = "space:1,dirt:2">Chop, chop, dig, dig!</task>
 </root>

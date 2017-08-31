@@ -21,6 +21,8 @@ import org.xml.sax.SAXException;
  */
 public class TaskParser {
     
+    public static final String DELIM = ":";
+    
     public static Task parseTask(Node n) {
         NamedNodeMap map = n.getAttributes();
         
@@ -30,7 +32,7 @@ public class TaskParser {
         String[] requirements = map.getNamedItem("requirements").getNodeValue().split(",");
         String[] results = map.getNamedItem("results").getNodeValue().split(",");
         String flavor = n.getTextContent().trim();
-        Task t = new Task(name, duration, costs, requirements, results, flavor);
+        Task t = new Task(name, duration, costs, requirements, parseResults(results), flavor);
         
         return t;
     }
@@ -49,5 +51,18 @@ public class TaskParser {
         }
                
         return tasks;
+    }
+    
+    public static Trait[] parseResults(String[] inResults) {
+        
+        Trait[] outResults = new Trait[inResults.length];
+        String[] temp;
+        
+        for(int i = 0; i < inResults.length; i++) {
+            temp = inResults[i].split(DELIM);
+            outResults[i] = new Trait(temp[0], Double.parseDouble(temp[1]), TraitBuilder.resourceProductionResult);
+        }
+        
+        return outResults;
     }
 }

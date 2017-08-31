@@ -6,10 +6,12 @@
 package ancillary.cavebuilding;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 /**
@@ -47,9 +49,9 @@ public class ActiveEntity {
     /**
      * The Entity's traits
      */
-    protected SimpleStringProperty traits;
+    protected ArrayList<Trait> traits;
     protected ArrayList<Task> tasks;
-    protected int taskTimer;
+    protected SimpleIntegerProperty taskTimer;
     protected Task currentTask;
     protected SimpleBooleanProperty taskCompleted;
     protected SimpleStringProperty idleText;
@@ -61,10 +63,11 @@ public class ActiveEntity {
         this.busy = new SimpleBooleanProperty(false);
         this.location = new SimpleStringProperty("nowhere");
         this.tasks = new ArrayList<Task>();
-        this.taskTimer = 0;
+        this.taskTimer = new SimpleIntegerProperty(-1);
         this.currentTask = new Task();
         this.taskCompleted = new SimpleBooleanProperty(false);
         this.idleText = new SimpleStringProperty("doing nothing");
+        this.traits = new ArrayList<Trait>();
     }
     
     
@@ -73,21 +76,37 @@ public class ActiveEntity {
      * @param id
      * @param name
      * @param location
-     * @param tasks 
+     * @param newTasks 
      */
-    public ActiveEntity(String id, String name, String location, List<Task> newTasks, String idleText) {
+    public ActiveEntity(String id, String name, String location, List<Task> newTasks, String idleText, List<Trait> traits) {
         this.id = id;
         this.name = new SimpleStringProperty(name);
         this.active = new SimpleBooleanProperty(true);
         this.busy = new SimpleBooleanProperty(false);
         this.location = new SimpleStringProperty(location);        
         this.setUpTasks(newTasks);
-        this.taskTimer = 0;
+        this.taskTimer = new SimpleIntegerProperty(-1);
         this.currentTask = new Task();
         this.taskCompleted = new SimpleBooleanProperty(false);
         this.idleText = new SimpleStringProperty(idleText);
+        this.traits = new ArrayList<Trait>(traits);
     }
     
+    public ActiveEntity(String id, String name, String location, List<Task> newTasks, String idleText, Trait[] traits) {
+        this.id = id;
+        this.name = new SimpleStringProperty(name);
+        this.active = new SimpleBooleanProperty(true);
+        this.busy = new SimpleBooleanProperty(false);
+        this.location = new SimpleStringProperty(location);        
+        this.setUpTasks(newTasks);
+        this.taskTimer = new SimpleIntegerProperty(-1);
+        this.currentTask = new Task();
+        this.taskCompleted = new SimpleBooleanProperty(false);
+        this.idleText = new SimpleStringProperty(idleText);
+        this.traits = new ArrayList<Trait>(Arrays.asList(traits));
+    }
+    
+    /*
     public ActiveEntity(ActiveEntity e) {
         
         if(e == null)   {
@@ -98,6 +117,7 @@ public class ActiveEntity {
             this.location = new SimpleStringProperty("nowhere");
             this.tasks = new ArrayList<Task>();
             this.idleText = new SimpleStringProperty("doing nothing");
+            this.traits = new SimpleStringProperty("none");
         }
         else            {
             this.id = e.getID();
@@ -107,12 +127,13 @@ public class ActiveEntity {
             this.location = new SimpleStringProperty(e.getLocation());
             this.setUpTasks(e.getTasks());
             this.idleText = new SimpleStringProperty(e.getIdleText());
+            this.traits = new SimpleStringProperty(e.getTraits());
         }
         
         this.taskTimer = 0;
         this.currentTask = new Task();
         this.taskCompleted = new SimpleBooleanProperty(false);
-    }
+    }*/
     
     /**
      * Return an unmodifiable List of the Entity's tasks.
@@ -146,7 +167,7 @@ public class ActiveEntity {
             tasks.add(new Task());
         }
         else {
-            tasks.add(new Task(newTask));
+            tasks.add(newTask);
         }
     }
     
@@ -174,23 +195,44 @@ public class ActiveEntity {
         }       
     }
     
-    public int getTaskTimer() {
+    public SimpleIntegerProperty getTaskTimerProp() {
         return taskTimer;
     }
     
+    public int getTaskTimer() {
+        return taskTimer.get();
+    }
+    
     public void setTaskTimer(int newTime) {
-        taskTimer = newTime;
+        taskTimer.set(newTime);
     }
     
     /**
      * Sets the taskTimer by looking up the duration of the current Task
      */
     public void setTaskTimerFromCurrentTask() {
-        taskTimer = currentTask.getDuration();
+        taskTimer.set(currentTask.getDuration());
     }
     
     public Task getCurrentTask() {
         return currentTask;
+    }
+    
+    /**
+     * Sets the Entity's current Task, sets its taskTimer from the current Task, marks it as busy, 
+     * and taskCompleted to false. If the provided Task is null or is not in the Entity's List of Tasks, no changes are made.
+     * 
+     * The Entity's taskTimer IS set by this method. 
+     * @param t the Task to use
+     */
+    public void setTaskAndTimer(Task t) {
+        
+        if(t == null || !tasks.contains(t)) {return;}
+        
+        currentTask.setToNewTask(t);;
+        setBusy();
+        taskCompleted.set(false);
+        setTaskTimerFromCurrentTask();
     }
     
     /**
@@ -200,12 +242,13 @@ public class ActiveEntity {
      * 
      * The Entity's taskTimer is NOT set by this method. 
      * Calling setTaskTimerFromCurrentTask() afterwards is recommended.
+     * Alternatively, use setTaskAndTimer()
      * @param taskNumber the index of the Entity's Task List
      */
     public void setCurrentTask(int taskNumber) {
         if(taskNumber >= tasks.size() || taskNumber < 0) {return;}
         
-        currentTask = tasks.get(taskNumber);
+        currentTask.setToNewTask(tasks.get(taskNumber));
         this.setBusy();
         taskCompleted.set(false);
     }
@@ -216,14 +259,15 @@ public class ActiveEntity {
      * 
      * The Entity's taskTimer is NOT set by this method. 
      * Calling setTaskTimerFromCurrentTask() afterwards is recommended.
+     * Alternatively, use setTaskAndTimer()
      * @param newTask the Task to use
      */
     public void setCurrentTask(Task newTask) {
         
         if(newTask == null || !tasks.contains(newTask)) {return;}
         
-        currentTask = newTask;
-        this.setBusy();
+        currentTask.setToNewTask(newTask);
+        setBusy();
         taskCompleted.set(false);
     }
     
@@ -234,14 +278,16 @@ public class ActiveEntity {
      * 
      * The Entity's taskTimer is NOT set by this method. 
      * Calling setTaskTimerFromCurrentTask() afterwards is recommended.
+     * Alternatively, use setTaskAndTimer()
+     * 
      * @param newTask the Task to use
      */
     public void addAndSetCurrentTask(Task newTask) {
         if(newTask == null) {return;}
         if(!tasks.contains(newTask)) {tasks.add(newTask);}
         
-        currentTask = newTask;
-        this.setBusy();
+        currentTask.setToNewTask(newTask);
+        setBusy();
         taskCompleted.set(false);
     }
     
@@ -275,31 +321,33 @@ public class ActiveEntity {
     }
     
     /**
-     * Mostly just tests right now
-     * The taskTimer is decremented. If it reaches zero or less, it is set to 0, 
-     * currentTask is set to NoTask, and the Entity is marked not busy.
+     *  Calls idle() and clearTask() if the entity is not busy, or it has a taskTimer < 0. Otherwise, the 
+    * taskTimer is decremented. If it reaches zero, completeTask() is called.
      * @param args 
      */
     public void entityUpdate(String[] args) {
-        if(currentTask.isNoTask()) {
+        //If it isn't doing anything, move on
+        if(!isBusy() || taskTimer.get() < 0) {
             idle();
+            clearTask();
             return;
         }
         
-        if(taskTimer > 0) {            
-            taskTimer--;
-            return;
+        if(taskTimer.get() > 0) {            
+            taskTimer.set(taskTimer.get() - 1);
+       
+            if(taskTimer.get() == 0 && !taskCompleted.get()) {
+               completeTask();
+               return;
+            }
         }       
-        
-        this.completeTask();
     }
     
     /**
-     * Sets the Entity's taskTimer to zero, currentTask to "no task," taskCompleted to true, and marks it not busy
+     * Sets the Entity's taskTimer to zero, leaves currentTask alone, taskCompleted to true, and marks it not busy
      */
     public void completeTask() {
-        taskTimer = 0;
-        currentTask.setNoTask();      
+        taskTimer.set(0);
         this.setNotBusy();
         taskCompleted.set(true);
     }
@@ -307,8 +355,8 @@ public class ActiveEntity {
     /**
      * Sets the Entity's taskTimer to zero, currentTask to "no task," taskCompleted to false, and marks it not busy
      */
-    public void cancelTask() {
-        taskTimer = 0;
+    public void clearTask() {
+        taskTimer.set(0);
         currentTask.setNoTask();
         this.setNotBusy();
         taskCompleted.set(false);
@@ -426,24 +474,17 @@ public class ActiveEntity {
     }
     
     /**
-     * @return the traits as a String
+     * @return the traits as a List
      */
-    public String getTraits() {
-        return traits.get();
-    }
-
-    /**
-     * @return the Entity's "trait" SimpleStringProperty
-     */
-    public SimpleStringProperty getTraitsProp() {
+    public List<Trait> getTraits() {
         return traits;
     }
     
     /**
      * @param traits the traits to set
      */
-    public void setTraits(SimpleStringProperty traits) {
-        this.traits = traits;
+    public void setTraits(List<Trait> newTraits) {
+        this.traits = new ArrayList<Trait>(newTraits);
     }
     
     /**

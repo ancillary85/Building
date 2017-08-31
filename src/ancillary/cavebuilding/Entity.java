@@ -25,9 +25,9 @@ public class Entity {
     protected SimpleStringProperty name;
     
     /**
-     * Whether the Entity can act
+     * Whether the Entity can be interacted with
      */
-    protected final SimpleBooleanProperty active;
+    protected SimpleBooleanProperty active;
     
     /**
      * Whether the Entity is busy
@@ -42,7 +42,7 @@ public class Entity {
     /**
      * The Entity's traits
      */
-    private SimpleStringProperty traits;
+    protected SimpleStringProperty traits;
     
     public Entity() {
         this.id = "placeholder";
@@ -50,14 +50,16 @@ public class Entity {
         this.active = new SimpleBooleanProperty(false);
         this.busy = new SimpleBooleanProperty(false);
         this.location = new SimpleStringProperty("nowhere");
+        this.traits = new SimpleStringProperty("none");
     }
     
-    public Entity(String id, String name, boolean active, String location) {
+    public Entity(String id, String name, boolean active, String location, String traits) {
         this.id = id;
         this.name = new SimpleStringProperty(name);
         this.active = new SimpleBooleanProperty(active);
         this.busy = new SimpleBooleanProperty(false);
         this.location = new SimpleStringProperty(location);
+        this.traits = new SimpleStringProperty(traits);
     }
     
     public Entity(Entity e) {
@@ -67,6 +69,7 @@ public class Entity {
             this.active = new SimpleBooleanProperty(false);
             this.busy = new SimpleBooleanProperty(false);
             this.location = new SimpleStringProperty("nowhere");
+            this.traits = new SimpleStringProperty("none");
         }
         else {
             this.id = e.getID();
@@ -74,6 +77,7 @@ public class Entity {
             this.active = new SimpleBooleanProperty(e.isActive());
             this.busy = new SimpleBooleanProperty(false);
             this.location = new SimpleStringProperty(e.getLocation());
+            this.traits = new SimpleStringProperty(e.getTraits());
         }
     }
     

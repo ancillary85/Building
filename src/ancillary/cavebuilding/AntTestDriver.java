@@ -23,8 +23,49 @@ public class AntTestDriver {
         ants.add(AntBuilder.makeWorker("Beatrice", null));
         
         choochoo = new AntHillEngine(null, ants);
-
-        System.out.println("ANT TEST! " + choochoo.getAnts().size());
+        
+        antTaskResultTest();
+    }
+    
+    public static void printAnts() {
+        for(ActiveEntity bug : choochoo.getAnts()) {
+            System.out.println(choochoo.antToString(bug) + ": \"" + bug.status() + "\"");
+        }
+    }
+    
+    public static void antTaskResultTest() {
+        ActiveEntity Bob = choochoo.getAnts().get(0);
+        
+        choochoo.addResource(new Trait("Food", 10, "Delicious food!", Trait.trait_type.RESOURCE));
+        System.out.println(choochoo.resourcesReport() + "\n");
+        choochoo.update();
+        System.out.println(choochoo.resourcesReportDesc() + "\n");
+        choochoo.update();
+        System.out.println(choochoo.resourcesReport() + "\n");
+        choochoo.update();
+        System.out.println(choochoo.resourcesReport() + "\n");
+        //at -2 food and 6 poop, going to make a soilder dig for +1 space
+        System.out.println(Bob.getName() + "; Busy? " + Bob.isBusy() + "; Current Task? " + Bob.getCurrentTask().getName() + "; TaskTimer? " + Bob.getTaskTimer() + "; Task Completed? " + Bob.getTaskCompleted());
+        Bob.setTaskAndTimer(AntTaskBuilder.dig());
+        System.out.println(Bob.getName() + "; Busy? " + Bob.isBusy() + "; Current Task? " + Bob.getCurrentTask().getName() + "; TaskTimer? " + Bob.getTaskTimer() + "; Task Completed? " + Bob.getTaskCompleted());
+        choochoo.update();
+        System.out.println(choochoo.resourcesReport() + "\n");
+        System.out.println(Bob.getName() + "; Busy? " + Bob.isBusy() + "; Current Task? " + Bob.getCurrentTask().getName() + "; TaskTimer? " + Bob.getTaskTimer() + "; Task Completed? " + Bob.getTaskCompleted());
+        choochoo.update();
+        System.out.println(choochoo.resourcesReport() + "\n");
+        System.out.println(Bob.getName() + "; Busy? " + Bob.isBusy() + "; Current Task? " + Bob.getCurrentTask().getName() + "; TaskTimer? " + Bob.getTaskTimer() + "; Task Completed? " + Bob.getTaskCompleted());
+        //make the soldier forage
+        Bob.setTaskAndTimer(AntTaskBuilder.forage());
+        choochoo.update();
+        System.out.println(choochoo.resourcesReport() + "\n");
+        System.out.println(Bob.getName() + "; Busy? " + Bob.isBusy() + "; Current Task? " + Bob.getCurrentTask().getName() + "; TaskTimer? " + Bob.getTaskTimer() + "; Task Completed? " + Bob.getTaskCompleted());
+        choochoo.update();
+        System.out.println(choochoo.resourcesReport() + "\n");
+        System.out.println(Bob.getName() + "; Busy? " + Bob.isBusy() + "; Current Task? " + Bob.getCurrentTask().getName() + "; TaskTimer? " + Bob.getTaskTimer() + "; Task Completed? " + Bob.getTaskCompleted());
+    }
+    
+    public static void antUpdateTest() {
+        System.out.println("ANT TEST! " + choochoo.getAnts().size() + " ants.");
         printAnts();
         System.out.println();
         System.out.println(choochoo.getAnts().get(0).getName());
@@ -37,11 +78,5 @@ public class AntTestDriver {
         choochoo.update();
         System.out.println();
         printAnts();
-    }
-    
-    public static void printAnts() {
-        for(ActiveEntity bug : choochoo.getAnts()) {
-            System.out.println(choochoo.antToString(bug) + ": \"" + bug.status() + "\"");
-        }
     }
 }

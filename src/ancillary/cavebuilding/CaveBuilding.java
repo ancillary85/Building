@@ -14,9 +14,11 @@ import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.ToolBar;
@@ -50,11 +52,12 @@ public class CaveBuilding extends Application {
     private ToolBar topToolBar;
     private ScrollPane centerScroll;
     private GridPane centerGrid;
+    private HBox resBox;
+    
+    private ArrayList<Button> buttons;
     
     private Engine motor;
-    private LinkedList<Entity> people;
-    
-    
+
     //this is just for experimenting
     public enum direction {UP, DOWN, LEFT, RIGHT}
         
@@ -62,8 +65,9 @@ public class CaveBuilding extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-        getEngine(primaryStage);
-        getOccupants(primaryStage);
+        motor = new AntHillEngine();
+        setUpResources();
+        
         mainPane = new BorderPane();
         mainPane.setId("main-pane");
         
@@ -72,8 +76,10 @@ public class CaveBuilding extends Application {
         
         setUpCenterScroll();
         setUpCenterGrid();
+        setUpResBox();
         centerScroll.setContent(centerGrid);        
         mainPane.setCenter(centerScroll);
+        mainPane.setBottom(resBox);
         
         Scene scene = new Scene(mainPane);
         scene.getStylesheets().add(CaveBuilding.class.getResource("CaveBuilding.css").toExternalForm());
@@ -83,14 +89,14 @@ public class CaveBuilding extends Application {
         primaryStage.sizeToScene();
         primaryStage.show();
         
-        //EntityTesting();
+//        EntityTesting();
         
-        try {
-            
-            TaskParseTest();
-        } catch (SAXException | ParserConfigurationException | IOException ex) {
-            Logger.getLogger(CaveBuilding.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        try {
+//            
+//            TaskParseTest();
+//        } catch (SAXException | ParserConfigurationException | IOException ex) {
+//            Logger.getLogger(CaveBuilding.class.getName()).log(Level.SEVERE, null, ex);
+//        }
     }
 
     /**
@@ -98,6 +104,14 @@ public class CaveBuilding extends Application {
      */
     public static void main(String[] args) {
         launch(args);
+    }
+    
+    private void setUpResources() {
+        motor.addResource("Food", 10.0);
+        motor.addResource("Food", 10.0);
+        motor.addResource("Light bulbs", 2.0);
+        motor.addResource("Enemies", 15.0);
+        motor.addResource("Morale", -3.0);
     }
     
     private void setUpTopPane() {
@@ -131,10 +145,17 @@ public class CaveBuilding extends Application {
     }
     
     private void populate() {
+        buttons = new ArrayList<>();
+        
         //temp 5x5 grid of buttons
         for(int i = 0; i < 5; i++) {
             for(int j = 0; j < 5; j++) {
+                String antName = "Ant " + (j*5 +i + 1);
+                ActiveEntity ant = AntBuilder.makeWorker(antName, null);
+                motor.addActiveEntity(ant);
+                
                 Button b = new Button();
+                b.textProperty().bind(ant.getNameProp());
                 b.setPrefSize(SQUARESIZE, SQUARESIZE);
                 b.setId("center-grid-button");
                 b.setOnAction(new EventHandler<ActionEvent>() {
@@ -146,17 +167,52 @@ public class CaveBuilding extends Application {
                 });
                 
                 centerGrid.add(b, i, j);
-                
+                buttons.add(b);
             }
         }
     }
+    
+    private void setUpResBox() {
+        resBox = new HBox();
+        resBox.setId("res-box");
+        resBox.setPadding(new Insets(25));
+        
+        Label count = new Label("" + motor.getGlobalResources().size());
+        
+        /*
+        want to somehow bind count to motor.getGlobalResources().size()
+        */
+        
+        
+        resBox.getChildren().add(count);
 
-    private void getEngine(Stage primaryStage) {
-        //motor = new CaveEngine(primaryStage); 
+        for(Trait t : motor.getGlobalResources()) {
+            HBox resPair = new HBox();
+            resPair.setId("res-pair");
+            resPair.setSpacing(15);
+            
+            Label name = new Label();
+            name.textProperty().bind(t.getNameProp());
+            name.setId("res-name");
+            
+            Label value = new Label();
+            value.textProperty().bind(t.getValueProp().asString());
+            value.setId("res-value");
+            
+            resPair.getChildren().add(name);
+            resPair.getChildren().add(value);
+            resPair.getChildren().add(new Separator(Orientation.VERTICAL));
+            
+            resBox.getChildren().add(resPair);
+        }
+    }
+
+    public void setEngine(Engine e) {
+        motor = e;
     }
     
-    private void getOccupants(Stage primaryStage) {
-        people = new LinkedList<Entity>();
+    public Engine getEngine() {
+        return motor; 
     }
     
     private void EntityTesting() {
@@ -172,10 +228,10 @@ public class CaveBuilding extends Application {
         tasks.add(forage);
         tasks.add(fight);
         
-        ants.add(new ActiveEntity("worker", "Worker 1", "Hill", tasks, null));
-        ants.add(new ActiveEntity("worker", "Worker 2", "Burrow", tasks, null));
-        ants.add(new ActiveEntity("worker", "Worker 3", "Hill", tasks, null));
-        ants.add(new ActiveEntity("worker", "Worker 4", "Outside", tasks, null));
+        ants.add(new ActiveEntity("worker", "Worker 1", "Hill", tasks, null, AntBuilder.WORKER_TRAITS));
+        ants.add(new ActiveEntity("worker", "Worker 2", "Burrow", tasks, null, AntBuilder.WORKER_TRAITS));
+        ants.add(new ActiveEntity("worker", "Worker 3", "Hill", tasks, null, AntBuilder.WORKER_TRAITS));
+        ants.add(new ActiveEntity("worker", "Worker 4", "Outside", tasks, null, AntBuilder.WORKER_TRAITS));
         
         ants.get(0).setCurrentTask(0);
         ants.get(0).setTaskTimerFromCurrentTask();
