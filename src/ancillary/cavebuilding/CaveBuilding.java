@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
+import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -53,6 +54,7 @@ public class CaveBuilding extends Application {
     private ScrollPane centerScroll;
     private GridPane centerGrid;
     private HBox resBox;
+    private ListChangeListener resListener;
     
     private ArrayList<Button> buttons;
     
@@ -77,6 +79,7 @@ public class CaveBuilding extends Application {
         setUpCenterScroll();
         setUpCenterGrid();
         setUpResBox();
+        setUpResourceListener();
         centerScroll.setContent(centerGrid);        
         mainPane.setCenter(centerScroll);
         mainPane.setBottom(resBox);
@@ -172,20 +175,40 @@ public class CaveBuilding extends Application {
         }
     }
     
-    private void setUpResBox() {
-        resBox = new HBox();
-        resBox.setId("res-box");
-        resBox.setPadding(new Insets(25));
+    private void setUpResourceListener() {
+        resListener = new ListChangeListener() {
+            @Override
+            public void onChanged(ListChangeListener.Change c) {
+                
+                resBoxFill();
+//                while(c.next()) {
+//                    if(c.wasPermutated()) {
+//                        resBoxFill();
+//                    }
+//                    else if(c.wasUpdated()) {
+//                    //hopefully not needed?
+//                    }
+//                    else if(c.wasReplaced()) {
+//                        resBoxFill();
+//                    }
+//                    else if(c.wasRemoved()) {
+//                    
+//                    }
+//                    else if(c.wasAdded()) {
+//                    
+//                    }
+//                }
+            }
+            
+        };
         
-        Label count = new Label("" + motor.getGlobalResources().size());
+        motor.getGlobalResources().addListener(resListener);
+    }
+    
+    private void resBoxFill() {
         
-        /*
-        want to somehow bind count to motor.getGlobalResources().size()
-        */
+        resBox.getChildren().clear();
         
-        
-        resBox.getChildren().add(count);
-
         for(Trait t : motor.getGlobalResources()) {
             HBox resPair = new HBox();
             resPair.setId("res-pair");
@@ -205,6 +228,18 @@ public class CaveBuilding extends Application {
             
             resBox.getChildren().add(resPair);
         }
+    }
+    
+    private void setUpResBox() {
+        resBox = new HBox();
+        resBox.setId("res-box");
+        resBox.setPadding(new Insets(25));
+        
+//        Label count = new Label();
+//        count.textProperty().bind(motor.getGlobalResources().sizeProperty().asString());
+//        resBox.getChildren().add(count);
+
+        resBoxFill();
     }
 
     public void setEngine(Engine e) {

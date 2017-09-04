@@ -14,7 +14,24 @@ import java.util.List;
  */
 public class TraitEvaluator {
 
-    private static final String RESOURCE_DESC = "";
+    private String RESOURCE_DESC = "";
+    
+    
+    
+    
+    /**
+     * @return the RESOURCE_DESC
+     */
+    public String getRESOURCE_DESC() {
+        return RESOURCE_DESC;
+    }
+
+    /**
+     * @param RESOURCE_DESC the RESOURCE_DESC to set
+     */
+    public void setRESOURCE_DESC(String RESOURCE_DESC) {
+        this.RESOURCE_DESC = RESOURCE_DESC;
+    }
     
     /**
      * Update the given List of resources, represented as Traits, by evaluating the resource production Traits 
@@ -25,7 +42,7 @@ public class TraitEvaluator {
      * @param global_resources the List of resources to be adjusted
      * @param dude the ActiveEntity whose Traits will be used
      */
-    public static void resourcesFromTraits(List<Trait> global_resources, ActiveEntity dude) {
+    public void resourcesFromTraits(List<Trait> global_resources, ActiveEntity dude) {
         
         Trait[] dudeTraits = dude.getTraits().stream().filter(t -> validResourceTrait(t)).toArray(Trait[]::new);
         ArrayList<Trait> toAdd = new ArrayList();
@@ -44,7 +61,7 @@ public class TraitEvaluator {
             
             //If we never found it in global_resources, be ready to add it in after we're done iterating
             if(!alreadyInGlobalResources) {
-                    toAdd.add(new Trait(resourceFromDescription(production), production.getValue(), RESOURCE_DESC, Trait.trait_type.RESOURCE));
+                    toAdd.add(new Trait(resourceFromDescription(production), production.getValue(), getRESOURCE_DESC(), Trait.trait_type.RESOURCE));
             }
         }
         
@@ -58,7 +75,7 @@ public class TraitEvaluator {
      * @param global_resources the List of resources to be adjusted
      * @param dudes the ActiveEntities whose Traits will be used
      */
-    public static void resourcesFromGroup(List<Trait> global_resources, List<ActiveEntity> dudes) {
+    public void resourcesFromGroup(List<Trait> global_resources, List<ActiveEntity> dudes) {
         for(ActiveEntity e : dudes) {
             resourcesFromTraits(global_resources, e);
         }

@@ -7,7 +7,8 @@ package ancillary.cavebuilding;
 
 import java.util.ArrayList;
 import java.util.List;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
 
 /**
  *
@@ -15,19 +16,18 @@ import javafx.beans.property.SimpleObjectProperty;
  */
 public abstract class Engine {
 
-    /**
-     * The global resource pool
-     */
-    protected SimpleObjectProperty<ArrayList<Trait>> global_resources = new SimpleObjectProperty<>(new ArrayList<>());
+    protected SimpleListProperty<Trait> global_resources;
+    private TraitEvaluator traitEval;
+
+    public Engine() {
+        this.global_resources = new SimpleListProperty<>(FXCollections.observableArrayList());
+        this.traitEval = new TraitEvaluator();
+    }
     
     /**
      * @return the global resource pool
      */
-    public ArrayList<Trait> getGlobalResources() {
-        return global_resources.get();
-    }
-    
-    public SimpleObjectProperty<ArrayList<Trait>> getGlobalResourcesProp() {
+    public SimpleListProperty<Trait> getGlobalResources() {
         return global_resources;
     }
     
@@ -41,19 +41,19 @@ public abstract class Engine {
      */
     public void addResource(String name, double value) {
         
-        for(Trait res : global_resources.get()) {
+        for(Trait res : global_resources) {
             if(res.getName().equals(name)) {
                 res.addToValue(value);
                 return; //return if we found the resource in the pool
             }
         }
         
-        global_resources.get().add(new Trait(name, value, "", Trait.trait_type.RESOURCE));
+        global_resources.get().add(new Trait(name, value, Trait.trait_type.RESOURCE));
     }
     
     /**
      * Adds the given resource to the global pool. If the global resource pool already contains a resource Trait with the 
-     * same name, it adds their values. If it does not have one, it makes a new resource Trait with the value and no description. 
+     * same name, it adds their values. If it does not have one, it adds the Trait to the pool.
      * Negative values are allowed.
      * 
      * @param t the resource
@@ -67,17 +67,17 @@ public abstract class Engine {
             }
         }
         
-        global_resources.get().add(new Trait(t.getName(), t.getValue(), "", Trait.trait_type.RESOURCE));
+        global_resources.add(t);
     }
     
     /**
      * @return a String representation of the global resources' names and values
      */
     public String resourcesReport() {
-        String[] result = new String[global_resources.get().size()];
+        String[] result = new String[global_resources.size()];
         
         for(int i = 0; i < result.length; i++) {
-            result[i] = global_resources.get().get(i).getName() + ": " + global_resources.get().get(i).getValue();
+            result[i] = global_resources.get(i).getName() + ": " + global_resources.get(i).getValue();
         }
         
         return String.join("\n", result);
@@ -87,24 +87,38 @@ public abstract class Engine {
      * @return a String representation of the global resources' names, values, and descriptions
      */
     public String resourcesReportDesc() {
-        String[] result = new String[global_resources.get().size()];
+        String[] result = new String[global_resources.size()];
         
         for(int i = 0; i < result.length; i++) {
-            result[i] = global_resources.get().get(i).getName() + ": " + global_resources.get().get(i).getValue() + " --- " + global_resources.get().get(i).getDesc();
+            result[i] = global_resources.get(i).getName() + ": " + global_resources.get(i).getValue() + " --- " + global_resources.get(i).getDesc();
         }
         
         return String.join("\n", result);
+    }
+
+    /**
+     * @return the traitEval
+     */
+    public TraitEvaluator getTraitEval() {
+        return traitEval;
+    }
+
+    /**
+     * @param traitEval the traitEval to set
+     */
+    public void setTraitEval(TraitEvaluator traitEval) {
+        this.traitEval = traitEval;
     }
     
     /**
      * Calls TraitEvaluator.resourcesFromGroup(this.getGlobalResources(), this.getActiveEntities()) and
      * then loops through the ActiveEntities and updates them and checks for a completed task. The results
-     * of completed tasks are added to the global resources.
+     * of completed tasks are added to the global resources using addResource(name, value).
      * Engines that want more or different behavior should override this. Most Engines can begin their
      * version of update() with super() or just copy the previous line of code.
      */
     public void update() {
-        TraitEvaluator.resourcesFromGroup(this.getGlobalResources(), this.getActiveEntities());
+        traitEval.resourcesFromGroup(this.getGlobalResources(), this.getActiveEntities());
         
         for(ActiveEntity e : this.getActiveEntities()) {
             e.entityUpdate(null);
