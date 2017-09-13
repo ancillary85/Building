@@ -19,7 +19,7 @@ public class AntTaskBuilder {
     private static final Trait.trait_type[] pRR = TraitBuilder.personalResourceResult;
     
     public static Task dig() {
-        Task DIG = new Task("Dig", 1, 
+        Task DIG = new Task("Dig", 1, "Digging",
             null, 
             null,
             new Trait[]{new Trait("Space", 1.0, rPR)},
@@ -27,7 +27,7 @@ public class AntTaskBuilder {
         return DIG;
     }
     public static Task forage() {
-        Task FORAGE = new Task("Forage", 2, 
+        Task FORAGE = new Task("Forage", 2, "Foraging",
             null, 
             null, 
             new Trait[]{new Trait("Food", 1.0, rPR)},
@@ -35,7 +35,7 @@ public class AntTaskBuilder {
         return FORAGE;
     }
     public static Task hunt() {
-        Task HUNT = new Task("Hunt", 3, 
+        Task HUNT = new Task("Hunt", 3, "Hunting",
             new String[]{"Stamina -1 " + Task.PERSONAL_RESOURCE}, 
             new String[]{"Stamina >0 " + Task.RESOURCE}, 
             new Trait[]{new Trait("Food", 2.0, rPR)},
@@ -43,7 +43,7 @@ public class AntTaskBuilder {
         return HUNT;
     }
     public static Task larvaCare() {
-        Task LARVA_CARE = new Task("Tend to Larva", 1, 
+        Task LARVA_CARE = new Task("Tend to Larva", 1, "Larva tending",
             new String[]{"Food -1 " + Task.RESOURCE, Task.SELF + " = " + AntBuilder.WORKER}, 
             new String[]{"Food >0 " + Task.RESOURCE, "Larva >0 " + Task.ENTITY}, 
             new Trait[]{new Trait("Larva Stamina", 1.0, pRR)}, 
@@ -51,7 +51,7 @@ public class AntTaskBuilder {
         return LARVA_CARE;
     }
     public static Task eat() {
-        Task EAT = new Task("Eat", 2, 
+        Task EAT = new Task("Eat", 2, "Eating",
             new String[]{"Food -1 " + Task.RESOURCE}, 
             new String[]{"Food >0 " + Task.RESOURCE}, 
             new Trait[]{new Trait("Stamina", 4.0, rPR)},
@@ -59,7 +59,7 @@ public class AntTaskBuilder {
         return EAT;
     }
     public static Task rest() {
-        Task REST = new Task("Rest", 1, 
+        Task REST = new Task("Rest", 1, "Resting",
             null, 
             null, 
             new Trait[]{new Trait("Stamina", 1.0, pRR)},
@@ -68,7 +68,7 @@ public class AntTaskBuilder {
     }
     
     public static Task fight() {
-        Task FIGHT = new Task("Fight", 1,
+        Task FIGHT = new Task("Fight", 1, "Fighting",
             new String[]{"Stamina -2 " + Task.PERSONAL_RESOURCE},
             new String[]{"Stamina >1 " + Task.PERSONAL_RESOURCE},
             new Trait[]{new Trait("Enemies", -1.0, rPR)},

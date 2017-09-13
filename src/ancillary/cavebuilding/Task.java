@@ -27,6 +27,7 @@ public class Task {
     
     private SimpleStringProperty name;
     private SimpleIntegerProperty duration;
+    private SimpleStringProperty gerund;
     private SimpleStringProperty[] costs;
     private SimpleStringProperty[] requirements;
     private SimpleObjectProperty<Trait[]> results;
@@ -35,6 +36,7 @@ public class Task {
     public Task() {
         name = new SimpleStringProperty("no task");
         duration = new SimpleIntegerProperty(0);
+        gerund = new SimpleStringProperty("");
         setUpCosts(null);
         setUpRequirements(null);
         setUpResults(null);
@@ -42,14 +44,25 @@ public class Task {
     }
     
     public Task(String initName, int initDuration, String[] initCosts , 
-       String[] initRequirements, Trait[] initResults, String initFlavor) {
+        String[] initRequirements, Trait[] initResults, String initFlavor) {
         name = new SimpleStringProperty(initName);
         duration = new SimpleIntegerProperty(initDuration);
-        
-         setUpCosts(initCosts);
-         setUpRequirements(initRequirements);
-         setUpResults(initResults);        
-         setUpFlavor(initFlavor);        
+        gerund = new SimpleStringProperty(initName + "ing");
+        setUpCosts(initCosts);
+        setUpRequirements(initRequirements);
+        setUpResults(initResults);        
+        setUpFlavor(initFlavor);        
+    }
+    
+    public Task(String initName, int initDuration, String initGerund, String[] initCosts , 
+        String[] initRequirements, Trait[] initResults, String initFlavor) {
+        name = new SimpleStringProperty(initName);
+        duration = new SimpleIntegerProperty(initDuration);
+        gerund = new SimpleStringProperty(initGerund);
+        setUpCosts(initCosts);
+        setUpRequirements(initRequirements);
+        setUpResults(initResults);        
+        setUpFlavor(initFlavor);        
     }
     
 //    public Task(Task t) {
@@ -64,7 +77,7 @@ public class Task {
     private void setUpCosts(String[] initCosts) {
         if(initCosts == null) {
             costs = new SimpleStringProperty[1];
-            costs[0] = new SimpleStringProperty("none");
+            costs[0] = new SimpleStringProperty("no costs");
         }
         else {
             costs = new SimpleStringProperty[initCosts.length];
@@ -123,6 +136,7 @@ public class Task {
         name.set("no task");
         duration.set(0);
         flavor.set("Doing nothing");
+        gerund.set("");
     }
     
     @Override
@@ -136,7 +150,7 @@ public class Task {
         }
         
         s += String.join(", ", costArray);
-        s += "\nRequires: ";
+        s += "; Requires: ";
         
         String[] requirementArray = new String[requirements.length];
         for(int i = 0; i < requirements.length; i++) {
@@ -144,7 +158,7 @@ public class Task {
         }
         
         s += String.join(", ", requirementArray);
-        s += "\nResults: ";
+        s += "; Results: ";
         
         String[] resultArray = new String[results.get().length];
         for(int i = 0; i < results.get().length; i++) {
@@ -167,6 +181,7 @@ public class Task {
     public void setToNewTask(Task t) {
         this.setName(t.getName());
         this.setDuration(t.getDuration());
+        this.setGerund(t.getGerund());
         this.setCostsProp(t.getCostsProp());
         this.setRequirementsProp(t.getRequirementsProp());
         this.setResults(t.getResults());
@@ -207,6 +222,17 @@ public class Task {
     public String getName() {
         return name.get();
     }
+
+    public void setName(String newName) {
+        name.set(newName);
+    }
+    
+    /**
+     * @return the name property
+     */
+    public SimpleStringProperty getNameProp() {
+        return name;
+    }
     
     /**
      * @return the duration as an int
@@ -215,12 +241,43 @@ public class Task {
         return duration.get();
     }
     
-    public void setName(String newName) {
-        name.set(newName);
-    }
-    
     public void setDuration(int newDuration) {
         duration.set(newDuration);
+    }
+    
+    /**
+     * @return the duration
+     */
+    public SimpleIntegerProperty getDurationProp() {
+        return duration;
+    }
+    
+    /**
+     * @param duration the duration to set
+     */
+    public void setDurationProp(SimpleIntegerProperty duration) {
+        this.duration = duration;
+    }
+    
+    /**
+     * @return the gerund of the Task
+     */
+    public String getGerund() {
+        return gerund.get();
+    }
+    
+    /**
+     * @param newGerund the gerund to set
+     */
+    public void setGerund(String newGerund) {
+        gerund.set(newGerund);
+    }
+    
+    /**
+     * @return the gerund property
+     */
+    public SimpleStringProperty getGerundProp() {
+        return gerund;
     }
     
     /**
@@ -272,32 +329,13 @@ public class Task {
         return results;
     }
     
-    /**
-     * @return the name property
-     */
-    public SimpleStringProperty getNameProp() {
-        return name;
-    }
+
     
     /**
      * @param name the name to set
      */
     public void setNameProp(SimpleStringProperty name) {
         this.name = name;
-    }
-
-    /**
-     * @return the duration
-     */
-    public SimpleIntegerProperty getDurationProp() {
-        return duration;
-    }
-
-    /**
-     * @param duration the duration to set
-     */
-    public void setDurationProp(SimpleIntegerProperty duration) {
-        this.duration = duration;
     }
 
     /**

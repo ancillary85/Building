@@ -7,6 +7,11 @@ and open the template in the editor.
     Created on : Jun 16, 2017, 5:08:03 PM
     Author     : Mike
 */
+
+.separator:vertical {
+    
+}
+
 #center-text {
     
 }
@@ -19,18 +24,68 @@ and open the template in the editor.
     
 }
 
-#center-grid {
-/*    -fx-grid-lines-visible:true;*/
+#centerGrid {
+    -fx-padding: 25;
 }
 
 #center-grid-button {
-    -fx-base:brown;
+    -fx-base:cyan;
     -fx-border-radius:0;
     -fx-background-radius:0;
-    
-    
+    -fx-max-width:500;
+    -fx-max-height:500;
+    -fx-pref-height:100;
+    -fx-pref-width:100;
+    -fx-min-height:20;
+    -fx-min-width:20;
 /*    -fx-background-image: url("stone.jpg");
     -fx-background-size: 350px 350px;
     -fx-background-repeat: no-repeat;
     -fx-background-position: center;*/
+}
+
+#center-grid-button-VBox {
+    -fx-alignment:CENTER;
+}
+
+#center-grid-button-name {
+    -fx-alignment:CENTER;
+    -fx-text-fill:black;
+    -fx-font-size:15;
+}
+
+#center-grid-button-status {
+    -fx-alignment:CENTER;
+    -fx-text-fill:orange;
+    -fx-font-size:12;
+    -fx-font-weight:bold;
+}
+
+#active-name {
+    -fx-text-fill:mediumslateblue;
+}
+
+#active-status {
+    -fx-text-fill:orange;
+}
+
+#res-pair {
+    /* HBox containing resource name and resource value */
+    -fx-alignment:CENTER;
+}
+
+#res-name {
+    /* Label - resource name */
+    -fx-alignment:CENTER;
+}
+
+#res-value {
+    /* Label - resource value */
+    -fx-alignment:CENTER;
+    -fx-text-fill:chartreuse;
+}
+
+#report-text {
+    -fx-text-fill:chartreuse;
+    -fx-font-size:15;
 }
