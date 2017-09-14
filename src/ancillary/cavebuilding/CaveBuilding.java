@@ -109,17 +109,23 @@ public class CaveBuilding extends Application {
 //        primaryStage.show();
         
     try {
-            FXMLLoader loader = new FXMLLoader(CaveBuilding.class.getResource("FXMLtest.fxml"));
-            Scene scene = new Scene(loader.load());
-            FXMLtestController controller = loader.getController();
-            controller.setPrimaryStage(primaryStage);
-            controller.setUpEntityDetailWindow(new Scene(FXMLLoader.load(CaveBuilding.class.getResource("detailWindow.fxml"))));
-            primaryStage.setScene(scene);
+            motor = new AntHillEngine();
+            MainController controller = new MainController(primaryStage, motor);
+            FXMLLoader loader1 = new FXMLLoader(CaveBuilding.class.getResource("mainWindow.fxml"));
+            loader1.setController(controller);
+            FXMLLoader loader2 = new FXMLLoader(CaveBuilding.class.getResource("detailWindow.fxml"));
+            loader2.setController(controller);
+            primaryStage.setScene(new Scene(loader1.load()));
+            
+            Scene detailScene = new Scene(loader2.load());
+            Stage detailStage = new Stage();
+            detailStage.setScene(detailScene);
+            controller.setDetailStage(detailStage);
+            
             primaryStage.setTitle("CaveBuilding");
             primaryStage.show();
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             Logger.getLogger(CaveBuilding.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println(ex.getCause());
         }
 
 //        EntityTesting();

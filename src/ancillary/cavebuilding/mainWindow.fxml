@@ -13,19 +13,17 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Text?>
 
-<BorderPane fx:id="mainBorderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="768.0" prefWidth="1024.0" stylesheets="@CaveBuilding.css" xmlns="http://javafx.com/javafx/8.0.102" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ancillary.cavebuilding.FXMLtestController">
+<BorderPane fx:id="mainBorderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="768.0" prefWidth="1024.0" stylesheets="@CaveBuilding.css" xmlns="http://javafx.com/javafx/8.0.102" xmlns:fx="http://javafx.com/fxml/1">
    <top>
       <ToolBar fx:id="topToolBar" BorderPane.alignment="CENTER">
         <items>
-          <Button mnemonicParsing="false" onAction="#updateButtonFired" text="Update" />
+          <Button mnemonicParsing="false" onAction="#updateFired" text="Update" />
             <Separator orientation="VERTICAL" />
             <MenuButton alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false">
               <items>
                 <MenuItem mnemonicParsing="false" onAction="#fooPlus" text="Foo +1" />
                   <MenuItem mnemonicParsing="false" onAction="#fooMinus" text="Foo -1" />
-                <MenuItem mnemonicParsing="false" onAction="#clearReportText" text="Clear Report" />
               </items>
                <graphic>
                   <VBox alignment="CENTER">
@@ -38,9 +36,8 @@
                </graphic>
             </MenuButton>
             <Separator layoutX="69.0" layoutY="10.0" orientation="VERTICAL" />
-            <Button mnemonicParsing="false" onAction="#exitButtonFired" text="Exit" />
+            <Button mnemonicParsing="false" onAction="#exitFired" text="Exit" />
             <Separator layoutX="157.0" layoutY="10.0" orientation="VERTICAL" />
-            <Button fx:id="tempShowDetailWindow" mnemonicParsing="false" onAction="#tempShowDetailWindow" text="Details" />
         </items>
       </ToolBar>
    </top>
@@ -71,14 +68,4 @@
    <bottom>
       <HBox fx:id="resBox" alignment="CENTER" minHeight="30.0" BorderPane.alignment="CENTER" />
    </bottom>
-   <right>
-      <ScrollPane fx:id="rightScroll" prefWidth="300.0" BorderPane.alignment="CENTER">
-         <content>
-            <VBox fx:id="rightPane" prefHeight="200.0" prefWidth="100.0">
-               <children>
-                  <Text id="report-text" fx:id="reportText" strokeType="OUTSIDE" strokeWidth="0.0" VBox.vgrow="ALWAYS" />
-               </children></VBox>
-         </content>
-      </ScrollPane>
-   </right>
 </BorderPane>

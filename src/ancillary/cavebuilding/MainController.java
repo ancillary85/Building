@@ -44,6 +44,8 @@ import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -63,16 +65,12 @@ import javafx.stage.StageStyle;
  *
  * @author Alecto
  */
-public class FXMLtestController implements Initializable {
+public class MainController implements Initializable {
     
     @FXML
     private ScrollPane leftScroll;
     @FXML
     private VBox leftPane;
-    @FXML
-    private ScrollPane rightScroll;
-    @FXML
-    private VBox rightPane;
     @FXML
     private BorderPane mainBorderPane;
     @FXML
@@ -83,13 +81,16 @@ public class FXMLtestController implements Initializable {
     private GridPane centerGrid;
     @FXML
     private HBox resBox;
+    @FXML
+    private Label entityDetailName;
+    @FXML
+    private TabPane entityDetailTabs;
+    @FXML
+    private Tab entityTraitsTab;
     @FXML 
-    private Text reportText;
-    @FXML
-    private Stage entityDetailWindow;
-    @FXML
-    private Control tempShowDetailWindow;
-
+    private Tab entityTasksTab;
+    
+    private Stage entityDetail;
     private Stage primaryStage;
     private Engine motor;
     private ListChangeListener resListener;
@@ -99,6 +100,38 @@ public class FXMLtestController implements Initializable {
     private static final int ROOM_ROWS = 5;
     
     private StringProperty stringProp;
+    
+    public MainController(Stage initPrimary) {
+        primaryStage = initPrimary;
+        setUpDefaultMotor();
+        setUpDefaultDetail();
+    }
+    
+    public MainController(Stage initPrimary, Engine initEngine) {
+        primaryStage = initPrimary;
+        motor = initEngine;
+        setUpDefaultDetail();
+    }
+    
+    public MainController(Stage initPrimary, Engine initEngine, Stage initDetails) {
+        primaryStage = initPrimary;
+        motor = initEngine;
+        entityDetail = initDetails;
+    }
+    
+    private void setUpDefaultMotor() {
+        motor = new AntHillEngine();
+    }
+    
+    private void setUpDefaultDetail() {
+        entityDetail = new Stage();
+        
+        HBox hb = new HBox();
+        Button b = new Button("Close");
+        
+        hb.getChildren().addAll(b);
+    }
+    
     /**
      * Initializes the controller class.
      * @param url
@@ -113,7 +146,7 @@ public class FXMLtestController implements Initializable {
         setUpCenterGrid();
         setUpResBox();
         setUpResourceListener();
-        //setUpEntityDetailWindow();
+        setUpEntityDetailWindow();
     }    
 
     private void setUpResources() {
@@ -170,62 +203,20 @@ public class FXMLtestController implements Initializable {
                 ActiveEntity ant = AntBuilder.makeWorker(antName, null);
                 motor.addActiveEntity(ant);
                 
-                MenuItem m1 = new MenuItem("Print name and ID");
-                m1.setOnAction((ActionEvent e) -> {
-                    System.out.println(ant.getName() + ": " + ant.getID());
-                    reportTextPrint(ant.getName() + " talked about itself");
-                });
-                
-                MenuItem m2 = new MenuItem("Print tasks");
-                m2.setOnAction((ActionEvent e) -> {
-                    String results = "";
-                    
-                    for(Task t : ant.getTasks()) {
-                        results += t.toString() + "\n";
-                    }
-                    reportTextPrint(results + "----------\n");
-                });
-                
-                MenuItem m3 = new MenuItem("Am I cool?");
-                m3.setOnAction((ActionEvent e) -> {
-                    ant.setName(ant.getName() + " is cool!");
-                });
-                
                 Menu nestedTasks = new Menu("Tasks");
                 nestedTasks.getItems().addAll(menuOfTasks(ant));
                 
                 MenuButton antButton = new MenuButton();
-                VBox labels = new VBox();
-                Label name = new Label();
-                name.textProperty().bind(ant.getNameProp());
-                Label status = new Label("");
-                
-                ant.getBusyProp().addListener(new ChangeListener<Boolean>() {
-                    @Override
-                    public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                        if(newValue.booleanValue()) {
-                            status.setText(ant.getCurrentTask().getGerund());
-                        }
-                        else {
-                            status.setText("");
-                        }
-                    }
-                });
-                
-                name.setId("center-grid-button-name");
-                status.setId("center-grid-button-status");
-                labels.setId("center-grid-button-VBox");
-                labels.getChildren().addAll(name, new Separator(Orientation.HORIZONTAL), status);
-                antButton.setGraphic(labels);
-                antButton.getItems().addAll(m1, m2, m3, nestedTasks);
-                antButton.setId("center-grid-button");
-                
-                
-                centerGrid.add(antButton, column, row);
+                VBox summary = EntitySummary.getSummary(ant);
+                antButton.setGraphic(summary);
+                antButton.getItems().add(nestedTasks);
+                antButton.setId("summary-button");
+                //centerGrid.add(antButton, column, row);
+                leftPane.getChildren().add(antButton);
                 buttons.add(antButton);
             }
         }
-    }    
+    }
     
     private Collection<MenuItem> menuOfTasks(ActiveEntity ant) {
         ArrayList<MenuItem> antTasks = new ArrayList<>(ant.getTasks().size());
@@ -253,14 +244,6 @@ public class FXMLtestController implements Initializable {
         
         
         return antTasks;
-    }
-    
-    private void reportTextPrint(String s) {
-        if(reportText.getText().length() > 10000) {
-            reportText.setText(reportText.getText().substring(0, 5000));
-        }
-        
-        reportText.setText(s + "\n" + reportText.getText());
     }
     
     private void setUpResourceListener() {
@@ -328,43 +311,20 @@ public class FXMLtestController implements Initializable {
         resBoxFill();
     }
 
-    public void setUpEntityDetailWindow(Scene s) {
+    public void setUpEntityDetailWindow() {
          
-        entityDetailWindow = new Stage();
-        entityDetailWindow.initOwner(primaryStage);
-//        entityDetailWindow.initModality(Modality.APPLICATION_MODAL);
-//        entityDetailWindow.initStyle(StageStyle.DECORATED);
-//        entityDetailWindow.setResizable(false);
-//        entityDetailWindow.sizeToScene();        
         
+        entityDetail.initOwner(primaryStage);
+        entityDetail.initModality(Modality.APPLICATION_MODAL);
+        entityDetail.initStyle(StageStyle.UNDECORATED);
+        entityDetail.setResizable(false);
+        entityDetail.sizeToScene();        
+        entityDetail.setTitle("Details");
 
-        //entityDetailWindow.setScene(new Scene(FXMLLoader.load(FXMLtestController.class.getResource("detailWindow.fxml"))));
-        entityDetailWindow.setScene(s);
-//        dummyDetail();
-        entityDetailWindow.setTitle("Details");
-
-        
-        
     }
     
-    private void dummyDetail() {
-        //entityDetailWindow.setScene(new Scene(new Button("HI!")));
-        
-        try {
-           FXMLLoader loader = new FXMLLoader(CaveBuilding.class.getResource("detailWindow.fxml")); 
-           //Parent p = FXMLLoader.load(FXMLtestController.class.getResource("detailWindow.fxml"));
-            System.out.println("1");
-            System.out.println(loader.getLocation());
-            entityDetailWindow.setScene(loader.load());
-        }
-        catch (Exception e) {
-            System.out.println("2");
-            System.out.println(e);
-        }
-    }
-    
-    public void entityDetailWindowClose(ActionEvent e) {
-        entityDetailWindow.close();
+    public void entityDetailClose(ActionEvent e) {
+        entityDetail.close();
     }
     
     public void fooPlus(ActionEvent e) {
@@ -375,16 +335,13 @@ public class FXMLtestController implements Initializable {
                 motor.addResource(new Trait("Foo", -1, Trait.trait_type.RESOURCE));
     }
     
-    public void updateButtonFired(ActionEvent e) {
+    public void updateFired(ActionEvent e) {
         motor.update();
     }
     
-    public void exitButtonFired(ActionEvent e) {
+    public void exitFired(ActionEvent e) {
+        entityDetail.close();
         Platform.exit();
-    }
-    
-    public void clearReportText(ActionEvent e) {
-        reportText.setText("");
     }
     
     public void taskSelected(ActionEvent e) {
@@ -392,16 +349,21 @@ public class FXMLtestController implements Initializable {
     }
     
     public void tempShowDetailWindow(ActionEvent e) {
-        if(entityDetailWindow.isShowing()) {
+        if(entityDetail.isShowing()) {
             return;
         }
         else {
-            entityDetailWindow.showAndWait();
+            entityDetail.showAndWait();
         }
     }
     
-    public void setPrimaryStage(Stage s) {
-        primaryStage = s;
+    public void setPrimaryStage(Stage newPrimary) {
+        primaryStage = newPrimary;
+    }
+    
+    public void setDetailStage(Stage newDetail) {
+        entityDetail = newDetail;
+        setUpEntityDetailWindow();
     }
     
     public void setEngine(Engine e) {
@@ -439,34 +401,6 @@ public class FXMLtestController implements Initializable {
      */
     public void setLeftPane(VBox leftPane) {
         this.leftPane = leftPane;
-    }
-
-    /**
-     * @return the rightScroll
-     */
-    public ScrollPane getRightScroll() {
-        return rightScroll;
-    }
-
-    /**
-     * @param rightScroll the rightScroll to set
-     */
-    public void setRightScroll(ScrollPane rightScroll) {
-        this.rightScroll = rightScroll;
-    }
-
-    /**
-     * @return the rightPane
-     */
-    public VBox getRightPane() {
-        return rightPane;
-    }
-
-    /**
-     * @param rightPane the rightPane to set
-     */
-    public void setRightPane(VBox rightPane) {
-        this.rightPane = rightPane;
     }
 
     /**
