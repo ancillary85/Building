@@ -130,6 +130,16 @@ public class TraitEvaluator {
         return false;
     }
     
+    public static boolean isHiddenResource(Trait t) {
+        for(Trait.trait_type foo : t.getTypes()) {
+            if(foo.equals(Trait.trait_type.HIDDEN_RESOURCE)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
     public static boolean resourcesMatch(Trait stock, Trait production) {
         return (stock.getName().equals(resourceFromDescription(production)) || stock.getName().equals(production.getName()));
     } 

@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,9 +48,11 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -84,11 +87,9 @@ public class MainController implements Initializable {
     @FXML
     private Label entityDetailName;
     @FXML
-    private TabPane entityDetailTabs;
-    @FXML
-    private Tab entityTraitsTab;
+    private FlowPane traitsFlow;
     @FXML 
-    private Tab entityTasksTab;
+    private FlowPane tasksFlow;
     
     private Stage entityDetail;
     private Stage primaryStage;
@@ -98,6 +99,7 @@ public class MainController implements Initializable {
     private static final int SQUARESIZE = 100;
     private static final int ROOM_COLUMNS = 5;
     private static final int ROOM_ROWS = 5;
+    private boolean init = false;
     
     private StringProperty stringProp;
     
@@ -140,13 +142,18 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
-        motor = new AntHillEngine();
+        if(init) {
+            return;
+        }
+        
         setUpResources();
         setUpTopPane();
         setUpCenterGrid();
         setUpResBox();
         setUpResourceListener();
         setUpEntityDetailWindow();
+        
+        init = true;
     }    
 
     private void setUpResources() {
@@ -163,7 +170,7 @@ public class MainController implements Initializable {
     }
 
     private void setUpCenterGrid() {
-       
+        
         for(Node n : centerGrid.getChildren()) {
             GridPane.setHgrow(n, Priority.ALWAYS);
             GridPane.setVgrow(n, Priority.ALWAYS);
@@ -187,13 +194,63 @@ public class MainController implements Initializable {
             centerGrid.getRowConstraints().add(r);
         }
         
-        populate(); 
+        populate();
+        
         
         centerScroll.setFitToHeight(true);
         centerScroll.setFitToWidth(true);
     }
     
     public void populate() {
+        
+        for(int i = 0; i < 5; i++) {
+            ActiveEntity ant = AntBuilder.makeWorker("Ant " + i, null);
+            motor.addActiveEntity(ant);
+            
+            Button antButton = new Button();
+            antButton.setGraphic(EntitySummary.getSummary(ant));
+            antButton.setId("summary-button");
+            
+            antButton.setOnAction((ActionEvent e) -> {
+                showDetailWindow(ant);
+            });
+            
+            leftPane.getChildren().add(antButton);
+        }
+        
+        ActiveEntity soldier = AntBuilder.makeSoldier("Soldier 1", null);
+        motor.addActiveEntity(soldier);
+        Button antButton = new Button();
+        antButton.setGraphic(EntitySummary.getSummary(soldier));
+        antButton.setId("summary-button");
+            
+        antButton.setOnAction((ActionEvent e) -> {
+            showDetailWindow(soldier);
+        });
+            
+        leftPane.getChildren().add(antButton);
+        
+        
+        
+        ActiveEntity test = AntBuilder.makeSoldier("Soldier 2", null);
+        test.getTraits().add(new Trait());
+        test.getTraits().add(new Trait("Test Trait 1", 55.0, Trait.trait_type.FLAVOR));
+        test.getTraits().add(new Trait("Test Trait 2", 123456789.0, Trait.trait_type.FLAVOR));
+        test.getTraits().add(new Trait("Test Trait 3", 0, Trait.trait_type.FLAVOR));
+        test.getTraits().add(new Trait("Test Trait 4 with a longer name", 42, Trait.trait_type.FLAVOR));
+        motor.addActiveEntity(test);
+        Button testButton = new Button();
+        testButton.setGraphic(EntitySummary.getSummary(test));
+        testButton.setId("summary-button");
+            
+        testButton.setOnAction((ActionEvent e) -> {
+            showDetailWindow(test);
+        });
+            
+        leftPane.getChildren().add(testButton);
+    }
+    
+    public void populate1() {
         buttons = new ArrayList<>();
         
         //temp 5x5 grid of buttons
@@ -206,10 +263,15 @@ public class MainController implements Initializable {
                 Menu nestedTasks = new Menu("Tasks");
                 nestedTasks.getItems().addAll(menuOfTasks(ant));
                 
+                MenuItem temp1 = new MenuItem("Current Task Timer");
+                temp1.setOnAction((ActionEvent e) -> {
+                    System.out.println(ant.getTaskTimer());
+                });
+                
                 MenuButton antButton = new MenuButton();
-                VBox summary = EntitySummary.getSummary(ant);
+                Node summary = EntitySummary.getSummary(ant);
                 antButton.setGraphic(summary);
-                antButton.getItems().add(nestedTasks);
+                antButton.getItems().addAll(nestedTasks, temp1);
                 antButton.setId("summary-button");
                 //centerGrid.add(antButton, column, row);
                 leftPane.getChildren().add(antButton);
@@ -222,28 +284,31 @@ public class MainController implements Initializable {
         ArrayList<MenuItem> antTasks = new ArrayList<>(ant.getTasks().size());
         
         for(Task t : ant.getTasks()) {
-            MenuItem tempMenu = new MenuItem();
-            tempMenu.textProperty().bind(t.getNameProp());
+            MenuItem taskMenu = new MenuItem();
+            taskMenu.textProperty().bind(t.getNameProp());
             
-            tempMenu.setOnAction((ActionEvent e) -> {
+            taskMenu.setOnAction((ActionEvent e) -> {
                 ant.setTaskAndTimer(t);
             });
             
-            MenuItem temp1 = new MenuItem("temp1");
-            MenuItem temp2 = new MenuItem("temp2");
-            ContextMenu cm = new ContextMenu(temp1, temp2);
-            
-            tempMenu.addEventHandler(MouseEvent.MOUSE_ENTERED, (MouseEvent event) -> {
-                System.out.println("detected");
-                cm.show(centerGrid, Side.RIGHT, 0, 0);
-            });
-            
-            
-            antTasks.add(tempMenu);
+            antTasks.add(taskMenu);
         }
         
-        
         return antTasks;
+    }
+    
+    public void addWorker(String name) {
+        ActiveEntity worker = AntBuilder.makeWorker(name, null);
+        motor.addActiveEntity(worker);
+        Button antButton = new Button();
+        antButton.setGraphic(EntitySummary.getSummary(worker));
+        antButton.setId("summary-button");
+            
+        antButton.setOnAction((ActionEvent e) -> {
+            showDetailWindow(worker);
+        });
+            
+        leftPane.getChildren().add(antButton);
     }
     
     private void setUpResourceListener() {
@@ -282,6 +347,10 @@ public class MainController implements Initializable {
         
         
         for(Trait t : motor.getGlobalResources()) {
+            if(TraitEvaluator.isHiddenResource(t)) {
+                continue;
+            }
+            
             HBox resPair = new HBox();
             resPair.setId("res-pair");
             resPair.setSpacing(15);
@@ -313,7 +382,6 @@ public class MainController implements Initializable {
 
     public void setUpEntityDetailWindow() {
          
-        
         entityDetail.initOwner(primaryStage);
         entityDetail.initModality(Modality.APPLICATION_MODAL);
         entityDetail.initStyle(StageStyle.UNDECORATED);
@@ -348,12 +416,101 @@ public class MainController implements Initializable {
         
     }
     
-    public void tempShowDetailWindow(ActionEvent e) {
-        if(entityDetail.isShowing()) {
-            return;
-        }
-        else {
+    public void showDetailWindow(ActiveEntity e) {
+        
+        entityDetailName.textProperty().unbind();
+        entityDetailName.textProperty().bind(e.getNameProp());
+        
+        fillTraitsPane(e);
+        
+        fillTasksPane(e);
+        
+        if(!entityDetail.isShowing()) {
             entityDetail.showAndWait();
+        }
+    }
+    
+    public void fillTraitsPane(ActiveEntity e) {
+        traitsFlow.getChildren().clear();
+        
+        for(Trait t : e.getTraits()) {
+            VBox traitBox = new VBox();
+            traitBox.setId("entity-detail-trait-box");
+            Label traitName = new Label();
+            traitName.textProperty().bind(t.getNameProp());
+            traitName.setId("entity-detail-trait-name");
+            Label traitValue = new Label();
+            traitValue.textProperty().bind(t.getValueProp().asString());
+            traitValue.setId("entity-detail-trait-value");
+            
+            HBox nameValuePair = new HBox();
+            nameValuePair.getChildren().addAll(traitName, traitValue);
+            nameValuePair.setId("entity-detail-trait-pair");
+            
+            traitBox.getChildren().add(nameValuePair);
+            
+            if(t.getDesc() != null && t.getDesc().length() > 0) {
+                Tooltip traitDesc = new Tooltip();
+                traitDesc.textProperty().bind(t.getDescProp());
+                traitDesc.setId("entity-detail-trait-description");
+                Tooltip.install(traitBox, traitDesc);
+            }
+            
+            traitsFlow.getChildren().add(traitBox);
+        }
+    }
+    
+    public void fillTasksPane(ActiveEntity e) {
+        tasksFlow.getChildren().clear();
+        
+        for(Task t : e.getTasks()) {
+            VBox taskBox = new VBox();
+            taskBox.setId("entity-detail-task-box");
+            
+            HBox nameBox = new HBox();
+            nameBox.setId("entity-detail-task-name-pane");
+            Label taskName = new Label(t.getName());
+            taskName.setId("entity-detail-task-name");            
+            Button taskButton = new Button("Start");
+            taskButton.setId("entity-detail-task-button");
+            taskButton.setOnAction((ActionEvent click) -> {
+                e.setTaskAndTimer(t);
+            });
+            nameBox.getChildren().addAll(taskName, taskButton);
+            //entity-detail-task-duration/cost/requirement/result and
+            //entity-detail-task-duration/cost/requirement/result-number
+            
+            HBox durationBox = new HBox();
+            durationBox.setId("entity-detail-task-duration-pane");
+            Label durationName = new Label("Duration");
+            durationName.setId("entity-detail-task-duration");
+            Label durationNumber = new Label(t.getDuration() + "");
+            durationNumber.setId("entity-detail-task-duration-number");
+            durationBox.getChildren().addAll(durationName, durationNumber);
+            
+//    private SimpleStringProperty[] costs;
+//    private SimpleStringProperty[] requirements;
+//    private SimpleObjectProperty<Trait[]> results;
+            HBox costBox = new HBox();
+            costBox.setId("entity-detail-task-cost-pane");
+            Label costTitle = new Label("Costs");
+            costTitle.setId("entity-detail-task-cost-title");
+            
+            costBox.getChildren().add(costTitle);
+            
+            taskBox.getChildren().addAll(nameBox, new Separator(Orientation.HORIZONTAL), 
+                                                      durationBox, new Separator(Orientation.HORIZONTAL), 
+                                                      costBox);
+            
+            if(t.getFlavor() != null && t.getFlavor().length() > 0) {
+                Tooltip taskDesc = new Tooltip();
+                taskDesc.textProperty().bind(t.getFlavorProp());
+                taskDesc.setId("entity-detail-task-description");
+                Tooltip.install(taskBox, taskDesc);
+            }
+            
+            
+            tasksFlow.getChildren().add(taskBox);
         }
     }
     

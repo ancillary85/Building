@@ -15,14 +15,11 @@ import java.util.Arrays;
 
 public class AntTaskBuilder {
  
-    private static final Trait.trait_type[] rPR = TraitBuilder.resourceProductionResult;
-    private static final Trait.trait_type[] pRR = TraitBuilder.personalResourceResult;
-    
     public static Task dig() {
         Task DIG = new Task("Dig", 1, "Digging",
             null, 
             null,
-            new Trait[]{new Trait("Space", 1.0, rPR)},
+            new Trait[]{new Trait("Space", 1.0, TraitBuilder.resourceProductionResult)},
             "Expand the colony");
         return DIG;
     }
@@ -30,7 +27,7 @@ public class AntTaskBuilder {
         Task FORAGE = new Task("Forage", 2, "Foraging",
             null, 
             null, 
-            new Trait[]{new Trait("Food", 1.0, rPR)},
+            new Trait[]{new Trait("Food", 1.0, TraitBuilder.resourceProductionResult)},
             "Search for food");
         return FORAGE;
     }
@@ -38,7 +35,7 @@ public class AntTaskBuilder {
         Task HUNT = new Task("Hunt", 3, "Hunting",
             new String[]{"Stamina -1 " + Task.PERSONAL_RESOURCE}, 
             new String[]{"Stamina >0 " + Task.RESOURCE}, 
-            new Trait[]{new Trait("Food", 2.0, rPR)},
+            new Trait[]{new Trait("Food", 2.0, TraitBuilder.resourceProductionResult)},
             "Hunt for food");
         return HUNT;
     }
@@ -46,7 +43,7 @@ public class AntTaskBuilder {
         Task LARVA_CARE = new Task("Tend to Larva", 1, "Larva tending",
             new String[]{"Food -1 " + Task.RESOURCE, Task.SELF + " = " + AntBuilder.WORKER}, 
             new String[]{"Food >0 " + Task.RESOURCE, "Larva >0 " + Task.ENTITY}, 
-            new Trait[]{new Trait("Larva Stamina", 1.0, pRR)}, 
+            new Trait[]{new Trait("Larva Stamina", 1.0, TraitBuilder.personalResourceResult)}, 
             "Care for growing larval ants");
         return LARVA_CARE;
     }
@@ -54,7 +51,7 @@ public class AntTaskBuilder {
         Task EAT = new Task("Eat", 2, "Eating",
             new String[]{"Food -1 " + Task.RESOURCE}, 
             new String[]{"Food >0 " + Task.RESOURCE}, 
-            new Trait[]{new Trait("Stamina", 4.0, rPR)},
+            new Trait[]{new Trait("Stamina", 4.0, TraitBuilder.personalResourceResult)},
             "Eat some food");
         return EAT;
     }
@@ -62,7 +59,7 @@ public class AntTaskBuilder {
         Task REST = new Task("Rest", 1, "Resting",
             null, 
             null, 
-            new Trait[]{new Trait("Stamina", 1.0, pRR)},
+            new Trait[]{new Trait("Stamina", 1.0, TraitBuilder.personalResourceResult)},
             "Take a rest");
         return REST;
     }
@@ -71,7 +68,7 @@ public class AntTaskBuilder {
         Task FIGHT = new Task("Fight", 1, "Fighting",
             new String[]{"Stamina -2 " + Task.PERSONAL_RESOURCE},
             new String[]{"Stamina >1 " + Task.PERSONAL_RESOURCE},
-            new Trait[]{new Trait("Enemies", -1.0, rPR)},
+            new Trait[]{new Trait("Enemies", -1.0, TraitBuilder.resourceProductionResult)},
             "Fight an enemy");
         return FIGHT;
     }

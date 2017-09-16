@@ -7,7 +7,6 @@ package ancillary.cavebuilding;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
@@ -115,7 +114,9 @@ public class CaveBuilding extends Application {
             loader1.setController(controller);
             FXMLLoader loader2 = new FXMLLoader(CaveBuilding.class.getResource("detailWindow.fxml"));
             loader2.setController(controller);
-            primaryStage.setScene(new Scene(loader1.load()));
+            
+            Scene mainScene = new Scene(loader1.load());
+            primaryStage.setScene(mainScene);
             
             Scene detailScene = new Scene(loader2.load());
             Stage detailStage = new Stage();

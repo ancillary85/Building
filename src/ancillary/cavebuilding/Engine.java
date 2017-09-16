@@ -125,6 +125,10 @@ public abstract class Engine {
             
             if(e.getTaskCompleted()) {
                 for(Trait result : e.getCurrentTask().getResults()) {
+                    if(TraitEvaluator.isPResourceTrait(result)) {
+                        continue;
+                    }
+                    
                     this.addResource(result.getName(), result.getValue());
                 }
             }

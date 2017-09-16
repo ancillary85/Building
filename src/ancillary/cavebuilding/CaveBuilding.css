@@ -61,6 +61,16 @@ and open the template in the editor.
     -fx-font-weight:bold;
 }
 
+#summary-button-timer {
+    -fx-alignment:CENTER;
+    -fx-text-fill:black;
+    -fx-font-size:15;
+}
+
+#summary-button-timer-box {
+    -fx-alignment:BASELINE_LEFT;
+}
+
 #active-name {
     -fx-text-fill:mediumslateblue;
 }
@@ -88,4 +98,147 @@ and open the template in the editor.
 #report-text {
     -fx-text-fill:chartreuse;
     -fx-font-size:15;
+}
+
+#entity-detail-node {
+    -fx-border-color:black;
+    -fx-border-width:5;
+    -fx-border-style:solid;
+}
+
+#entity-detail-name {
+    -fx-font-size:20;
+}
+
+#entity-detail-trait-pane {
+    -fx-vgap:15;
+    -fx-hgap:20;
+    -fx-padding:10;
+}
+
+#entity-detail-trait-pair {
+    -fx-spacing:15;
+    -fx-alignment:CENTER;
+}
+
+#entity-detail-trait-box {
+    -fx-padding:10;
+    -fx-spacing:15;
+    -fx-alignment:TOP_LEFT;
+    -fx-border-color:black;
+    -fx-border-width: 1 1 3 1;
+    -fx-border-style:solid;
+}
+
+#entity-detail-trait-name {
+    -fx-font-size:15;
+}
+
+#entity-detail-trait-value {
+    -fx-font-size:15;
+}
+
+#entity-detail-trait-description {
+    -fx-font-size:15;
+}
+
+#entity-detail-trait-description-tooltip {
+/*    -fx-border-color:grey;
+    -fx-border-width:2;
+    -fx-border-style:solid;*/
+}
+
+#entity-detail-task-pane {
+    -fx-vgap:15;
+    -fx-hgap:20;
+    -fx-padding:10;
+}
+
+#entity-detail-task-button {
+    
+}
+
+#entity-detail-task-box {
+    -fx-padding:10;
+    -fx-spacing:5;
+    -fx-alignment:TOP_LEFT;
+    -fx-border-color:black;
+    -fx-border-width: 1 1 3 1;
+    -fx-border-style:solid;
+}
+
+#entity-detail-task-name {
+    -fx-font-size:15;
+}
+
+#entity-detail-task-name-pane {
+    -fx-spacing:15;
+    -fx-alignment:CENTER;
+}
+
+#entity-detail-task-duration {
+    -fx-font-size:15;
+}
+
+#entity-detail-task-duration-number {
+    -fx-font-size:15;
+}
+
+#entity-detail-task-duration-pane {
+    -fx-spacing:15;
+    -fx-alignment:CENTER;
+}
+
+#entity-detail-task-cost-title {
+    -fx-font-size:15;
+    -fx-text-fill:gold;
+}
+
+#entity-detail-task-cost {
+    -fx-font-size:15;
+}
+
+#entity-detail-task-cost-number {
+    -fx-font-size:15;
+}
+
+#entity-detail-task-cost-pane {
+    -fx-spacing:15;
+    -fx-alignment:CENTER;
+}
+
+#entity-detail-task-requirement {
+    -fx-font-size:15;
+}
+
+#entity-detail-task-requirement-number {
+    -fx-font-size:15;
+}
+
+#entity-detail-task-requirement-pane {
+    -fx-spacing:15;
+    -fx-alignment:CENTER;
+}
+
+#entity-detail-task-result {
+    -fx-font-size:15;
+}
+
+#entity-detail-task-result-number {
+    -fx-font-size:15;
+}
+
+#entity-detail-task-result-pane {
+    -fx-spacing:15;
+    -fx-alignment:CENTER;
+}
+
+#entity-detail-task-description {
+    -fx-font-size:15;
+}
+
+#entity-detail-task-description-tooltip {
+/*    -fx-border-color:grey;
+    -fx-border-width:2;
+    -fx-border-style:solid;*/
 }

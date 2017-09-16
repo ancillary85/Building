@@ -229,7 +229,8 @@ public class ActiveEntity {
         
         if(t == null || !tasks.contains(t)) {return;}
         
-        currentTask.setToNewTask(t);;
+        currentTask.setToNewTask(t);
+        setNotBusy();
         setBusy();
         taskCompleted.set(false);
         setTaskTimerFromCurrentTask();
@@ -249,7 +250,8 @@ public class ActiveEntity {
         if(taskNumber >= tasks.size() || taskNumber < 0) {return;}
         
         currentTask.setToNewTask(tasks.get(taskNumber));
-        this.setBusy();
+        setNotBusy();
+        setBusy();
         taskCompleted.set(false);
     }
     
@@ -267,6 +269,7 @@ public class ActiveEntity {
         if(newTask == null || !tasks.contains(newTask)) {return;}
         
         currentTask.setToNewTask(newTask);
+        setNotBusy();
         setBusy();
         taskCompleted.set(false);
     }
@@ -287,6 +290,7 @@ public class ActiveEntity {
         if(!tasks.contains(newTask)) {tasks.add(newTask);}
         
         currentTask.setToNewTask(newTask);
+        setNotBusy();
         setBusy();
         taskCompleted.set(false);
     }

@@ -17,13 +17,14 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class Trait {
 
-    public static enum trait_type{FLAVOR, COMBAT, RESOURCE, PRODUCTION, EACHTURN, MULTI, RESULT, PERSONAL_RESOURCE}    
+    public static enum trait_type{FLAVOR, COMBAT, RESOURCE, PRODUCTION, EACHTURN, MULTI, RESULT, 
+                                                PERSONAL_RESOURCE, HIDDEN_RESOURCE}    
     private static final double EPSILON = 0.000001;
     
     private SimpleStringProperty name;
     private SimpleDoubleProperty value;
     private SimpleStringProperty description;
-    private SimpleObjectProperty<trait_type[]> types;
+    private trait_type[] types;
     
     public Trait() {
         this.name = new SimpleStringProperty("none");
@@ -128,17 +129,10 @@ public class Trait {
     }
     
     /**
-     * @return the trait_type properties array
-     */
-    public SimpleObjectProperty<trait_type[]> getTypesProps() {
-        return types;
-    }
-    
-    /**
      * @return the types as an array
      */
     public trait_type[] getTypes() {
-        return types.get();
+        return types;
     }
     
     /**
@@ -146,10 +140,10 @@ public class Trait {
      */
     public void setTypes(trait_type[] multiTypes) {
         if(!validateTypeArray(multiTypes)) {
-            this.types.set(new trait_type[]{trait_type.FLAVOR});
+            this.types = new trait_type[]{trait_type.FLAVOR};
         }
         else {
-            this.types.set(multiTypes);
+            this.types = multiTypes;
         }
     }
     
@@ -165,10 +159,10 @@ public class Trait {
     
     private void setUpTypes(trait_type[] multiTypes) {
         if(!validateTypeArray(multiTypes)) {
-            this.types = new SimpleObjectProperty<>(new trait_type[]{trait_type.FLAVOR});
+            this.types = new trait_type[]{trait_type.FLAVOR};
         }
         else {
-            this.types = new SimpleObjectProperty<>(multiTypes);
+            this.types = multiTypes;
         }
     }
     

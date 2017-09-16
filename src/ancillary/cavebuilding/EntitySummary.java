@@ -5,11 +5,11 @@
  */
 package ancillary.cavebuilding;
 
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 /**
@@ -27,8 +27,8 @@ public class EntitySummary {
         VBox labels = new VBox();
         Label name = new Label();
         name.textProperty().bind(entity.getNameProp());
-        Label status = new Label("");
-                
+        Label status = new Label();
+        
         entity.getBusyProp().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> {
             if(newValue.booleanValue()) {
                 status.setText(entity.getCurrentTask().getGerund());
@@ -38,11 +38,28 @@ public class EntitySummary {
             }
         });
                 
+        Label timer = new Label();
+        entity.getTaskTimerProp().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
+            if(entity.getTaskTimer() > 0) {
+                timer.setText("(" + entity.getTaskTimer() + ")");
+            }
+            else {
+                timer.setText("");
+            }
+            
+        });
+        
+        HBox statusBox = new HBox();
+        statusBox.getChildren().addAll(status, timer);
+        
         name.setId("summary-button-name");
         status.setId("summary-button-status");
-        labels.setId("summary-button-VBox");
-        labels.getChildren().addAll(name, new Separator(Orientation.HORIZONTAL), status);
+        timer.setId("summary-button-timer");
+        statusBox.setId("summary-button-timer-box");
+        labels.setId("summary-button-Node");
+        labels.getChildren().addAll(name, new Separator(Orientation.HORIZONTAL), statusBox);
         
         return labels;
     }
+    
 }
