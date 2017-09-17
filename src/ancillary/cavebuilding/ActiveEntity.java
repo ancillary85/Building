@@ -485,10 +485,47 @@ public class ActiveEntity {
     }
     
     /**
-     * @param traits the traits to set
+     * @param newTraits the traits to set
      */
     public void setTraits(List<Trait> newTraits) {
         this.traits = new ArrayList<Trait>(newTraits);
+    }
+    
+    /**
+     * Adds the given trait to the entity. If the Trait List already contains a Trait with the same name, 
+     * it adds their values. If it does not have one, it does nothing. 
+     * Negative values are allowed.
+     * 
+     * @param name the name of the Trait
+     * @param value the value of the Trait
+     */
+    public void addTraitValue(String name, double value) {
+        
+        for(Trait res : traits) {
+            if(res.getName().equals(name)) {
+                res.addToValue(value);
+                return; //return if we found the trait in the trait list
+            }
+        }
+    }
+    
+    /**
+     * Adds the given trait to the entity. If the Trait List already contains a Trait with the 
+     * same name, it adds their values. If it does not have one, it adds the Trait to the pool.
+     * Negative values are allowed.
+     * 
+     * @param t the Trait
+     */
+    public void addTrait(Trait t) {
+        
+        for(Trait res : traits) {
+            if(res.getName().equals(t.getName())) {
+                res.addToValue(t.getValue());
+                return; //return if we found the resource in the pool
+            }
+        }
+        
+        traits.add(t);
     }
     
     /**

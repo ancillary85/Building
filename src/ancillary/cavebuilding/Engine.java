@@ -113,7 +113,8 @@ public abstract class Engine {
     /**
      * Calls TraitEvaluator.resourcesFromGroup(this.getGlobalResources(), this.getActiveEntities()) and
      * then loops through the ActiveEntities and updates them and checks for a completed task. The results
-     * of completed tasks are added to the global resources using addResource(name, value).
+     * of completed tasks are added to the global resources using addResource(name, value) if they are not personal resources.
+     * If they are personal resources, it uses addResource(trait.getName(), trait.getValue()).
      * Engines that want more or different behavior should override this. Most Engines can begin their
      * version of update() with super() or just copy the previous line of code.
      */
@@ -126,10 +127,11 @@ public abstract class Engine {
             if(e.getTaskCompleted()) {
                 for(Trait result : e.getCurrentTask().getResults()) {
                     if(TraitEvaluator.isPResourceTrait(result)) {
-                        continue;
+                        e.addTrait(result);
                     }
-                    
-                    this.addResource(result.getName(), result.getValue());
+                    else {
+                        this.addResource(result.getName(), result.getValue());
+                    }
                 }
             }
         }

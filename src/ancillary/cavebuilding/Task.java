@@ -6,10 +6,14 @@
 package ancillary.cavebuilding;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 /**
  *
@@ -30,7 +34,7 @@ public class Task {
     private SimpleStringProperty gerund;
     private SimpleStringProperty[] costs;
     private SimpleStringProperty[] requirements;
-    private SimpleObjectProperty<Trait[]> results;
+    private SimpleListProperty<Trait> results;
     private SimpleStringProperty flavor;
     
     public Task() {
@@ -110,12 +114,22 @@ public class Task {
         return true;
     }
     
+    private boolean validateTraitList(List<Trait> t) {
+        if(t == null) {return false;} //is the list null?
+        //are any of the Traits in the list null?
+        for(Trait temp : t) {
+            if(temp == null) {return false;}
+        }
+        
+        return true;
+    }
+    
     private void setUpResults(Trait[] initResults) {
         if(!validateTraitArray(initResults)) {
-            results = new SimpleObjectProperty<>(new Trait[]{new Trait()});
+            results = new SimpleListProperty();
         }
         else {
-            results = new SimpleObjectProperty<>(initResults);
+            results = new SimpleListProperty(FXCollections.observableList(Arrays.asList(initResults)));
         }
     }
 
@@ -160,9 +174,9 @@ public class Task {
         s += String.join(", ", requirementArray);
         s += "; Results: ";
         
-        String[] resultArray = new String[results.get().length];
-        for(int i = 0; i < results.get().length; i++) {
-            resultArray[i] = results.get()[i].toString();
+        String[] resultArray = new String[results.size()];
+        for(int i = 0; i < results.size(); i++) {
+            resultArray[i] = results.get(i).toString();
         }
         
         s += String.join(", ", resultArray);
@@ -184,7 +198,7 @@ public class Task {
         this.setGerund(t.getGerund());
         this.setCostsProp(t.getCostsProp());
         this.setRequirementsProp(t.getRequirementsProp());
-        this.setResults(t.getResults());
+        this.setResultsList(t.getResults());
         this.setFlavor(t.getFlavor());
     }
     
@@ -199,7 +213,7 @@ public class Task {
         if(this.getDuration() != temp.getDuration()) {return false;} //same duration?
         if(!Arrays.deepEquals(this.getCosts(), temp.getCosts())) {return false;} //same costs?
         if(!Arrays.deepEquals(this.getRequirements(), temp.getRequirements())) {return false;} //same requirements?
-        if(!Arrays.deepEquals(this.getResults(), temp.getResults())) {return false;} //same results?
+        if(!this.getResults().equals(temp.getResults())) {return false;} //same results?
         return this.getFlavor().equals(temp.getFlavor()); //same flavor?
     }
 
@@ -210,7 +224,7 @@ public class Task {
         hash = 53 * hash + Objects.hashCode(this.getDuration());
         hash = 53 * hash + Arrays.deepHashCode(this.getCosts());
         hash = 53 * hash + Arrays.deepHashCode(this.getRequirements());
-        hash = 53 * hash + Arrays.deepHashCode(this.getResults());
+        hash = 53 * hash + this.getResults().hashCode();
         hash = 53 * hash + Objects.hashCode(this.getFlavor());
         return hash;
     }
@@ -307,9 +321,9 @@ public class Task {
     }
     
     /**
-     * @return the results as an array of Traits
+     * @return the results as an ObservableList of Traits
      */
-    public Trait[] getResults() {
+    public ObservableList<Trait> getResults() {
         return results.get();
     }
     
@@ -318,14 +332,23 @@ public class Task {
      */
     public void setResults(Trait[] newResults) {
         if(!validateTraitArray(newResults)) {
-            this.results.set(new Trait[]{new Trait()});
+            results = new SimpleListProperty();
         }
         else {
-            this.results.set(newResults);
+            results = new SimpleListProperty(FXCollections.observableList(Arrays.asList(newResults)));
         }
     }
     
-    public SimpleObjectProperty<Trait[]> getResultsProp() {
+    public void setResultsList(List<Trait> newResults) {
+        if(!validateTraitList(newResults)) {
+            results = new SimpleListProperty();
+        }
+        else {
+            results = new SimpleListProperty(FXCollections.observableList(newResults));
+        }
+    }
+    
+    public SimpleListProperty<Trait> getResultsProp() {
         return results;
     }
     

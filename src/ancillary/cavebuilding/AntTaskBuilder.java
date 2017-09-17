@@ -43,7 +43,7 @@ public class AntTaskBuilder {
         Task LARVA_CARE = new Task("Tend to Larva", 1, "Larva tending",
             new String[]{"Food -1 " + Task.RESOURCE, Task.SELF + " = " + AntBuilder.WORKER}, 
             new String[]{"Food >0 " + Task.RESOURCE, "Larva >0 " + Task.ENTITY}, 
-            new Trait[]{new Trait("Larva Stamina", 1.0, TraitBuilder.personalResourceResult)}, 
+            new Trait[]{new Trait("Larva Stamina", 1.0, TraitBuilder.resourceHidden)}, 
             "Care for growing larval ants");
         return LARVA_CARE;
     }
@@ -68,7 +68,7 @@ public class AntTaskBuilder {
         Task FIGHT = new Task("Fight", 1, "Fighting",
             new String[]{"Stamina -2 " + Task.PERSONAL_RESOURCE},
             new String[]{"Stamina >1 " + Task.PERSONAL_RESOURCE},
-            new Trait[]{new Trait("Enemies", -1.0, TraitBuilder.resourceProductionResult)},
+            new Trait[]{new Trait("Enemies", -1.0, TraitBuilder.resourceProductionResult), new Trait("Stamina", -1.0, TraitBuilder.personalResourceResult)},
             "Fight an enemy");
         return FIGHT;
     }
