@@ -6,8 +6,10 @@
 package ancillary.cavebuilding;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Objects;
-import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -17,50 +19,48 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class Trait {
 
-    public static enum trait_type{FLAVOR, COMBAT, RESOURCE, PRODUCTION, EACHTURN, MULTI, RESULT, 
-                                                PERSONAL_RESOURCE, HIDDEN_RESOURCE}    
-    private static final double EPSILON = 0.000001;
+    public static enum trait_type{FLAVOR, COMBAT, RESOURCE, PRODUCTION, EACHTURN, MULTI, RESULT, ATTRIBUTE, 
+                                                PERSONAL_RESOURCE, HIDDEN_RESOURCE, CREATION, REQUIREMENT, EQUALTO,
+                                                LESSTHAN, GREATERTHAN, NOTEQUAL, GENERAL, UNCREATE, CREATION_LINK, ROOM}    
+    
     
     private SimpleStringProperty name;
-    private SimpleDoubleProperty value;
+    private SimpleIntegerProperty value;
+    private SimpleIntegerProperty valueMin = new SimpleIntegerProperty(Integer.MIN_VALUE);
+    private SimpleIntegerProperty valueMax = new SimpleIntegerProperty(Integer.MAX_VALUE);
     private SimpleStringProperty description;
-    private trait_type[] types;
+    private EnumSet<trait_type> types;
+    private int sortingPriority = -1;
+    private SimpleBooleanProperty showValue = new SimpleBooleanProperty(true);
     
     public Trait() {
         this.name = new SimpleStringProperty("none");
-        this.value = new SimpleDoubleProperty(0.0);
+        this.value = new SimpleIntegerProperty(0);
         this.description = new SimpleStringProperty("");        
-        this.setUpTypes(null);
+        this.types = EnumSet.noneOf(Trait.trait_type.class);
     }
     
-    public Trait(String name, double value, trait_type singleType) {
+    public Trait(String name, int value, EnumSet<trait_type> initTypes) {
         this.name = new SimpleStringProperty(name);
-        this.value = new SimpleDoubleProperty(value);    
+        this.value = new SimpleIntegerProperty(value);    
         this.description = new SimpleStringProperty("");
-        this.setUpTypes(new trait_type[]{singleType});
+        this.types = initTypes;
     }
     
-    public Trait(String name, double value, String description, trait_type singleType) {
+    public Trait(String name, int value, String description, EnumSet<trait_type> initTypes) {
         this.name = new SimpleStringProperty(name);
-        this.value = new SimpleDoubleProperty(value);    
+        this.value = new SimpleIntegerProperty(value);    
         this.description = new SimpleStringProperty(description);
-        this.setUpTypes(new trait_type[]{singleType});
-    }
-    
-    public Trait(String name, double value, trait_type[] multiTypes) {
-        this.name = new SimpleStringProperty(name);
-        this.value = new SimpleDoubleProperty(value);    
-        this.description = new SimpleStringProperty("");
-        this.setUpTypes(multiTypes);
-    }
-    
-    public Trait(String name, double value, String description, trait_type[] multiTypes) {
-        this.name = new SimpleStringProperty(name);
-        this.value = new SimpleDoubleProperty(value);    
-        this.description = new SimpleStringProperty(description);
-        this.setUpTypes(multiTypes);
+        this.types = initTypes;
     }
 
+    public Trait(Trait t) {
+        this.name = new SimpleStringProperty(t.getName());
+        this.value = new SimpleIntegerProperty(t.getValue());
+        this.description = new SimpleStringProperty(t.getDesc());
+        this.types = EnumSet.copyOf(t.getTypes());
+    }
+    
     /**
      * @return the name
      */
@@ -85,26 +85,96 @@ public class Trait {
     /**
      * @return the value
      */
-    public double getValue() {
+    public int getValue() {
         return value.get();
     }
 
     /**
      * @param newValue the value to set
      */
-    public void setValue(double newValue) {
+    public void setValue(int newValue) {
         value.set(newValue);
     }
 
     /**
      * @return the value property
      */
-    public SimpleDoubleProperty getValueProp() {
+    public SimpleIntegerProperty getValueProp() {
         return value;
     }
+
+    /**
+     * @return the valueMin
+     */
+    public int getValueMin() {
+        return valueMin.get();
+    }
     
-    public void addToValue(double add) {
-        value.set(value.get() + add);
+    /**
+     * @return the valueMin property
+     */
+    public SimpleIntegerProperty getValueMinProp() {
+        return valueMin;
+    }
+
+    /**
+     * @param newValueMin the valueMin to set
+     */
+    public void setValueMin(int newValueMin) {
+        valueMin.set(newValueMin);
+    }
+
+    /**
+     * @return the valueMax
+     */
+    public int getValueMax() {
+        return valueMax.get();
+    }
+    
+    /**
+     * @return the valueMax property
+     */
+    public SimpleIntegerProperty getValueMaxProp() {
+        return valueMax;
+    }
+
+    /**
+     * @param newValueMax the valueMax to set
+     */
+    public void setValueMax(int newValueMax) {
+        valueMax.set(newValueMax);
+    }
+    
+    /**
+     * Sets both the valueMin and valueMax
+     * @param newMin
+     * @param newMax 
+     */
+    public void setMinMax(int newMin, int newMax) {
+        valueMin.set(newMin);
+        valueMax.set(newMax);
+    }
+    
+    /**
+     * The Trait's value will not be allowed to exceed valueMin and valueMax, and will instead be set to 
+     * whichever is appropriate. If overflow happens, it will be before the value is adjusted back within the min and max 
+     * range. So, if addition of two large positive numbers causes the value to overflow into the negatives, it will probably 
+     * then be set to valueMin.
+     * @param add 
+     */
+    public void addToValue(int add) {
+        
+        int newValue = Math.addExact(value.get(), add);
+        if(newValue <= valueMin.get()) {
+            newValue = valueMin.get();
+        }
+        
+        if(newValue >= valueMax.get()) {
+            newValue = valueMax.get();
+        }
+        
+        value.set(newValue);
+        
     }
     
     /**
@@ -129,22 +199,52 @@ public class Trait {
     }
     
     /**
-     * @return the types as an array
+     * @return the sortingPriority
      */
-    public trait_type[] getTypes() {
+    public int getSortingPriority() {
+        return sortingPriority;
+    }
+
+    /**
+     * @param sortingPriority the sortingPriority to set
+     */
+    public void setSortingPriority(int sortingPriority) {
+        this.sortingPriority = sortingPriority;
+    }
+
+    /**
+     * @return the showValue
+     */
+    public boolean getShowValue() {
+        return showValue.get();
+    }
+    
+    /**
+     * @return the showValue property
+     */
+    public SimpleBooleanProperty getShowValueProp() {
+        return showValue;
+    }
+
+    /**
+     * @param showValue the showValue to set
+     */
+    public void setShowValue(boolean newValue) {
+        this.showValue.set(newValue);
+    }
+
+    /**
+     * @return the types as an EnumSet
+     */
+    public EnumSet<trait_type> getTypes() {
         return types;
     }
     
     /**
      * @param multiTypes the type to set
      */
-    public void setTypes(trait_type[] multiTypes) {
-        if(!validateTypeArray(multiTypes)) {
-            this.types = new trait_type[]{trait_type.FLAVOR};
-        }
-        else {
-            this.types = multiTypes;
-        }
+    public void setTypes(EnumSet<trait_type> multiTypes) {
+        this.types = multiTypes;
     }
     
     private boolean validateTypeArray(trait_type[] multiTypes) {
@@ -155,15 +255,6 @@ public class Trait {
         }
         
         return true;
-    }
-    
-    private void setUpTypes(trait_type[] multiTypes) {
-        if(!validateTypeArray(multiTypes)) {
-            this.types = new trait_type[]{trait_type.FLAVOR};
-        }
-        else {
-            this.types = multiTypes;
-        }
     }
     
     @Override
@@ -179,8 +270,8 @@ public class Trait {
         
         Trait temp = (Trait) t;
         if(!this.getName().equals(temp.getName())) {return false;} //same name?
-        if(Math.abs(this.getValue() - temp.getValue()) > EPSILON) {return false;} //same-ish value?
-        if(!Arrays.equals(this.getTypes(), temp.getTypes())) {return false;} //same types?
+        if(this.getValue() != temp.getValue()) {return false;} //same value?
+        if(!this.getTypes().equals(temp.getTypes())) {return false;} //same types?
         return this.getDesc().equals(temp.getDesc()); //same description?;
     }
 
@@ -193,5 +284,6 @@ public class Trait {
         hash = 53 * hash + Objects.hashCode(this.types);
         return hash;
     }
+    
     
 }

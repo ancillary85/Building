@@ -64,14 +64,14 @@ public class CaveBuilding extends Application {
     
     private ArrayList<MenuButton> buttons;
     
-    private Engine motor;
+    private AntHillEngine motor;
 
     //this is just for experimenting
     public enum direction {UP, DOWN, LEFT, RIGHT}
         
     @Override
     public void init() throws Exception {
-        System.out.println("Hello!");
+        System.out.println("Hello!");        
     }
     
     @Override
@@ -81,39 +81,15 @@ public class CaveBuilding extends Application {
     
     @Override
     public void start(Stage primaryStage) {
-
-//        motor = new AntHillEngine();
-//        setUpResources();
-//        
-//        mainPane = new BorderPane();
-//        mainPane.setId("main-pane");
-//        
-//        setUpTopPane();
-//        mainPane.setTop(topToolBar);
-//        
-//        setUpCenterScroll();
-//        setUpCenterGrid();
-//        setUpResBox();
-//        setUpResourceListener();
-//        centerScroll.setContent(centerGrid);        
-//        mainPane.setCenter(centerScroll);
-//        mainPane.setBottom(resBox);
-//        
-//        Scene scene = new Scene(mainPane);
-//        scene.getStylesheets().add(CaveBuilding.class.getResource("CaveBuilding.css").toExternalForm());
-//        
-//        primaryStage.setTitle("Cave Builder");
-//        primaryStage.setScene(scene);
-//        primaryStage.sizeToScene();
-//        primaryStage.show();
-        
-    try {
+        try {
             motor = new AntHillEngine();
             MainController controller = new MainController(primaryStage, motor);
             FXMLLoader loader1 = new FXMLLoader(CaveBuilding.class.getResource("mainWindow.fxml"));
             loader1.setController(controller);
             FXMLLoader loader2 = new FXMLLoader(CaveBuilding.class.getResource("detailWindow.fxml"));
             loader2.setController(controller);
+            FXMLLoader loader3 = new FXMLLoader(CaveBuilding.class.getResource("roomWindow.fxml"));
+            loader3.setController(controller);
             
             Scene mainScene = new Scene(loader1.load());
             primaryStage.setScene(mainScene);
@@ -121,7 +97,12 @@ public class CaveBuilding extends Application {
             Scene detailScene = new Scene(loader2.load());
             Stage detailStage = new Stage();
             detailStage.setScene(detailScene);
-            controller.setDetailStage(detailStage);
+            controller.setEntityDetailStage(detailStage);
+            
+            Scene roomScene = new Scene(loader3.load());
+            Stage roomStage = new Stage();
+            roomStage.setScene(roomScene);
+            controller.setRoomDetailStage(roomStage);
             
             primaryStage.setTitle("CaveBuilding");
             primaryStage.show();
@@ -129,16 +110,8 @@ public class CaveBuilding extends Application {
             Logger.getLogger(CaveBuilding.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-//        EntityTesting();
-        
-//        try {
-//            
-//            TaskParseTest();
-//        } catch (SAXException | ParserConfigurationException | IOException ex) {
-//            Logger.getLogger(CaveBuilding.class.getName()).log(Level.SEVERE, null, ex);
-//        }
     }
-
+    
     public void showThisAndWait(Stage s) {
         s.showAndWait();
     }
@@ -150,196 +123,12 @@ public class CaveBuilding extends Application {
         launch(args);
     }
     
-    private void setUpResources() {
-        motor.addResource("Food", 10.0);
-        motor.addResource("Food", 10.0);
-        motor.addResource("Light bulbs", 2.0);
-        motor.addResource("Enemies", 15.0);
-        motor.addResource("Morale", -3.0);
-    }
-    
-    private void setUpTopPane() {
-        
-        MenuItem menuItem1 = new MenuItem("Foo -1");
-        menuItem1.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                motor.addResource(new Trait("Foo", -1, Trait.trait_type.RESOURCE));
-            }
-        });
-        
-        MenuItem menuItem2 = new MenuItem("Foo +1");
-        menuItem2.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                motor.addResource(new Trait("Foo", 1, Trait.trait_type.RESOURCE));
-            }
-        });
-        
-        CustomMenuItem menuItem3 = new CustomMenuItem(new Label("Update"));
-        menuItem3.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent e) {
-                        
-                        motor.update();
-                    }
-        });
-        
-        MenuButton menuButton = new MenuButton("Options");
-        menuButton.getItems().addAll(menuItem1, menuItem2, menuItem3);
-        
-        Button updateButton = new Button("Update");
-        updateButton.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent e) {
-                        
-                        motor.update();
-                    }
-        });
-        
-        Button exitButton = new Button("Exit");
-        exitButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                Platform.exit();
-            }
-        });
-        
-        topToolBar = new ToolBar(
-         updateButton,
-         new Separator(),
-         menuButton,
-        new Separator(),
-        exitButton);
-        
-        topToolBar.setId("top-tool-bar");
-    }
 
-    private void setUpCenterScroll() {
-        centerScroll = new ScrollPane();
-        centerScroll.setId("center-scroll");
-    }
-
-    private void setUpCenterGrid() {
-        centerGrid = new GridPane();
-        centerGrid.setId("center-grid");
-        centerGrid.setAlignment(Pos.CENTER);
-        centerGrid.setPadding(new Insets(25, 25, 25, 25));
-        
-        populate();        
-    }
-    
-    private void populate() {
-        buttons = new ArrayList<>();
-        
-        //temp 5x5 grid of buttons
-        for(int i = 0; i < 5; i++) {
-            for(int j = 0; j < 5; j++) {
-                String antName = "Ant " + (j*5 +i + 1);
-                ActiveEntity ant = AntBuilder.makeWorker(antName, null);
-                motor.addActiveEntity(ant);
-                
-                MenuButton antButton = new MenuButton();
-                MenuItem m1 = new MenuItem("Print name and ID");
-                m1.setOnAction((ActionEvent e) -> {
-                    System.out.println(ant.getName() + ": " + ant.getID());
-                });
-                
-                MenuItem m2 = new MenuItem("Print tasks");
-                m2.setOnAction((ActionEvent e) -> {
-                    for(Task t : ant.getTasks()) {
-                        System.out.println(t.toString());
-                    }
-                    System.out.println();
-                });
-                
-                Menu nestedTasks = new Menu("Tasks");
-                nestedTasks.getItems().addAll(new MenuItem("Test"), new MenuItem("Foo"));
-                                                
-                antButton.getItems().addAll(m1, m2, nestedTasks);
-                
-                antButton.textProperty().bind(ant.getNameProp());
-                antButton.setPrefSize(SQUARESIZE, SQUARESIZE);
-                antButton.setId("center-grid-button");
-                
-                centerGrid.add(antButton, i, j);
-                buttons.add(antButton);
-            }
-        }
-    }
-    
-    private void setUpResourceListener() {
-        resListener = new ListChangeListener() {
-            @Override
-            public void onChanged(ListChangeListener.Change c) {
-                
-                resBoxFill();
-//                while(c.next()) {
-//                    if(c.wasPermutated()) {
-//                        resBoxFill();
-//                    }
-//                    else if(c.wasUpdated()) {
-//                    //hopefully not needed?
-//                    }
-//                    else if(c.wasReplaced()) {
-//                        resBoxFill();
-//                    }
-//                    else if(c.wasRemoved()) {
-//                    
-//                    }
-//                    else if(c.wasAdded()) {
-//                    
-//                    }
-//                }
-            }
-            
-        };
-        
-        motor.getGlobalResources().addListener(resListener);
-    }
-    
-    private void resBoxFill() {
-        
-        resBox.getChildren().clear();
-        
-        for(Trait t : motor.getGlobalResources()) {
-            HBox resPair = new HBox();
-            resPair.setId("res-pair");
-            resPair.setSpacing(15);
-            
-            Label name = new Label();
-            name.textProperty().bind(t.getNameProp());
-            name.setId("res-name");
-            
-            Label value = new Label();
-            value.textProperty().bind(t.getValueProp().asString());
-            value.setId("res-value");
-            
-            resPair.getChildren().add(name);
-            resPair.getChildren().add(value);
-            resPair.getChildren().add(new Separator(Orientation.VERTICAL));
-            
-            resBox.getChildren().add(resPair);
-        }
-    }
-    
-    private void setUpResBox() {
-        resBox = new HBox();
-        resBox.setId("res-box");
-        resBox.setPadding(new Insets(25));
-        
-//        Label count = new Label();
-//        count.textProperty().bind(motor.getGlobalResources().sizeProperty().asString());
-//        resBox.getChildren().add(count);
-
-        resBoxFill();
-    }
-
-    public void setEngine(Engine e) {
+    public void setEngine(AntHillEngine e) {
         motor = e;
     }
     
-    public Engine getEngine() {
+    public AntHillEngine getEngine() {
         return motor; 
     }
     
@@ -356,10 +145,11 @@ public class CaveBuilding extends Application {
         tasks.add(forage);
         tasks.add(fight);
         
-        ants.add(new ActiveEntity("worker", "Worker 1", "Hill", tasks, null, AntBuilder.WORKER_TRAITS));
-        ants.add(new ActiveEntity("worker", "Worker 2", "Burrow", tasks, null, AntBuilder.WORKER_TRAITS));
-        ants.add(new ActiveEntity("worker", "Worker 3", "Hill", tasks, null, AntBuilder.WORKER_TRAITS));
-        ants.add(new ActiveEntity("worker", "Worker 4", "Outside", tasks, null, AntBuilder.WORKER_TRAITS));
+        AntBuilder builder = new AntBuilder();
+        ants.add(new ActiveEntity("worker", "Worker 1", "Hill", tasks, null, builder.getTraits(AntBuilder.WORKER)));
+        ants.add(new ActiveEntity("worker", "Worker 2", "Burrow", tasks, null, builder.getTraits(AntBuilder.WORKER)));
+        ants.add(new ActiveEntity("worker", "Worker 3", "Hill", tasks, null, builder.getTraits(AntBuilder.WORKER)));
+        ants.add(new ActiveEntity("worker", "Worker 4", "Outside", tasks, null, builder.getTraits(AntBuilder.WORKER)));
         
         ants.get(0).setCurrentTask(0);
         ants.get(0).setTaskTimerFromCurrentTask();

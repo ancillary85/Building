@@ -32,8 +32,8 @@ public class Task {
     private SimpleStringProperty name;
     private SimpleIntegerProperty duration;
     private SimpleStringProperty gerund;
-    private SimpleStringProperty[] costs;
-    private SimpleStringProperty[] requirements;
+    private SimpleListProperty<Trait> costs;
+    private SimpleListProperty<Trait> requirements;
     private SimpleListProperty<Trait> results;
     private SimpleStringProperty flavor;
     
@@ -47,8 +47,8 @@ public class Task {
         setUpFlavor(null);
     }
     
-    public Task(String initName, int initDuration, String[] initCosts , 
-        String[] initRequirements, Trait[] initResults, String initFlavor) {
+    public Task(String initName, int initDuration, Trait[] initCosts , 
+        Trait[] initRequirements, Trait[] initResults, String initFlavor) {
         name = new SimpleStringProperty(initName);
         duration = new SimpleIntegerProperty(initDuration);
         gerund = new SimpleStringProperty(initName + "ing");
@@ -58,8 +58,8 @@ public class Task {
         setUpFlavor(initFlavor);        
     }
     
-    public Task(String initName, int initDuration, String initGerund, String[] initCosts , 
-        String[] initRequirements, Trait[] initResults, String initFlavor) {
+    public Task(String initName, int initDuration, String initGerund, Trait[] initCosts , 
+        Trait[] initRequirements, Trait[] initResults, String initFlavor) {
         name = new SimpleStringProperty(initName);
         duration = new SimpleIntegerProperty(initDuration);
         gerund = new SimpleStringProperty(initGerund);
@@ -78,29 +78,21 @@ public class Task {
 //        setUpFlavor(t.getFlavor());
 //    }
     
-    private void setUpCosts(String[] initCosts) {
+    private void setUpCosts(Trait[] initCosts) {
         if(initCosts == null) {
-            costs = new SimpleStringProperty[1];
-            costs[0] = new SimpleStringProperty("no costs");
+            costs = new SimpleListProperty<Trait>(FXCollections.observableArrayList());
         }
         else {
-            costs = new SimpleStringProperty[initCosts.length];
-            for(int i = 0; i < initCosts.length; i++) {
-                costs[i] = new SimpleStringProperty(initCosts[i]);
-            }
+            costs = new SimpleListProperty(FXCollections.observableList(Arrays.asList(initCosts)));
         }
     }
     
-    private void setUpRequirements(String[] initRequirements) {
+    private void setUpRequirements(Trait[] initRequirements) {
         if(initRequirements == null) {
-            requirements = new SimpleStringProperty[1];
-            requirements[0] = new SimpleStringProperty("none");
+            requirements = new SimpleListProperty<Trait>(FXCollections.observableArrayList());
         }
         else {
-            requirements = new SimpleStringProperty[initRequirements.length];
-            for(int i = 0; i < initRequirements.length; i++) {
-                requirements[i] = new SimpleStringProperty(initRequirements[i]);
-            }
+            requirements = new SimpleListProperty(FXCollections.observableList(Arrays.asList(initRequirements)));
         }
     }
     
@@ -125,8 +117,8 @@ public class Task {
     }
     
     private void setUpResults(Trait[] initResults) {
-        if(!validateTraitArray(initResults)) {
-            results = new SimpleListProperty();
+        if(initResults == null) {
+            results = new SimpleListProperty<Trait>(FXCollections.observableArrayList());
         }
         else {
             results = new SimpleListProperty(FXCollections.observableList(Arrays.asList(initResults)));
@@ -146,6 +138,13 @@ public class Task {
         return name.get().equals("no task") && duration.get() < 1;
     }
     
+    public void setLinkTask(Task t, ActiveEntity e) {
+        name.set("Link");
+        duration.set(t.getDuration());
+        gerund.set(t.getGerund() + " with " + e.getName());
+        flavor.set(t.getFlavor());
+    }
+    
     public void setNoTask() {
         name.set("no task");
         duration.set(0);
@@ -158,17 +157,17 @@ public class Task {
         String s = name.get() + ": " + duration.get() + " turns";
         s += ", ";
         
-        String[] costArray = new String[costs.length];
-        for(int i = 0; i < costs.length; i++) {
-            costArray[i] = costs[i].get();
+        String[] costArray = new String[costs.size()];
+        for(int i = 0; i < costs.size(); i++) {
+            costArray[i] = costs.get(i).toString();
         }
         
         s += String.join(", ", costArray);
         s += "; Requires: ";
         
-        String[] requirementArray = new String[requirements.length];
-        for(int i = 0; i < requirements.length; i++) {
-            requirementArray[i] = requirements[i].get();
+        String[] requirementArray = new String[requirements.size()];
+        for(int i = 0; i < requirements.size(); i++) {
+            requirementArray[i] = requirements.get(i).toString();
         }
         
         s += String.join(", ", requirementArray);
@@ -211,8 +210,8 @@ public class Task {
         Task temp = (Task) t;
         if(!this.getName().equals(temp.getName())) {return false;} //same name?
         if(this.getDuration() != temp.getDuration()) {return false;} //same duration?
-        if(!Arrays.deepEquals(this.getCosts(), temp.getCosts())) {return false;} //same costs?
-        if(!Arrays.deepEquals(this.getRequirements(), temp.getRequirements())) {return false;} //same requirements?
+        if(!this.getCosts().equals(temp.getCosts())) {return false;} //same costs?
+        if(!this.getRequirements().equals(temp.getRequirements())) {return false;} //same requirements?
         if(!this.getResults().equals(temp.getResults())) {return false;} //same results?
         return this.getFlavor().equals(temp.getFlavor()); //same flavor?
     }
@@ -222,8 +221,8 @@ public class Task {
         int hash = 7;
         hash = 53 * hash + Objects.hashCode(this.getName());
         hash = 53 * hash + Objects.hashCode(this.getDuration());
-        hash = 53 * hash + Arrays.deepHashCode(this.getCosts());
-        hash = 53 * hash + Arrays.deepHashCode(this.getRequirements());
+        hash = 53 * hash + this.getCosts().hashCode();
+        hash = 53 * hash + this.getRequirements().hashCode();
         hash = 53 * hash + this.getResults().hashCode();
         hash = 53 * hash + Objects.hashCode(this.getFlavor());
         return hash;
@@ -295,29 +294,17 @@ public class Task {
     }
     
     /**
-     * @return the costs as an array of Strings
+     * @return the costs as an ObservableList of Traits
      */
-    public String[] getCosts() {
-        String[] costArray = new String[costs.length];
-        
-        for(int i = 0; i < costs.length; i++) {
-            costArray[i] = costs[i].get();
-        }
-        
-        return costArray;
+    public ObservableList<Trait> getCosts() {
+        return costs.get();
     }
     
     /**
-     * @return the requirements as an array of Strings
+     * @return the requirements as an ObservableList of Traits
      */
-    public String[] getRequirements() {
-        String[] requirementArray = new String[requirements.length];
-        
-        for(int i = 0; i < requirements.length; i++) {
-            requirementArray[i] = requirements[i].get();
-        }
-        
-        return requirementArray;
+    public ObservableList<Trait> getRequirements() {
+        return requirements.get();    
     }
     
     /**
@@ -331,21 +318,11 @@ public class Task {
      * @param newResults the results to set
      */
     public void setResults(Trait[] newResults) {
-        if(!validateTraitArray(newResults)) {
-            results = new SimpleListProperty();
-        }
-        else {
-            results = new SimpleListProperty(FXCollections.observableList(Arrays.asList(newResults)));
-        }
+        results.set(FXCollections.observableList(Arrays.asList(newResults)));
     }
     
     public void setResultsList(List<Trait> newResults) {
-        if(!validateTraitList(newResults)) {
-            results = new SimpleListProperty();
-        }
-        else {
-            results = new SimpleListProperty(FXCollections.observableList(newResults));
-        }
+        results.set(FXCollections.observableList(newResults));
     }
     
     public SimpleListProperty<Trait> getResultsProp() {
@@ -364,29 +341,38 @@ public class Task {
     /**
      * @return the costs
      */
-    public SimpleStringProperty[] getCostsProp() {
+    public SimpleListProperty<Trait> getCostsProp() {
         return costs;
     }
 
+    public void setCosts(Trait[] newCosts) {
+        costs.set(FXCollections.observableList(Arrays.asList(newCosts)));
+
+    }
+            
+    public void setCostsList(List<Trait> newCosts) {
+        costs.set(FXCollections.observableList(newCosts));
+    }
+    
     /**
-     * @param costs the costs to set
+     * @param newCosts the costs to set
      */
-    public void setCostsProp(SimpleStringProperty[] costs) {
-        this.costs = costs;
+    public void setCostsProp(SimpleListProperty<Trait> newCosts) {
+        costs.set(newCosts);
     }
 
     /**
      * @return the requirements
      */
-    public SimpleStringProperty[] getRequirementsProp() {
+    public SimpleListProperty<Trait> getRequirementsProp() {
         return requirements;
     }
 
     /**
      * @param requirements the requirements to set
      */
-    public void setRequirementsProp(SimpleStringProperty[] requirements) {
-        this.requirements = requirements;
+    public void setRequirementsProp(SimpleListProperty<Trait> requirements) {
+        this.requirements.set(requirements);
     }
 
     /**

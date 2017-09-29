@@ -542,7 +542,7 @@ public class ActiveEntityTest {
         assertFalse(instance.isBusy());
         assertFalse(instance.getTaskCompleted());
  
-        instance.cancelTask();
+        instance.clearTask();
         assertTrue(instance.getCurrentTask().getDuration() == 0);
         assertTrue(instance.getCurrentTask().isNoTask());
         assertFalse(instance.isBusy());
@@ -553,7 +553,7 @@ public class ActiveEntityTest {
         assertTrue(instance.isBusy());
         assertFalse(instance.getTaskCompleted());
         
-        instance.cancelTask();
+        instance.clearTask();
         assertTrue(instance.getCurrentTask().getDuration() == 0);
         assertTrue(instance.getCurrentTask().isNoTask());
         assertFalse(instance.isBusy());
@@ -565,7 +565,7 @@ public class ActiveEntityTest {
         assertTrue(instance.isBusy());
         assertFalse(instance.getTaskCompleted());
         
-        instance.cancelTask();
+        instance.clearTask();
         assertTrue(instance.getCurrentTask().getDuration() == 0);
         assertTrue(instance.getCurrentTask().isNoTask());
         assertFalse(instance.isBusy());

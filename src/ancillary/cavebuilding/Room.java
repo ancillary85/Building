@@ -5,7 +5,9 @@
  */
 package ancillary.cavebuilding;
 
-import java.awt.Point;
+import java.util.ArrayList;
+import javafx.beans.property.SimpleStringProperty;
+
 
 /**
  *
@@ -13,124 +15,232 @@ import java.awt.Point;
  */
 
 public class Room {
+
     /* room sizes */
-    public static final int SMALL = 0; // 1x1
-    public static final int LARGE = 1; // 2x2
-    public static final int  HALL = 2; // 2x1
-    public static final int SHAFT = 3; // 1x2
+    public static enum roomSize{SMALL, LARGE, HUGE}
     
     /* room types */
-    public static final int ENTRANCE = 0;
-    public static final int CORRIDOR = 1;
-    public static final int HOARD = 2;
-    public static final int NEST = 3;
-    public static final int STORAGE = 4;
-    public static final int QUAARTERS = 5;
+    public static enum roomType{WALL, ENTRANCE, CORRIDOR, SHAFT, HOARD, NEST, STORAGE, QUARTERS, EXTERIOR}
     
-    public final int MAXDOORS = 8;
-    // doors are numbered 0,1,etc, clockwise from upper left corner
-    // current maximum number of doors is 8    
-    private boolean[] doors;
-    private int roomType;
-    private String roomName;
-    private int roomNum;
-    private static int roomTotal = 0;
-    private int roomSize;
-    private Point location; // location of upper left corner
-    private int[] contents;
-    private int[] occupants;
+    // doors are numbered 0,1,etc, clockwise from top
+    // current maximum number of doors is 4    
+    public final int MAXDOORS = 4;
+    //contents
+    //occupants
+    private SimpleStringProperty roomName;
+    private String roomID;
+    private roomSize size;
+    private roomType type;
+    private SimpleStringProperty description;
+    private Room[] neighbors;
+    private ArrayList<Trait> traits;
+    private int roomNumber = -1;
+    private int xPos = -1;
+    private int yPos = -1;
     
     public Room() {
-        doors = new boolean[MAXDOORS];
-        roomType = -1;
-        roomName = "blank";
-        roomNum = roomTotal;
-        roomTotal++;
-        roomSize = -1;
-        location = new Point(-1, -1);
-        contents = new int[0];
-        occupants = new int[0];
+        roomName = new SimpleStringProperty("Wall");
+        roomID = "placeholder";
+        size = roomSize.SMALL;
+        type = roomType.WALL;
+        description = new SimpleStringProperty("Unworked");
+        neighbors = new Room[MAXDOORS];
+        traits = new ArrayList();
     }
     
-    public Room(boolean[] doors, int roomType, String roomName, int roomSize, 
-            Point location, int[] contents, int[] occupants) {
-        this.doors = doors;
-        this.roomType = roomType;
-        this.roomName = roomName;
-        roomNum = roomTotal;
-        roomTotal++;
-        this.roomSize = roomSize;
-        this.location = location;
-        this.contents = contents;
-        this.occupants = occupants;
-    }
-        
-    public boolean[] getDoors(){
-        return doors;
+    public Room(Room r) {
+        roomName = new SimpleStringProperty(r.getRoomName());
+        roomID = r.getRoomID();
+        size = r.getSize();
+        type = r.getType();
+        description = new SimpleStringProperty(r.getDescription());
+        if(r.getNeighbors() == null || r.getNeighbors().length > MAXDOORS) {
+            neighbors = new Room[MAXDOORS];
+        }
+        else {
+            neighbors = r.getNeighbors();
+        }
+        setUpTraits(r.getTraits());
     }
     
-    public int getRoomType() {
-        return roomType;
+    public Room(String initName, String initID, roomSize initSize, roomType initType, String desc, Room[] neighborhood, ArrayList<Trait> initTraits) {
+        roomName = new SimpleStringProperty(initName);
+        roomID = initID;
+        size = initSize;
+        type = initType;
+        description = new SimpleStringProperty(desc);
+        if(neighborhood == null || neighborhood.length > MAXDOORS) {
+            neighbors = new Room[MAXDOORS];
+        }
+        else {
+            neighbors = neighborhood;
+        }
+        setUpTraits(initTraits);
     }
-    
-    public String getRoomName() {
+
+    /**
+     * @return the roomName property
+     */
+    public SimpleStringProperty getRoomNameProp() {
         return roomName;
     }
     
-    public static int getRoomTotal() {
-        return roomTotal;
+    /**
+     * @return the roomName
+     */
+    public String getRoomName() {
+        return roomName.get();
     }
-    
-    public  int getRoomNum() {
-        return roomNum;
-    }
-    
-    public int getRoomSize(){
-        return roomSize;
-    }
-    
-    public Point getLocation() {
-        return location;
-    }
-    
-    public int[] getContents() {
-        return contents;
-    }
-    
-    public int[] getOccupants() {
-        return occupants;
-    }
-    
-    public void setDoors(boolean[] newDoors) {
-        if(newDoors.length > MAXDOORS){
-         //too many doors!
-            return;
-        }            
-        
-        doors = newDoors;
-    }
-    
-    public void setRoomType(int newType) {
-        roomType = newType;
-    }
-    
+
+    /**
+     * @param newName the roomName to set
+     */
     public void setRoomName(String newName) {
-        roomName = newName;
+        roomName.set(newName);
+    }
+
+    /**
+     * @return the roomID
+     */
+    public String getRoomID() {
+        return roomID;
+    }
+
+    /**
+     * @param newID the id to set
+     */
+    public void setSize(String newID) {
+        roomID = newID;
     }
     
-    public void setRoomSize(int newSize) {
-        roomSize = newSize;
+    /**
+     * @return the size
+     */
+    public roomSize getSize() {
+        return size;
+    }
+
+    /**
+     * @param size the size to set
+     */
+    public void setSize(roomSize size) {
+        this.size = size;
+    }
+
+    /**
+     * @return the type
+     */
+    public roomType getType() {
+        return type;
+    }
+
+    /**
+     * @param type the type to set
+     */
+    public void setType(roomType type) {
+        this.type = type;
+    }
+
+    /**
+     * @return the description property
+     */
+    public SimpleStringProperty getDescriptionProp() {
+        return description;
+    }
+
+    /**
+     * @return the description 
+     */
+    public String getDescription() {
+        return description.get();
     }
     
-    public void setLocation(Point newLocation) {
-        location = new Point(newLocation);
+    /**
+     * @param description the description to set
+     */
+    public void setDescription(String newDesc) {
+        description.set(newDesc);
+    }
+
+    /**
+     * @return the neighbors
+     */
+    public Room[] getNeighbors() {
+        return neighbors;
+    }
+
+    /**
+     * @param neighbors the neighbors to set
+     */
+    public void setNeighbors(Room[] neighbors) {
+        this.neighbors = neighbors;
+    }
+
+    /**
+     * @return the traits
+     */
+    public ArrayList<Trait> getTraits() {
+        return traits;
+    }
+
+    /**
+     * @param traits the traits to set
+     */
+    public void setTraits(ArrayList<Trait> traits) {
+        this.traits = traits;
+    }
+
+    /**
+     * @return the roomNumber
+     */
+    public int getRoomNumber() {
+        return roomNumber;
+    }
+
+    /**
+     * @param roomNumber the roomNumber to set
+     */
+    public void setRoomNumber(int roomNumber) {
+        this.roomNumber = roomNumber;
     }
     
-    public void setContents(int[] newContents) {
-        contents = newContents;
+    /**
+     * @return the xPos
+     */
+    public int getxPos() {
+        return xPos;
+    }
+
+    /**
+     * @param xPos the xPos to set
+     */
+    public void setxPos(int xPos) {
+        this.xPos = xPos;
+    }
+
+    /**
+     * @return the yPos
+     */
+    public int getyPos() {
+        return yPos;
+    }
+
+    /**
+     * @param yPos the yPos to set
+     */
+    public void setyPos(int yPos) {
+        this.yPos = yPos;
     }
     
-    public void setOccupants(int[] newOccupants) {
-        occupants = newOccupants;
+    private void setUpTraits(ArrayList<Trait> initTraits) {
+        traits = new ArrayList();
+        
+        if(initTraits == null) {
+            return;
+        }
+        
+        for(Trait t : initTraits) {
+            traits.add(new Trait(t));
+        }
     }
 }

@@ -32,7 +32,7 @@ public class TaskParser {
         String[] requirements = map.getNamedItem("requirements").getNodeValue().split(",");
         String[] results = map.getNamedItem("results").getNodeValue().split(",");
         String flavor = n.getTextContent().trim();
-        Task t = new Task(name, duration, costs, requirements, parseResults(results), flavor);
+        Task t = new Task(name, duration, parseCosts(costs), parseRequirements(requirements), parseResults(results), flavor);
         
         return t;
     }
@@ -60,9 +60,17 @@ public class TaskParser {
         
         for(int i = 0; i < inResults.length; i++) {
             temp = inResults[i].split(DELIM);
-            outResults[i] = new Trait(temp[0], Double.parseDouble(temp[1]), TraitBuilder.resourceProductionResult);
+            outResults[i] = new Trait(temp[0], Integer.parseInt(temp[1]), TraitBuilder.resourceProductionResult());
         }
         
         return outResults;
+    }
+    
+    public static Trait[] parseRequirements(String[] inReq) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private static Trait[] parseCosts(String[] inCosts) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

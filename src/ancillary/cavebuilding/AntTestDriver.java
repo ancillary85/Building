@@ -6,6 +6,7 @@
 package ancillary.cavebuilding;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 
 /**
  *
@@ -17,10 +18,11 @@ public class AntTestDriver {
     
     public static void main(String[] args) {
         ants = new ArrayList();
-        ants.add(AntBuilder.makeSoldier("Bob", null));
-        ants.add(AntBuilder.makeSoldier("Rambo", null));
-        ants.add(AntBuilder.makeWorker("Alice", null));
-        ants.add(AntBuilder.makeWorker("Beatrice", null));
+        AntBuilder builder = new AntBuilder();
+        ants.add(builder.makeSoldier("Bob", null));
+        ants.add(builder.makeSoldier("Rambo", null));
+        ants.add(builder.makeWorker("Alice", null));
+        ants.add(builder.makeWorker("Beatrice", null));
         
         choochoo = new AntHillEngine(null, ants);
         
@@ -36,7 +38,7 @@ public class AntTestDriver {
     public static void antTaskResultTest() {
         ActiveEntity Bob = choochoo.getAnts().get(0);
         
-        choochoo.addResource(new Trait("Food", 10, "Delicious food!", Trait.trait_type.RESOURCE));
+        choochoo.addResource(new Trait("Food", 10, "Delicious food!", EnumSet.of(Trait.trait_type.RESOURCE)));
         System.out.println(choochoo.resourcesReport() + "\n");
         choochoo.update();
         System.out.println(choochoo.resourcesReportDesc() + "\n");

@@ -55,6 +55,7 @@ public class ActiveEntity {
     protected Task currentTask;
     protected SimpleBooleanProperty taskCompleted;
     protected SimpleStringProperty idleText;
+    private Trait.trait_type[] traitDisplayPriority = {Trait.trait_type.ATTRIBUTE, Trait.trait_type.RESULT, Trait.trait_type.COMBAT, Trait.trait_type.FLAVOR};
     
     public ActiveEntity() {
         this.id = "placeholder";
@@ -296,6 +297,19 @@ public class ActiveEntity {
     }
     
     /**
+     * Links this entity with another for a task. It's task timer is set to match the task's duration.
+     * @param t
+     * @param e 
+     */
+    public void setLinked(Task t, ActiveEntity e) {
+        currentTask.setLinkTask(t, e);
+        setNotBusy();
+        setBusy();
+        taskCompleted.set(false);
+        setTaskTimerFromCurrentTask();
+    }
+    
+    /**
      * @return taskCompleted as a boolean 
      */
     public boolean getTaskCompleted() {
@@ -365,13 +379,6 @@ public class ActiveEntity {
         this.setNotBusy();
         taskCompleted.set(false);
     }
-   
-    /**
-     * @return the Entity's ID as a String
-     */
-    public String getID() {
-        return id;
-    }
      
     /**
      * 
@@ -409,6 +416,35 @@ public class ActiveEntity {
     
     public void setName(String newName) {
         name.set(newName);
+    }
+
+    /**
+     * @return the id
+     */
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
+    
+    /**
+     * Returns true if any of the Strings in this.getId().split(",") equals idFragment.
+     * If idFragment contains commas, there's gonna be no luck.
+     * @param idFragment 
+     * @return 
+     */
+    public boolean idMatch(String idFragment) {
+        for(String piece : id.split(",")) {
+            if(piece.equalsIgnoreCase(idFragment)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /**
@@ -490,6 +526,20 @@ public class ActiveEntity {
     public void setTraits(List<Trait> newTraits) {
         this.traits = new ArrayList<Trait>(newTraits);
     }
+
+    /**
+     * @return the traitDisplayPriority
+     */
+    public Trait.trait_type[] getTraitDisplayPriority() {
+        return traitDisplayPriority;
+    }
+
+    /**
+     * @param traitDisplayPriority the traitDisplayPriority to set
+     */
+    public void setTraitDisplayPriority(Trait.trait_type[] traitDisplayPriority) {
+        this.traitDisplayPriority = traitDisplayPriority;
+    }
     
     /**
      * Adds the given trait to the entity. If the Trait List already contains a Trait with the same name, 
@@ -499,7 +549,7 @@ public class ActiveEntity {
      * @param name the name of the Trait
      * @param value the value of the Trait
      */
-    public void addTraitValue(String name, double value) {
+    public void addTraitValue(String name, int value) {
         
         for(Trait res : traits) {
             if(res.getName().equals(name)) {
@@ -507,6 +557,24 @@ public class ActiveEntity {
                 return; //return if we found the trait in the trait list
             }
         }
+    }
+    
+    public boolean hasTrait(String name) {
+        for(Trait t : traits) {
+            if(t.getName().equalsIgnoreCase(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public int getTraitValue(String name) {
+        for(Trait t : traits) {
+            if(t.getName().equalsIgnoreCase(name)) {
+                return t.getValue();
+            }
+        }
+        return 0;
     }
     
     /**
@@ -525,7 +593,7 @@ public class ActiveEntity {
             }
         }
         
-        traits.add(t);
+        traits.add(new Trait(t));
     }
     
     /**

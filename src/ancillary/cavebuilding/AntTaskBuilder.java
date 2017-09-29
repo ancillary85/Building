@@ -6,6 +6,7 @@
 package ancillary.cavebuilding;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 
 /**
  *
@@ -17,41 +18,41 @@ public class AntTaskBuilder {
  
     public static Task dig() {
         Task DIG = new Task("Dig", 1, "Digging",
-            null, 
+            new Trait[]{new Trait("Patience", -1, TraitBuilder.personal_resource())}, 
             null,
-            new Trait[]{new Trait("Space", 1.0, TraitBuilder.resourceProductionResult)},
+            new Trait[]{new Trait("Space", 1, TraitBuilder.resource())},
             "Expand the colony");
         return DIG;
     }
     public static Task forage() {
         Task FORAGE = new Task("Forage", 2, "Foraging",
+            new Trait[]{new Trait("Machetes", -1, TraitBuilder.resource())}, 
             null, 
-            null, 
-            new Trait[]{new Trait("Food", 1.0, TraitBuilder.resourceProductionResult)},
+            new Trait[]{new Trait("Food", 1, TraitBuilder.resource())},
             "Search for food");
         return FORAGE;
     }
     public static Task hunt() {
         Task HUNT = new Task("Hunt", 3, "Hunting",
-            new String[]{"Stamina -1 " + Task.PERSONAL_RESOURCE}, 
-            new String[]{"Stamina >0 " + Task.RESOURCE}, 
-            new Trait[]{new Trait("Food", 2.0, TraitBuilder.resourceProductionResult)},
+            new Trait[]{new Trait("Stamina", -1, TraitBuilder.personal_resource())}, 
+            new Trait[]{new Trait("Stamina", 0, TraitBuilder.reqGreaterThanPersonal())}, 
+            new Trait[]{new Trait("Food", 2, TraitBuilder.resource())},
             "Hunt for food");
         return HUNT;
     }
     public static Task larvaCare() {
         Task LARVA_CARE = new Task("Tend to Larva", 1, "Larva tending",
-            new String[]{"Food -1 " + Task.RESOURCE, Task.SELF + " = " + AntBuilder.WORKER}, 
-            new String[]{"Food >0 " + Task.RESOURCE, "Larva >0 " + Task.ENTITY}, 
-            new Trait[]{new Trait("Larva Stamina", 1.0, TraitBuilder.resourceHidden)}, 
+            new Trait[]{new Trait("Food", -1, TraitBuilder.resource())}, 
+            new Trait[]{new Trait("Food", 0, TraitBuilder.reqGreaterThanResource()), new Trait("Larva", 0, "Larva in need", TraitBuilder.reqGreaterThanCreation())}, 
+            new Trait[]{new Trait("Larva Stamina", 1, TraitBuilder.resourceHidden())}, 
             "Care for growing larval ants");
         return LARVA_CARE;
     }
     public static Task eat() {
         Task EAT = new Task("Eat", 2, "Eating",
-            new String[]{"Food -1 " + Task.RESOURCE}, 
-            new String[]{"Food >0 " + Task.RESOURCE}, 
-            new Trait[]{new Trait("Stamina", 4.0, TraitBuilder.personalResourceResult)},
+            new Trait[]{new Trait("Food", -1, TraitBuilder.resource())}, 
+            new Trait[]{new Trait("Food", 0, TraitBuilder.reqGreaterThanResource())}, 
+            new Trait[]{new Trait("Stamina", 4, TraitBuilder.personal_resource())},
             "Eat some food");
         return EAT;
     }
@@ -59,18 +60,37 @@ public class AntTaskBuilder {
         Task REST = new Task("Rest", 1, "Resting",
             null, 
             null, 
-            new Trait[]{new Trait("Stamina", 1.0, TraitBuilder.personalResourceResult)},
+            new Trait[]{new Trait("Stamina", 1, TraitBuilder.personal_resource())},
             "Take a rest");
         return REST;
     }
     
     public static Task fight() {
         Task FIGHT = new Task("Fight", 1, "Fighting",
-            new String[]{"Stamina -2 " + Task.PERSONAL_RESOURCE},
-            new String[]{"Stamina >1 " + Task.PERSONAL_RESOURCE},
-            new Trait[]{new Trait("Enemies", -1.0, TraitBuilder.resourceProductionResult), new Trait("Stamina", -1.0, TraitBuilder.personalResourceResult)},
+            new Trait[]{new Trait("Stamina", -2, TraitBuilder.personal_resource())},
+            new Trait[]{new Trait("Stamina", 1, TraitBuilder.reqGreaterThanPersonal())},
+            new Trait[]{new Trait("Enemies", -1, TraitBuilder.resource()), new Trait("Stamina", -1, TraitBuilder.personal_resource())},
             "Fight an enemy");
         return FIGHT;
+    }
+    
+    public static Task brood() {
+        Task BROOD = new Task("Brood", 2, "Laying eggs",
+            new Trait[]{new Trait("Patience", -1, TraitBuilder.personal_resource())}, 
+            null,
+            new Trait[]{new Trait("Egg", 2, TraitBuilder.creation())},
+            "Lay new eggs");
+        return BROOD;
+    }
+    
+    public static Task eatEgg() {
+        Task EATEGG = new Task("Eat an Egg", 1, "Eating an egg", 
+            null,
+            new Trait[]{new Trait("Egg", 0, "Egg to eat", TraitBuilder.reqGreaterThanCreation())},
+            new Trait[]{new Trait("Egg", -1, TraitBuilder.uncreate())},
+            "Eat an egg to regain strength");
+        
+        return EATEGG;
     }
     
     public static Task[] antTasks() {
@@ -87,5 +107,27 @@ public class AntTaskBuilder {
         Task[] soldierTasks = Arrays.copyOf(antTasks(), antTasks().length + 1);
         soldierTasks[soldierTasks.length - 1] = fight();
         return soldierTasks;
+    }
+
+    static Task[] droneTasks() {
+        return antTasks();
+    }
+
+    static Task[] queenTasks() {
+        Task[] queenTasks = new Task[]{dig(), eat(), rest(), brood(), eatEgg()};
+        
+        return queenTasks;
+    }
+
+    static Task[] eggTasks() {
+        return antTasks();
+    }
+
+    static Task[] larvaTasks() {
+        return antTasks();
+    }
+
+    static Task[] pupaTasks() {
+        return antTasks();
     }
 }

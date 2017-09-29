@@ -7,38 +7,44 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane id="entity-detail-node" prefHeight="600.0" prefWidth="800.0" stylesheets="@CaveBuilding.css" xmlns="http://javafx.com/javafx/8.0.102" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane id="detail-node" prefHeight="700.0" prefWidth="800.0" stylesheets="@CaveBuilding.css" xmlns="http://javafx.com/javafx/8.0.102" xmlns:fx="http://javafx.com/fxml/1">
    <center>
-      <TabPane fx:id="entityDetailTabs" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+      <TabPane fx:id="entityDetailTabs" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
         <tabs>
-          <Tab fx:id="entityTraitsTab" text="Traits">
-               <content>
-                  <ScrollPane prefHeight="200.0" prefWidth="200.0">
-                     <content>
-                        <FlowPane id="entity-detail-trait-pane" fx:id="traitsFlow" alignment="CENTER_LEFT" hgap="10.0" prefWrapLength="750.0" vgap="5.0" />
-                     </content>
-                  </ScrollPane>
-               </content>
-          </Tab>
           <Tab fx:id="entityTasksTab" text="Tasks">
                <content>
-                  <ScrollPane prefHeight="200.0" prefWidth="200.0">
+                  <ScrollPane id="detail-task-scroll" fx:id="tasksScroll" prefHeight="200.0" prefWidth="200.0">
                      <content>
-                        <FlowPane id="entity-detail-trait-pane" fx:id="tasksFlow" alignment="CENTER_LEFT" hgap="10.0" prefWrapLength="750.0" vgap="5.0" />
+                        <VBox id="detail-task-VBox" fx:id="tasksVBox" alignment="CENTER" />
                      </content>
                   </ScrollPane>
                </content>
           </Tab>
+            <Tab fx:id="entityTraitsTab" text="Traits">
+               <content>
+                  <ScrollPane id="detail-trait-scroll" fx:id="traitsScoll">
+                     <content>
+                        <VBox id="detail-trait-VBox" fx:id="traitsVBox" alignment="CENTER" />
+                     </content>
+                  </ScrollPane>
+               </content>
+            </Tab>
         </tabs>
       </TabPane>
    </center>
    <top>
       <AnchorPane BorderPane.alignment="CENTER">
          <children>
-            <Label id="entity-detail-name" fx:id="entityDetailName" text="Label" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" />
-            <Button cancelButton="true" mnemonicParsing="false" onAction="#entityDetailClose" text="Close" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0" />
+            <Label id="detail-name" fx:id="entityDetailName" text="Label" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" />
+            <AnchorPane AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="200.0" AnchorPane.topAnchor="10.0">
+               <children>
+                  <Label id="detail-current-task" fx:id="entityCurrentTask" alignment="CENTER" text="Label" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="0.0" />
+                  <Button id="detail-cancel-task" fx:id="cancelCurrentTask" mnemonicParsing="false" text="Cancel Task" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="0.0" />
+               </children>
+            </AnchorPane>
+            <Button alignment="CENTER" cancelButton="true" mnemonicParsing="false" onAction="#entityDetailClose" text="Close" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0" />
          </children>
       </AnchorPane>
    </top>

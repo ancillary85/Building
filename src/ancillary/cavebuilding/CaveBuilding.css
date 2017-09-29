@@ -25,7 +25,7 @@ and open the template in the editor.
 }
 
 #centerGrid {
-    -fx-padding: 25;
+    -fx-padding: 5;
 }
 
 #summary-button {
@@ -34,8 +34,8 @@ and open the template in the editor.
     -fx-background-radius:0;
     -fx-max-width:500;
     -fx-max-height:500;
-    -fx-pref-height:75;
-    -fx-pref-width:175;
+    -fx-pref-height:50;
+    -fx-pref-width:195;
     -fx-min-height:20;
     -fx-min-width:20;
 /*    -fx-background-image: url("stone.jpg");
@@ -44,7 +44,7 @@ and open the template in the editor.
     -fx-background-position: center;*/
 }
 
-#summary-button-VBox {
+#summary-button-node {
     -fx-alignment:CENTER;
 }
 
@@ -71,6 +71,43 @@ and open the template in the editor.
     -fx-alignment:BASELINE_LEFT;
 }
 
+#room-button {
+    -fx-base:cyan;
+    -fx-border-radius:0;
+    -fx-background-radius:0;
+    -fx-max-height:200;
+    -fx-max-width:400;
+    -fx-pref-height:80;
+    -fx-pref-width:160;
+    -fx-min-height:70;
+    -fx-min-width:140;
+/*    -fx-background-image: url("stone.jpg");
+    -fx-background-size: 350px 350px;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;*/
+}
+
+#room-button-node {
+    -fx-alignment:CENTER;
+}
+
+#room-button-name {
+    -fx-alignment:CENTER;
+    -fx-text-fill:black;
+    -fx-font-size:15;
+}
+
+#room-button-status {
+    -fx-alignment:CENTER;
+    -fx-text-fill:orange;
+    -fx-font-size:12;
+    -fx-font-weight:bold;
+}
+
+#room-button-status-box {
+    -fx-alignment:BASELINE_LEFT;
+}
+
 #active-name {
     -fx-text-fill:mediumslateblue;
 }
@@ -92,7 +129,7 @@ and open the template in the editor.
 #res-value {
     /* Label - resource value */
     -fx-alignment:CENTER;
-    -fx-text-fill:chartreuse;
+    -fx-text-fill:darkred;
 }
 
 #report-text {
@@ -100,61 +137,114 @@ and open the template in the editor.
     -fx-font-size:15;
 }
 
-#entity-detail-node {
+#detail-node {
     -fx-border-color:black;
     -fx-border-width:5;
     -fx-border-style:solid;
 }
 
-#entity-detail-name {
+#detail-name {
     -fx-font-size:20;
 }
 
-#entity-detail-trait-pane {
-    -fx-vgap:15;
-    -fx-hgap:20;
+#detail-trait-scroll {
+    -fx-hbar-policy:never;
+}    
+
+#detail-trait-VBox {
+    -fx-alignment:CENTER;
+}    
+
+#detail-trait-flow {
     -fx-padding:10;
+    -fx-hgap: 5;
+    -fx-vgap: 15;
 }
 
-#entity-detail-trait-pair {
+#detail-trait-pair {
     -fx-spacing:15;
     -fx-alignment:CENTER;
 }
 
-#entity-detail-trait-box {
+#detail-trait-box {
     -fx-padding:10;
-    -fx-spacing:15;
+    -fx-spacing:10;
     -fx-alignment:TOP_LEFT;
     -fx-border-color:black;
     -fx-border-width: 1 1 3 1;
     -fx-border-style:solid;
 }
 
-#entity-detail-trait-name {
+#detail-trait-group {
+    -fx-font-size:18;
+    -fx-border-color:gray;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-style:solid;
+}
+
+#detail-trait-name {
     -fx-font-size:15;
 }
 
-#entity-detail-trait-value {
+#detail-trait-value {
     -fx-font-size:15;
 }
 
-#entity-detail-trait-description {
+#detail-trait-description {
     -fx-font-size:15;
 }
 
-#entity-detail-trait-description-tooltip {
+#detail-trait-description-tooltip {
 /*    -fx-border-color:grey;
     -fx-border-width:2;
     -fx-border-style:solid;*/
 }
 
-#entity-detail-task-pane {
+#detail-task-scroll {
+    -fx-hbar-policy:never;
+}
+
+#detail-task-VBox {
+    -fx-vgap:15;
+    -fx-hgap:20;
+    -fx-padding:10;
+}    
+
+#entity-detail-task-flow {
     -fx-vgap:15;
     -fx-hgap:20;
     -fx-padding:10;
 }
 
+#entity-detail-task-links {
+    -fx-font-size:15;
+    -fx-text-fill:#99cc00;
+}
+
+#detail-cancel-task {
+    -fx-border-color:red;
+    -fx-border-width:2;
+    -fx-border-style:solid;
+}
+
+#detail-current-task {
+    -fx-font-size:15;
+    -fx-text-fill:orange;
+}
+
 #entity-detail-task-button {
+    -fx-border-color:grey;
+    -fx-border-width:2;
+    -fx-border-style:solid;
+}
+
+#entity-detail-task-button-working {
+    -fx-border-color:green;
+    -fx-border-width:2;
+    -fx-border-style:solid;
+}
+
+#entity-detail-task-button-invalid {
     
 }
 
@@ -164,6 +254,15 @@ and open the template in the editor.
     -fx-alignment:TOP_LEFT;
     -fx-border-color:black;
     -fx-border-width: 1 1 3 1;
+    -fx-border-style:solid;
+}
+
+#entity-detail-task-box-selected {
+    -fx-padding:10;
+    -fx-spacing:5;
+    -fx-alignment:TOP_LEFT;
+    -fx-border-color:gold;
+    -fx-border-width: 2 2 3 2;
     -fx-border-style:solid;
 }
 
@@ -192,27 +291,56 @@ and open the template in the editor.
 #entity-detail-task-cost-title {
     -fx-font-size:15;
     -fx-text-fill:gold;
+    -fx-alignment:CENTER_LEFT;
 }
 
 #entity-detail-task-cost {
     -fx-font-size:15;
+    -fx-text-fill:black;
+}
+
+#entity-detail-task-cost-invalid {
+    -fx-font-size:15;
+    -fx-text-fill:red;
 }
 
 #entity-detail-task-cost-number {
     -fx-font-size:15;
 }
 
+#entity-detail-task-cost-vbox {
+    -fx-spacing:0;
+    -fx-alignment:CENTER_LEFT;
+}
+
 #entity-detail-task-cost-pane {
-    -fx-spacing:15;
+    -fx-spacing:0;
     -fx-alignment:CENTER;
 }
 
 #entity-detail-task-requirement {
     -fx-font-size:15;
+    -fx-text-fill:black;
+}
+
+#entity-detail-task-requirement-invalid {
+    -fx-font-size:15;
+    -fx-text-fill:red;
+}
+
+#entity-detail-task-requirement-title {
+    -fx-font-size:15;
+    -fx-text-fill:gold;
+    -fx-alignment:CENTER_LEFT;
 }
 
 #entity-detail-task-requirement-number {
     -fx-font-size:15;
+}
+
+#entity-detail-task-requirement-vbox {
+    -fx-spacing:0;
+    -fx-alignment:CENTER_LEFT;
 }
 
 #entity-detail-task-requirement-pane {
@@ -226,6 +354,17 @@ and open the template in the editor.
 
 #entity-detail-task-result-number {
     -fx-font-size:15;
+}
+
+#entity-detail-task-result-title {
+    -fx-font-size:15;
+    -fx-text-fill:gold;
+    -fx-alignment:CENTER_LEFT;
+}
+
+#entity-detail-task-result-vbox {
+    -fx-spacing:0;
+    -fx-alignment:CENTER_LEFT;
 }
 
 #entity-detail-task-result-pane {
