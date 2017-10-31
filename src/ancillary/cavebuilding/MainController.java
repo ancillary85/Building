@@ -22,6 +22,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -34,14 +35,21 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.SplitMenuButton;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.FlowPane;
@@ -49,7 +57,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -92,7 +103,35 @@ public class MainController implements Initializable, CaveController {
     private VBox tasksVBox;
     @FXML
     private Label roomDetailName;    
+    @FXML
+    private Button cancelCurrentRoomTask;
+    @FXML
+    private Label roomDetailStatus;    
+    @FXML
+    private VBox roomTraits;
+    @FXML
+    private VBox roomNeighbors;
+    @FXML
+    private VBox roomTasks;
+    @FXML
+    private Button eventDetailCloseButton;
+    @FXML
+    private Label eventDetailName;
+    @FXML
+    private StackPane eventBodyStack;
+    @FXML
+    private AnchorPane eventBodyAnchorA;
+    @FXML
+    private TextArea eventDetailBodyA;
+    @FXML
+    private SplitPane eventBodySplitB;
+    @FXML
+    private ListView<GameEvent> eventBodyListB;
+    @FXML
+    private VBox eventBodyVBoxB;
     
+    
+    private Stage eventDetail;
     private Stage roomDetail;
     private Stage entityDetail;
     private Stage primaryStage;
@@ -100,19 +139,22 @@ public class MainController implements Initializable, CaveController {
     private ListChangeListener resListener;
     private ArrayList<Pair<ActiveEntity, Button>> entitiesToButtons = new ArrayList();
     private static final int SQUARESIZE = 100;
-    private static final int ROOM_COLUMNS = 5;
-    private static final int ROOM_ROWS = 5;
+    private static final int ROOM_COLUMNS = 10;
+    private static final int ROOM_ROWS = 10;
     private int gridX = 0;
     private int gridY = 0;
+    private int roomCount = 0;
     private boolean init = false;
     private Trait.trait_type[] defaultPriorities = {Trait.trait_type.ATTRIBUTE, Trait.trait_type.PRODUCTION, Trait.trait_type.COMBAT, Trait.trait_type.FLAVOR};
     private StringProperty stringProp;
+    private boolean mustOfferUpdateWarnings = true;
     
     public MainController(Stage initPrimary) {
         primaryStage = initPrimary;
         setUpDefaultMotor();
         motor.setController(this);
         setUpDefaultDetail();
+        setUpDefaultRooms();
     }
     
     public MainController(Stage initPrimary, Engine initEngine) {
@@ -120,13 +162,15 @@ public class MainController implements Initializable, CaveController {
         motor = initEngine;
         motor.setController(this);
         setUpDefaultDetail();
+        setUpDefaultRooms();
     }
     
     public MainController(Stage initPrimary, Engine initEngine, Stage initDetails) {
         primaryStage = initPrimary;
         motor = initEngine;
-        motor.setController(this);
         entityDetail = initDetails;
+        setUpDefaultRooms();
+        motor.setController(this);
     }
     
     private void setUpDefaultMotor() {
@@ -159,6 +203,7 @@ public class MainController implements Initializable, CaveController {
         setUpCenterGrid();
         setUpResBox();
         setUpResourceListener();
+        
         init = true;
     }    
 
@@ -168,6 +213,34 @@ public class MainController implements Initializable, CaveController {
         motor.addResource("Light bulbs", 2, "Bright idea");
         motor.addResource("Enemies", 15, "Foes");
         motor.addResource("Morale", -3, "Meh");
+    }
+    
+    private void setUpUpdateWarningListener() {
+        eventBodyListB.getFocusModel().focusedItemProperty().addListener((ObservableValue<? extends GameEvent> observable, GameEvent oldValue, GameEvent newValue) -> {
+            eventBodyVBoxB.getChildren().clear();
+            if(newValue == null) {
+                return;
+            }
+
+            Label eventTitle = new Label(newValue.title);
+            eventTitle.setWrapText(true);
+            eventBodyVBoxB.getChildren().add(eventTitle);
+            eventBodyVBoxB.getChildren().add(new Label());
+            Label eventBody = new Label(newValue.body);
+            eventBody.setWrapText(true);
+            eventBodyVBoxB.getChildren().add(eventBody);
+        });
+
+        eventBodyListB.setCellFactory((ListView<GameEvent> temp) -> {
+            return new WarningCell();
+        });
+    }
+    
+    private void setUpDefaultRooms() {
+        
+        for(int i = 0; i < ROOM_ROWS * ROOM_COLUMNS; i++) {
+            motor.addRoom(new Room());
+        }
     }
     
     private void setUpTopPane() {
@@ -199,10 +272,10 @@ public class MainController implements Initializable, CaveController {
             centerGrid.getRowConstraints().add(r);
         }
         
-        populate1();
+        populate();
         populateRooms();
         
-        centerGrid.setGridLinesVisible(true);
+        centerGrid.setGridLinesVisible(false);
         
         centerScroll.setFitToHeight(true);
         centerScroll.setFitToWidth(true);
@@ -217,12 +290,12 @@ public class MainController implements Initializable, CaveController {
         topToolBar.getItems().add(killButton);
         
         for(int i = 0; i < 5; i++) {
-            addActive(motor.getBuilder().makeEntity(AntBuilder.WORKER, null, null));
+            addActive(motor.getBuilder().makeEntity(AntBuilder.WORKER + "," + AntBuilder.ANT, null));
         }
         
-        addActive(motor.getBuilder().makeEntity(AntBuilder.SOLDIER, "Soldier 1", null));
+        addActive(motor.getBuilder().makeEntity(AntBuilder.SOLDIER + "," + AntBuilder.ANT, "Soldier 1"));
         
-        ActiveEntity test = motor.getBuilder().makeEntity(AntBuilder.SOLDIER, "Soldier 2", null);
+        ActiveEntity test = motor.getBuilder().makeEntity(AntBuilder.SOLDIER + "," + AntBuilder.ANT, "Soldier 2");
         test.getTraits().add(new Trait());
         test.getTraits().add(new Trait("Test Trait 1", 55, EnumSet.of(Trait.trait_type.FLAVOR)));
         test.getTraits().add(new Trait("Test Trait 2", 123456789, EnumSet.of(Trait.trait_type.FLAVOR)));
@@ -230,7 +303,8 @@ public class MainController implements Initializable, CaveController {
         test.getTraits().add(new Trait("Test Trait 4 with a longer name", 42, EnumSet.of(Trait.trait_type.FLAVOR)));
         addActive(test);
         
-        addActive(motor.getBuilder().makeEntity(AntBuilder.QUEEN, "Victoria", null));
+        addActive(motor.getBuilder().makeEntity(AntBuilder.QUEEN + "," + AntBuilder.ANT, "Victoria"));
+        addActive(motor.getBuilder().makeEntity(AntBuilder.SOLDIER + "," + AntBuilder.DRONE + "," + AntBuilder.ANT, "Fight&Love"));
     }
     
     public void fillLeftPane() {
@@ -240,18 +314,62 @@ public class MainController implements Initializable, CaveController {
         }
     }
     
+    // "surface" Rooms are marked reachable
     @Override
     public void addRoom(Room r) {
-        r.setxPos(gridX);
-        r.setyPos(gridY);
-        motor.addRoom(r);
         Button rB = new Button();
-        rB.setGraphic(RoomSummary.getSummary(r));
-        rB.setId("room-button");
+        motor.setRoom(r, roomCount);
+        Room addedRoom = motor.getRooms().get(roomCount);
+        
+        addedRoom.setxPos(gridX);
+        addedRoom.setyPos(gridY);
+        addedRoom.setRoomNumber(roomCount);
+        if(addedRoom.getId().equalsIgnoreCase("surface")) {
+            addedRoom.setReachable(true);
+            rB.setId("room-button");
+        }
+        else {
+            addedRoom.setReachable(false);
+            rB.setId("room-button-unreachable");
+        }
+        
+        rB.setGraphic(RoomSummary.getSummary(addedRoom));
         rB.setOnAction((ActionEvent e) -> {
-            showRoomWindow(r);
+            showRoomWindow(addedRoom);
         });
         
+        addedRoom.getReachableProp().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> {
+            if(!newValue.booleanValue()) {
+                rB.setId("room-button-unreachable");
+            }
+            else {
+                if(addedRoom.getType() == Room.roomType.WALL) {
+                    rB.setId("room-button-semivalid");
+                }
+                else {
+                    rB.setId("room-button");
+                }
+            }
+        });
+      
+        // Establish neighbors
+        if(addedRoom.getyPos() > 0) {
+            addedRoom.setNorthNeighbor(motor.getRooms().get(addedRoom.getRoomNumber() - ROOM_COLUMNS));
+        }
+        
+        if(addedRoom.getxPos() < ROOM_COLUMNS - 1) {
+            addedRoom.setEastNeighbor(motor.getRooms().get(addedRoom.getRoomNumber() + 1));
+        }
+        
+        if(addedRoom.getyPos() < ROOM_ROWS - 1) {
+            addedRoom.setSouthNeighbor(motor.getRooms().get(addedRoom.getRoomNumber() + ROOM_COLUMNS));
+        }
+        
+        if(addedRoom.getxPos() > 0) {
+            addedRoom.setWestNeighbor(motor.getRooms().get(addedRoom.getRoomNumber() - 1));
+        }
+        
+        // Add button, prepare new coordinates for next Room.
         centerGrid.add(rB, gridX, gridY);
         gridX++;
         
@@ -263,11 +381,61 @@ public class MainController implements Initializable, CaveController {
         if(gridY >= ROOM_ROWS) {
             // no change
         }
+        
+        roomCount++;
     }
     
     @Override
     public void removeRoom(Room r) {
-        motor.removeRoom(r);
+        motor.setRoomEmpty(r);
+    }
+    
+    public void updateNeighborhood() {
+        List<Room> rooms = motor.getReachableRooms();
+        
+        for(Room r : rooms) {
+            updateNeighbors(r);
+        }
+        
+    }
+    
+    public void updateNeighbors(Room r) {
+        //r.getxPos() < 0 || r.getyPos() < 0 || r.getxPos() >= ROOM_COLUMNS || r.getyPos() >= ROOM_ROWS
+        // Do we care about out of bounds?
+        
+        //System.out.println("UpdateNeighbors for " + r.getRoomName() + "," + r.getRoomNumber());
+        
+        // No effect if unreachable. Reachability does not go through walls
+        if(!r.isReachable() || r.getType() == Room.roomType.WALL) {
+          //  System.out.println(r.getRoomName() + " is unreachable or a wall");
+            return;
+        }
+        
+//        for(int i = 0; i < r.getNeighbors().length; i++) {
+//            if(r.getNeighbors()[i] == null) {
+//                System.out.print(i + " is null, ");
+//            }
+//            else {
+//                System.out.print(i + " is " + r.getNeighbors()[i].getRoomName() + "," + r.getNeighbors()[i].getRoomNumber() + "; ");
+//            }
+//        }
+//        System.out.println();
+        
+        for(Room neighbor : r.getNeighbors()) {
+            // A non-existant neighbor, or one that is already reachable needs no attention
+            if(neighbor == null || neighbor.isReachable()) {
+            //    System.out.println("... is null or already reachable");
+                continue;
+            }
+            //System.out.print(" Neighbor " + neighbor.getRoomName() + ", " + neighbor.getRoomNumber() + " of " + r.getRoomName());            
+            // Reachability does not go through walls
+            neighbor.setReachable(true);
+            if(neighbor.getType() == Room.roomType.WALL) {
+                continue;
+            }
+            
+            updateNeighbors(neighbor);
+        }
     }
     
     @Override
@@ -344,8 +512,9 @@ public class MainController implements Initializable, CaveController {
         testTasks.add(makeLarva);
         
         Task larvaLink = new Task("Work with larva", 1, "Synergy!",
-            new Trait[]{new Trait("Time", -1, TraitBuilder.resource())},
-            new Trait[]{new Trait("Larva", 2, TraitBuilder.reqGreaterThanCreationLink())},
+            new Trait[]{new Trait("Time", -1, TraitBuilder.resource()), new Trait("Synergy", -6, TraitBuilder.resource())},
+            new Trait[]{new Trait("Larva", 2, TraitBuilder.reqGreaterThanCreationLink()), new Trait("Food", 0, TraitBuilder.reqGreaterThanResource()),
+                new Trait("Synergy", 5, TraitBuilder.reqGreaterThanResource())},
             new Trait[]{new Trait("Success", 1, TraitBuilder.resource())},
             "Test linked task");
         testTasks.add(larvaLink);
@@ -391,18 +560,18 @@ public class MainController implements Initializable, CaveController {
         testTraits.add(intellect);
         testTraits.add(con);
         testTraits.add(new Trait("Shoudle be last", 2, "foo", TraitBuilder.resource()));
-        testTraits.add(new Trait("Synergy per day", 3, "before combat", TraitBuilder.production()));
+        testTraits.add(new Trait("Synergy per day", 1, "Synergy +1\n\nBefore combat", TraitBuilder.resourceProduction()));
         Trait.trait_type[] priorities = new Trait.trait_type[]{Trait.trait_type.ATTRIBUTE, Trait.trait_type.COMBAT, Trait.trait_type.FLAVOR};
         
-        ActiveEntity test = new ActiveEntity("DRONE ANT", "Tester", null, testTasks, "doo dee doo", testTraits);
+        ActiveEntity test = new ActiveEntity("DRONE,ANT", "Tester", null, testTasks, "doo dee doo", testTraits);
         addActive(test);
         
         ActiveEntity test2 = new ActiveEntity();
-        test2.setId("DRONE ANT");
+        test2.setId("DRONE,ANT");
         addActive(test2);
         
         ActiveEntity test3 = new ActiveEntity();
-        test3.setId("DRONE ANT");
+        test3.setId("DRONE,ANT");
         testTraits.add(dex);
         testTraits.add(con);
         testTraits.add(con);
@@ -411,10 +580,11 @@ public class MainController implements Initializable, CaveController {
         addActive(test3);
         
         ActiveEntity test4 = new ActiveEntity();
-        test4.setId("DRONE ANT");
+        test4.setId("DRONE,ANT");
         test4.addTrait(new Trait());
         test4.addTrait(new Trait("sdadsd", -4, TraitBuilder.eachturn()));
         addActive(test4);
+        
         
         Button killButton = new Button("Remove Foo");
         killButton.setOnAction((ActionEvent e) -> {
@@ -471,37 +641,45 @@ public class MainController implements Initializable, CaveController {
 
     }
     
+    public void populate2() {
+        Button killButton = new Button("Remove Foo");
+        killButton.setOnAction((ActionEvent e) -> {
+            removeActive(motor.getResourceValue("Foo"));
+        });
+        topToolBar.getItems().add(killButton);
+        
+        String testTitle = "Test Event";
+        String testBody = "Once upon a time, there was a little girl named Little Red Riding Hood. \n\n"
+                + "She always wore a red cape and hood when she went out, so you can see how clever people were about making up nicknames. "
+                + "One day, she decided to take a picnic basket of food to her ill grandmother, who lived on the other side of the forest. \n\n"
+                + "Her mother packed ...\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+                + "Foo\n"
+                + "Bar\n"
+                + "Baz\n"
+                + "Alice\n"
+                + "Bob\n";
+        GameEvent testEvent = new GameEvent(testTitle, testBody);
+        Button eventButton = new Button("Game Event");
+        topToolBar.getItems().add(eventButton);
+        eventButton.setOnAction((ActionEvent e) -> {
+            showEventWindow(testEvent);
+        });
+        addActive(motor.getBuilder().makeEntity("Queen,Ant", "Elizabeth"));
+    }
+    
     public void populateRooms() {
         
-        addRoom(AntRoomBuilder.antHill());
-        addRoom(AntRoomBuilder.surface());
-        addRoom(AntRoomBuilder.surface());
-        addRoom(AntRoomBuilder.surface());
-        addRoom(AntRoomBuilder.surface());
+        for(int i = 0; i < ROOM_COLUMNS; i++) {
+            addRoom(AntRoomBuilder.surface());
+        }
         
-        addRoom(AntRoomBuilder.shaft());
-        addRoom(AntRoomBuilder.hallway());
-        addRoom(AntRoomBuilder.larder());
-        addRoom(new Room());
-        addRoom(new Room());
+        for(int i = ROOM_COLUMNS; i < ROOM_ROWS * ROOM_COLUMNS; i++) {
+            addRoom(AntRoomBuilder.dirtSquare());
+        }
         
-        addRoom(AntRoomBuilder.workerQuarters());
-        addRoom(AntRoomBuilder.hallway());
-        addRoom(AntRoomBuilder.queenChamber());
-        addRoom(new Room());
-        addRoom(new Room());
+        updateNeighborhood();
         
-        addRoom(AntRoomBuilder.shaft());
-        addRoom(new Room());
-        addRoom(new Room());
-        addRoom(new Room());
-        addRoom(new Room());
         
-        addRoom(AntRoomBuilder.garbagePile());
-        addRoom(new Room());
-        addRoom(new Room());
-        addRoom(new Room());
-        addRoom(new Room());
     }
     
     private Collection<MenuItem> menuOfTasks(ActiveEntity ant) {
@@ -611,12 +789,24 @@ public class MainController implements Initializable, CaveController {
         roomDetail.setTitle("Details");
     }
     
+    public void setUpEventDetailWindow() {
+        eventDetail.initOwner(primaryStage);
+        eventDetail.initModality(Modality.APPLICATION_MODAL);
+        eventDetail.initStyle(StageStyle.UNDECORATED);
+        eventDetail.setResizable(false);
+        eventDetail.sizeToScene();        
+    }
+    
     public void entityDetailClose(ActionEvent e) {
         entityDetail.close();
     }
     
     public void roomDetailClose(ActionEvent e) {
         roomDetail.close();
+    }
+    
+    public void eventDetailClose(ActionEvent e) {
+        eventDetail.close();
     }
     
     public void fooPlus(ActionEvent e) {
@@ -629,12 +819,51 @@ public class MainController implements Initializable, CaveController {
     
     @Override
     public void updateFired(ActionEvent e) {
+        motor.checkUpdateWarnings();
+        
+        if(!motor.getUnresolvedUpdateWarnings().isEmpty() && mustOfferUpdateWarnings) {
+            offerUpdateWarnings();
+            return;
+        }
+        
         motor.update();
+        updateNeighborhood();
+        
+        mustOfferUpdateWarnings = true;
+    }
+    
+    public void offerUpdateWarnings() {
+        boolean continueUpdateWarnings = false;
+        
+        eventBodySplitB.toFront();
+        eventBodySplitB.setVisible(true);
+        
+        eventBodyAnchorA.toBack();
+        eventBodyAnchorA.setVisible(false);
+        
+        eventDetailName.setText("Warnings");
+        
+        eventBodyListB.getItems().clear();
+        eventBodyListB.setItems(FXCollections.observableArrayList(motor.getUnresolvedUpdateWarnings()));
+        
+        if(!eventDetail.isShowing()) {
+            eventDetail.showAndWait();
+        }
+        
+        mustOfferUpdateWarnings = false;
+//        for(GameEvent warning : motor.getUnresolvedUpdateWarnings()) {
+//            for(Trait result : warning.getResults()) {
+//                if(TraitEvaluator.isUncancelable(result)) {
+//                    continueUpdateWarnings = true;
+//                }
+//            }
+//        }
     }
     
     @Override
     public void exitFired(ActionEvent e) {
         entityDetail.close();
+        roomDetail.close();
         Platform.exit();
     }
     
@@ -661,10 +890,37 @@ public class MainController implements Initializable, CaveController {
     }
     
     public void showRoomWindow(Room r) {
-        roomDetailName.setText(r.getRoomName());
+        roomDetailName.setText(r.getName());
+        if(r.isReachable()) {
+            roomDetailStatus.setText("Reachable");
+            fillRoomTasksPane(r);
+        }
+        else {
+            roomDetailStatus.setText("Unreachable");
+            fillRoomTasksUnreachable(r);
+        }
+        
+        
+        fillRoomTraitsPane(r);
+        fillNeighborsPane(r);
         
         if(!roomDetail.isShowing()) {
             roomDetail.showAndWait();
+        }
+    }
+    
+    public void showEventWindow(GameEvent g) {
+        eventDetailName.setText(g.getTitle());
+        eventDetailBodyA.setText(g.getBody());
+      
+        eventBodySplitB.toBack();
+        eventBodySplitB.setVisible(false);
+        
+        eventBodyAnchorA.toFront();
+        eventBodyAnchorA.setVisible(true);
+        
+        if(!eventDetail.isShowing()) {
+            eventDetail.showAndWait();
         }
     }
     
@@ -808,7 +1064,7 @@ public class MainController implements Initializable, CaveController {
                     link = false;
                 }
                 else {
-                    link = t.getRequirements().stream().allMatch((input -> TraitEvaluator.isCreationLinkTrait(input)));
+                    link = t.getRequirements().stream().anyMatch((input -> TraitEvaluator.isCreationLinkTrait(input)));
                 }
                 
                 if(link) {
@@ -820,6 +1076,7 @@ public class MainController implements Initializable, CaveController {
                     taskButton.setOnAction((ActionEvent click) -> {
                         motor.setTaskPayCosts(t, e);
                         fillTasksPaneBusy(e);
+                        fillTraitsPane(e);
                     });
                 }
             }
@@ -945,6 +1202,10 @@ public class MainController implements Initializable, CaveController {
     public void fillTasksPaneBusy(ActiveEntity e) {
         
         if(motor.isLinked(e) && e.getCurrentTask().getName().equalsIgnoreCase("Link")) {
+            entityCurrentTask.setText(e.getCurrentTask().getGerund());
+            cancelCurrentTask.setDisable(true);
+        }
+        else if(motor.currentUncancelableTask(e)) {
             entityCurrentTask.setText(e.getCurrentTask().getGerund());
             cancelCurrentTask.setDisable(true);
         }
@@ -1090,7 +1351,7 @@ public class MainController implements Initializable, CaveController {
         }
     }
     
-    public void setUpReqs(ArrayList<Label> reqLabels, ArrayList<Trait> reqTraits, ActiveEntity e) {
+    public void setUpReqs(ArrayList<Label> reqLabels, ArrayList<Trait> reqTraits, Active e) {
     
         for(int i = 0; i < reqTraits.size(); i++) {
             if(motor.requirementMet(reqTraits.get(i), e)) {
@@ -1106,21 +1367,27 @@ public class MainController implements Initializable, CaveController {
      * Fills in the SplitMenuButton for a Task needing to link other entities.
      * It looks at all the entities that aren't busy, and selects the ones that have ID's that contain all the names of the 
      * requirement Traits. The number of required entities to link with is currently set to the highest value among
-     * the requirement Traits.
+     * the link requirement Traits.
      * @param t
+     * @param e
      * @return 
      */
-    public ButtonBase linkTaskButton(Task t, ActiveEntity e) {
+    public ButtonBase linkTaskButton(Task t, Active e) {
         // Get the Id's that are required and establish how many links are needed, so we can tell when we have enough. 
         // Since we shouldn't have gotten this far without all requirements being met, there should be enough. I don't want 
         // too many chosen, if there are more than needed.
         int neededTempCount = 0;
-        ArrayList<String> idList = new ArrayList(t.getRequirements().size());
-        for(Trait req : t.getRequirements()) {
+        ArrayList<String> idList = new ArrayList();
+        
+        Iterator<Trait> creationLinks = t.getRequirements().stream().filter((input -> TraitEvaluator.isCreationLinkTrait(input))).iterator();
+        while(creationLinks.hasNext()) {
+            Trait req = creationLinks.next();
             idList.add(req.getName());
             neededTempCount = Math.max(neededTempCount, req.getValue() + 1);
         }
         //t.getRequirements().stream().map(input -> input.getName()).collect(Collectors.toCollection(ArrayList::new));
+        
+        // Each potentail entity must not be busy, and it's ID has to contain all the required ID's.
         ArrayList<ActiveEntity> potentialLinks = new ArrayList();
         for(ActiveEntity potential : motor.getActiveEntities().stream().filter(input -> !input.isBusy()).collect(Collectors.toList())) {
             boolean allMatch = true;
@@ -1177,16 +1444,295 @@ public class MainController implements Initializable, CaveController {
         tempButton.setOnAction((ActionEvent click) -> {
             if(selectedCount.intValue() == needed) {
                 for(ActiveEntity partner : finalSelection) {
-                    motor.linkEntities(e, partner);
+                    motor.linkActives(e, partner);
                     partner.setLinked(t, e);
                 }
                 
                 motor.setTaskPayCosts(t, e);
-                fillTasksPaneBusy(e);
+                
+                if(e instanceof Room) {
+                    fillRoomTasksPane((Room)e);
+                    fillRoomTraitsPane((Room)e);
+                }
+                else {
+                    fillTasksPaneBusy((ActiveEntity)e);
+                    fillTraitsPane((ActiveEntity)e);
+                }
+
             }
         });
         
         return tempButton;
+    }
+    
+    public void fillNeighborsPane(Room r) {
+        roomNeighbors.getChildren().clear();
+        FlowPane neighborFlow = new FlowPane();
+        neighborFlow.setId("detail-trait-flow");
+        neighborFlow.setPrefWrapLength(750);
+        roomNeighbors.getChildren().add(neighborFlow);
+        
+        for(Room neighbor : r.getNeighbors()) {
+            VBox neighborBox = new VBox();
+            neighborBox.setId("detail-trait-box");
+            Label neighborName = new Label();
+            neighborName.setId("detail-trait-name");
+            Label neighborPosition = new Label();
+            neighborPosition.setText("");
+            neighborPosition.setId("detail-trait-value");
+            if(neighbor == null) {
+                neighborName.setText("Nobody");
+                neighborBox.setId("detail-trait-box-invalid");
+            }
+            else {
+                neighborName.setText(neighbor.getName() + " " + neighbor.getRoomNumber());
+                if(neighbor.equals(r.getNorthNeighbor())) {neighborPosition.setText("North: ");}
+                if(neighbor.equals(r.getEastNeighbor())) {neighborPosition.setText("East: ");}
+                if(neighbor.equals(r.getSouthNeighbor())) {neighborPosition.setText("South: ");}
+                if(neighbor.equals(r.getWestNeighbor())) {neighborPosition.setText("West: ");}
+                
+                if(!neighbor.isReachable()) {
+                    neighborBox.setId("detail-trait-box-invalid");
+                }
+            }
+            
+            HBox nameDirectionPair = new HBox();
+            nameDirectionPair.getChildren().addAll(neighborPosition, neighborName);
+            nameDirectionPair.setId("detail-trait-pair");
+            
+            neighborBox.getChildren().add(nameDirectionPair);
+            
+            neighborFlow.getChildren().add(neighborBox);
+        }
+    }
+    
+    public void fillRoomTasksPane(Room activeRoom) {
+
+        if(activeRoom.isBusy()) {
+            cancelCurrentRoomTask.setDisable(false);
+            cancelCurrentRoomTask.setOnAction((ActionEvent click) -> {
+                motor.cancelTaskRefundCosts(activeRoom);
+                fillRoomTasksPane(activeRoom);
+                fillRoomTraitsPane(activeRoom);
+            });
+        }
+        else {
+            cancelCurrentRoomTask.setDisable(true);
+        }
+        
+        roomTasks.getChildren().clear();
+        FlowPane tasksFlow = new FlowPane();
+        tasksFlow.setId("entity-detail-task-flow");
+        tasksFlow.setPrefWrapLength(750);
+        roomTasks.getChildren().add(tasksFlow);
+        
+        
+        for(Task t : activeRoom.getTasks()) {
+            VBox taskBox = new VBox();
+            taskBox.setId("entity-detail-task-box");
+            
+            HBox nameBox = new HBox();
+            nameBox.setId("entity-detail-task-name-pane");
+            Label taskName = new Label(t.getName());
+            taskName.setId("entity-detail-task-name");            
+            
+            ButtonBase taskButton = new Button("Start");
+            taskButton.setId("entity-detail-task-button");
+            
+            boolean inactive = false;
+            if(activeRoom.isBusy()) {
+                taskButton.setDisable(true);
+                taskButton.setText("Busy");
+                inactive = true;
+            }
+            
+            if(!motor.requirementsAllMet(t, activeRoom)) {
+                taskButton.setDisable(true);
+                inactive = true;
+            }
+            
+            if(!inactive) {
+                // Checking if the Task needs to link with others
+                boolean link;
+                if(t.getRequirements().isEmpty()) {
+                    link = false;
+                }
+                else {
+                    link = t.getRequirements().stream().anyMatch((input -> TraitEvaluator.isCreationLinkTrait(input)));
+                }
+                
+                if(link) {
+                    taskButton = linkTaskButton(t, activeRoom);
+                    taskButton.setId("entity-detail-task-button");
+                }
+                // no task link
+                else {
+                    taskButton.setOnAction((ActionEvent click) -> {
+                        motor.setTaskPayCosts(t, activeRoom);
+                        fillRoomTasksPane(activeRoom);
+                        fillRoomTraitsPane(activeRoom);
+                        fillNeighborsPane(activeRoom);
+                    });
+                }
+            }
+            
+            nameBox.getChildren().addAll(taskName, taskButton);
+            //////////////// DURATION 
+            HBox durationBox = new HBox();
+            durationBox.setId("entity-detail-task-duration-pane");
+            Label durationName = new Label("Duration");
+            durationName.setId("entity-detail-task-duration");
+            Label durationNumber = new Label(t.getDuration() + "");
+            durationNumber.setId("entity-detail-task-duration-number");
+            durationBox.getChildren().addAll(durationName, durationNumber);
+            /////////////// COSTS
+            VBox costBox = new VBox();
+            costBox.setId("entity-detail-task-cost-vbox");
+            Label costTitle = new Label("Costs");
+            costTitle.setId("entity-detail-task-cost-title");
+            HBox costsPane = new HBox();
+            costsPane.setId("entity-detail-task-cost-pane");
+            if(t.getCosts().size() < 1) {
+                Label temp = new Label("none");
+                temp.setId("entity-detail-task-cost");
+                costsPane.getChildren().add(temp);
+            }
+            else {
+                for(Trait cost : t.getCosts()) {
+                    Label temp = new Label(cost.toString());
+                    temp.setId("entity-detail-task-cost");
+                    costsPane.getChildren().add(temp);
+                }
+            }
+            
+            costBox.getChildren().addAll(costTitle, costsPane);
+            
+            ////////////// REQUIREMENTS
+            VBox requirementsBox = new VBox();
+            requirementsBox.setId("entity-detail-task-requirement-vbox");
+            Label requirementsTitle = new Label("Requirements");
+            requirementsTitle.setId("entity-detail-task-requirement-title");
+            HBox requirementsPane = new HBox();
+            requirementsPane.setId("entity-detail-task-requirement-pane");
+            ArrayList<Label> reqLabels = new ArrayList<Label>();
+            ArrayList<Trait> reqTraits = new ArrayList<Trait>();
+            if(t.getRequirements().size() < 1) {
+                Label temp = new Label("none");
+                temp.setId("entity-detail-task-requirement");
+                reqLabels.add(temp);
+                requirementsPane.getChildren().add(temp);
+            }
+            else {
+                for(Trait req : t.getRequirements()) {
+                    String reqString;
+                    Label temp = new Label();
+                    switch(TraitEvaluator.requirementCondition(req)) {
+                        case EQUALTO:            reqString = req.getName() + " = " + req.getValue(); 
+                                                            break;
+                        case NOTEQUAL:          reqString = req.getName() + " != " + req.getValue();
+                                                            break;
+                        case LESSTHAN:          reqString = req.getName() + " < " + req.getValue(); 
+                                                            break;
+                        case GREATERTHAN:   reqString = req.getName() + " > " + req.getValue(); 
+                                                            break;
+                        default: reqString = "none";
+                    }
+                    
+                    if(TraitEvaluator.isCreationLinkTrait(req)) {
+                        reqString = "Free " + reqString;
+                    }
+                    
+                    temp.setText(reqString);
+                    reqLabels.add(temp);
+                    reqTraits.add(req);
+                    requirementsPane.getChildren().add(temp);
+                    
+                }
+            }
+            
+            setUpReqs(reqLabels, reqTraits, activeRoom);
+            requirementsBox.getChildren().addAll(requirementsTitle, requirementsPane);
+            
+            /////////////////  RESULTS
+            VBox resultsBox = new VBox();
+            requirementsBox.setId("entity-detail-task-result-vbox");
+            Label resultsTitle = new Label("Results");
+            resultsTitle.setId("entity-detail-task-result-title");
+            HBox resultsPane = new HBox();
+            resultsPane.setId("entity-detail-task-result-pane");
+            if(t.getResults().size() < 1) {
+                Label temp = new Label("none");
+                temp.setId("entity-detail-task-result");
+                resultsPane.getChildren().add(temp);
+            }
+            else {
+                for(Trait res : t.getResults()) {
+                    Label temp = new Label(res.toString());
+                    temp.setId("entity-detail-task-result");
+                    resultsPane.getChildren().add(temp);
+                }
+            }
+            
+            resultsBox.getChildren().addAll(resultsTitle, resultsPane);
+            
+            taskBox.getChildren().addAll(nameBox, new Separator(Orientation.HORIZONTAL), 
+                                                      durationBox, new Separator(Orientation.HORIZONTAL), 
+                                                      costBox, new Separator(Orientation.HORIZONTAL), 
+                                                      requirementsBox, new Separator(Orientation.HORIZONTAL), 
+                                                      resultsBox);
+            
+            ///////////// FLAVOR
+            if(t.getFlavor() != null && t.getFlavor().length() > 0) {
+                Tooltip taskDesc = new Tooltip();
+                taskDesc.textProperty().bind(t.getFlavorProp());
+                taskDesc.setId("entity-detail-task-description");
+                Tooltip.install(taskBox, taskDesc);
+            }
+            
+            if(t.equals(activeRoom.getCurrentTask())) {
+                taskBox.setId("entity-detail-task-box-selected");
+            }
+            tasksFlow.getChildren().add(taskBox);
+        }
+    }
+    
+    public void fillRoomTasksUnreachable(Room r) {
+        cancelCurrentRoomTask.setDisable(true);
+        roomTasks.getChildren().clear();
+    }
+    
+    public void fillRoomTraitsPane(Room r) {
+        roomTraits.getChildren().clear();
+        FlowPane traitsFlow = new FlowPane();
+        traitsFlow.setId("detail-trait-flow");
+        traitsFlow.setPrefWrapLength(750);
+        roomTraits.getChildren().add(traitsFlow);
+        
+        for(Trait t : r.getTraits()) {
+            VBox traitBox = new VBox();
+            traitBox.setId("detail-trait-box");
+            Label traitName = new Label();
+            traitName.textProperty().bind(t.getNameProp());
+            traitName.setId("detail-trait-name");
+            Label traitValue = new Label();
+            traitValue.textProperty().bind(t.getValueProp().asString());
+            traitValue.setId("detail-trait-value");
+            
+            HBox nameValuePair = new HBox();
+            nameValuePair.getChildren().addAll(traitName, traitValue);
+            nameValuePair.setId("detail-trait-pair");
+            
+            traitBox.getChildren().add(nameValuePair);
+            
+            if(t.getDesc() != null && t.getDesc().length() > 0) {
+                Tooltip traitDesc = new Tooltip();
+                traitDesc.textProperty().bind(t.getDescProp());
+                traitDesc.setId("detail-trait-description");
+                Tooltip.install(traitBox, traitDesc);
+            }
+            
+            traitsFlow.getChildren().add(traitBox);
+        }
     }
     
     public void setPrimaryStage(Stage newPrimary) {
@@ -1201,6 +1747,12 @@ public class MainController implements Initializable, CaveController {
     public void setRoomDetailStage(Stage newDetail) {
         roomDetail = newDetail;
         setUpRoomDetailWindow();
+    }
+    
+    public void setEventDetailStage(Stage newDetail) {
+        eventDetail = newDetail;
+        setUpUpdateWarningListener();
+        setUpEventDetailWindow();
     }
     
     @Override
@@ -1324,6 +1876,36 @@ public class MainController implements Initializable, CaveController {
      */
     public void setStringProp(StringProperty stringProp) {
         this.stringProp = stringProp;
+    }
+    
+    private class WarningCell extends ListCell<GameEvent> {
+        
+        protected WarningCell() {
+            super();
+            super.setWrapText(true);
+            super.setTextFill(Color.BLUEVIOLET);
+            super.setFocusTraversable(false);
+//            super.focusedProperty().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> {
+//                if(newValue) {
+//                    System.out.println("focus");
+//                    super.setFocused(false);
+//                }
+//            });
+        }
+        
+        @Override
+        protected void updateItem(GameEvent item, boolean empty) {
+            super.updateItem(item, empty);
+            
+            if(empty || item == null) {
+                setText(null);
+                setGraphic(null);
+            } else {
+                setText(item.toString());
+                
+                
+            }
+        }
     }
     
 }

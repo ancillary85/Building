@@ -203,6 +203,14 @@ public class TraitBuilder {
     }
     
     /**
+     * A set with the RESOURCE and PRODUCTION trait types
+     * @return 
+     */
+    public static EnumSet<Trait.trait_type> resourceProduction() {
+        return EnumSet.of(Trait.trait_type.RESOURCE, Trait.trait_type.PRODUCTION);
+    }
+    
+    /**
      * A set with the RESOURCE, RESULT, and PRODUCTION trait types
      * @return 
      */
@@ -240,6 +248,30 @@ public class TraitBuilder {
      */
     public static EnumSet<Trait.trait_type> uncreateResult() {
         return EnumSet.of(Trait.trait_type.UNCREATE, Trait.trait_type.RESULT);
+    }
+    
+    /**
+     * A set with the AUTOTASK and EACHTURN trait types
+     * @return 
+     */
+    public static EnumSet<Trait.trait_type> autoEachTurn() {
+        return EnumSet.of(Trait.trait_type.AUTOTASK, Trait.trait_type.EACHTURN);
+    }
+    
+    /**
+     * A set with the AUTOTASK and ACTIVE_CHANGE trait types
+     * @return 
+     */
+    public static EnumSet<Trait.trait_type> autoActiveChange() {
+        return EnumSet.of(Trait.trait_type.AUTOTASK, Trait.trait_type.ACTIVE_CHANGE);
+    }
+    
+    /**
+     * A set with the AUTOTASK, ACTIVE_CHANGE, and UNCANCELABLE trait types
+     * @return 
+     */
+    public static EnumSet<Trait.trait_type> autoActiveChangeUncan() {
+        return EnumSet.of(Trait.trait_type.AUTOTASK, Trait.trait_type.ACTIVE_CHANGE, Trait.trait_type.UNCANCELABLE);
     }
     
     /**
@@ -442,8 +474,48 @@ public class TraitBuilder {
        return arrayToSet(new Trait.trait_type[]{Trait.trait_type.GREATERTHAN, Trait.trait_type.REQUIREMENT, Trait.trait_type.ROOM});
     }
     
+    /**
+     * A set with the REQUIREMENT, EQUALTO, and ROOM_LINK trait types
+     * @return 
+     */
+    public static EnumSet<Trait.trait_type> reqEqualRoomLink() {
+        return arrayToSet(new Trait.trait_type[]{Trait.trait_type.EQUALTO, Trait.trait_type.REQUIREMENT, Trait.trait_type.ROOM_LINK});
+    }
+    
+    /**
+     * A set with the REQUIREMENT, NOTEQUAL, and ROOM_LINK trait types
+     * @return 
+     */
+    public static EnumSet<Trait.trait_type> reqNotEqualRoomLink() {
+        return arrayToSet(new Trait.trait_type[]{Trait.trait_type.NOTEQUAL, Trait.trait_type.REQUIREMENT, Trait.trait_type.ROOM_LINK});
+    }
+    
+    /**
+     * A set with the REQUIREMENT, LESSTHAN, and ROOM_LINK trait types
+     * @return 
+     */
+    public static EnumSet<Trait.trait_type> reqLessThanRoomLink() {
+        return arrayToSet(new Trait.trait_type[]{Trait.trait_type.LESSTHAN, Trait.trait_type.REQUIREMENT, Trait.trait_type.ROOM_LINK});
+    }
+    
+    /**
+     * A set with the REQUIREMENT, GREATERTHAN, and ROOM_LINK trait types
+     * @return 
+     */
+    public static EnumSet<Trait.trait_type> reqGreaterThanRoomLink() {
+       return arrayToSet(new Trait.trait_type[]{Trait.trait_type.GREATERTHAN, Trait.trait_type.REQUIREMENT, Trait.trait_type.ROOM_LINK});
+    }
+    
     public static EnumSet<Trait.trait_type> attribute() {
         return EnumSet.of(Trait.trait_type.ATTRIBUTE);
+    } 
+    
+    public static EnumSet<Trait.trait_type> active_change() {
+        return EnumSet.of(Trait.trait_type.ACTIVE_CHANGE);
+    } 
+    
+    public static EnumSet<Trait.trait_type> autotask() {
+        return EnumSet.of(Trait.trait_type.AUTOTASK);
     } 
     
     public static EnumSet<Trait.trait_type> combat() {
@@ -464,6 +536,10 @@ public class TraitBuilder {
     
     public static EnumSet<Trait.trait_type> equalto() {
         return EnumSet.of(Trait.trait_type.EQUALTO);
+    }
+    
+    public static EnumSet<Trait.trait_type> event() {
+        return EnumSet.of(Trait.trait_type.EVENT);
     }
     
     public static EnumSet<Trait.trait_type> flavor() {
@@ -512,6 +588,14 @@ public class TraitBuilder {
     
     public static EnumSet<Trait.trait_type> room() {
         return EnumSet.of(Trait.trait_type.ROOM);
+    }
+    
+    public static EnumSet<Trait.trait_type> room_link() {
+        return EnumSet.of(Trait.trait_type.ROOM_LINK);
+    }
+    
+    public static EnumSet<Trait.trait_type> room_change() {
+        return EnumSet.of(Trait.trait_type.ROOM_CHANGE);
     }
     
     public static EnumSet<Trait.trait_type> uncreate() {

@@ -5,6 +5,7 @@
  */
 package ancillary.cavebuilding;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -138,11 +139,22 @@ public class Task {
         return name.get().equals("no task") && duration.get() < 1;
     }
     
-    public void setLinkTask(Task t, ActiveEntity e) {
+    public void setLinkTask(Task t, Active e) {
         name.set("Link");
         duration.set(t.getDuration());
-        gerund.set(t.getGerund() + " with " + e.getName());
+        if(e instanceof ActiveEntity) {
+            gerund.set(t.getGerund() + " with " + ((ActiveEntity)e).getName());
+        }
+        else if (e instanceof Room) {
+            gerund.set(t.getGerund() + " with " + ((Room)e).getName());
+        }
+        else {
+            gerund.set(t.getGerund());
+        }
         flavor.set(t.getFlavor());
+        costs.set(FXCollections.observableList(new ArrayList()));
+        requirements.set(FXCollections.observableList(new ArrayList()));
+        results.set(FXCollections.observableList(new ArrayList()));
     }
     
     public void setNoTask() {
@@ -150,6 +162,9 @@ public class Task {
         duration.set(0);
         flavor.set("Doing nothing");
         gerund.set("");
+        costs.set(FXCollections.observableList(new ArrayList()));
+        requirements.set(FXCollections.observableList(new ArrayList()));
+        results.set(FXCollections.observableList(new ArrayList()));
     }
     
     @Override

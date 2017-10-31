@@ -7,6 +7,7 @@ package ancillary.cavebuilding;
 
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
@@ -28,16 +29,17 @@ public class EntitySummary {
         Label name = new Label();
         name.textProperty().bind(entity.getNameProp());
         Label status = new Label();
-        
+    
         entity.getBusyProp().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> {
             if(newValue.booleanValue()) {
                 status.setText(entity.getCurrentTask().getGerund());
             }
             else {
+                //status.setText(entity.getIdleText());
                 status.setText("");
             }
         });
-                
+        
         Label timer = new Label();
         entity.getTaskTimerProp().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
             if(entity.getTaskTimer() > 0) {
@@ -46,10 +48,15 @@ public class EntitySummary {
             else {
                 timer.setText("");
             }
-            
         });
         
+        if(entity.isBusy()) {
+            status.setText(entity.getCurrentTask().getGerund());
+            timer.setText("(" + entity.getTaskTimer() + ")");
+        }
+        
         HBox statusBox = new HBox();
+        statusBox.setAlignment(Pos.CENTER);
         statusBox.getChildren().addAll(status, timer);
         
         name.setId("summary-button-name");
@@ -61,5 +68,4 @@ public class EntitySummary {
         
         return labels;
     }
-    
 }

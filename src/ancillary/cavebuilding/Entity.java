@@ -5,191 +5,115 @@
  */
 package ancillary.cavebuilding;
 
-import javafx.beans.property.SimpleBooleanProperty;
+import java.util.List;
 import javafx.beans.property.SimpleStringProperty;
 
 /**
  *
- * @author Mike
+ * @author MLaptop
  */
-public class Entity {
+public interface Entity {
 
- /**
-     * The Entity's id
-     */
-    protected String id;
-    
     /**
-     * The Entity's name, to be displayed to the player
+     * @return the id
      */
-    protected SimpleStringProperty name;
-    
+    public String getId();
+
     /**
-     * Whether the Entity can be interacted with
+     * @param newID the id to set
      */
-    protected SimpleBooleanProperty active;
-    
-    /**
-     * Whether the Entity is busy
-     */
-    protected SimpleBooleanProperty busy;
-    
-    /**
-     * The Entity's location
-     */
-    protected SimpleStringProperty location;
-    
-    /**
-     * The Entity's traits
-     */
-    protected SimpleStringProperty traits;
-    
-    public Entity() {
-        this.id = "placeholder";
-        this.name = new SimpleStringProperty("blank");
-        this.active = new SimpleBooleanProperty(false);
-        this.busy = new SimpleBooleanProperty(false);
-        this.location = new SimpleStringProperty("nowhere");
-        this.traits = new SimpleStringProperty("none");
-    }
-    
-    public Entity(String id, String name, boolean active, String location, String traits) {
-        this.id = id;
-        this.name = new SimpleStringProperty(name);
-        this.active = new SimpleBooleanProperty(active);
-        this.busy = new SimpleBooleanProperty(false);
-        this.location = new SimpleStringProperty(location);
-        this.traits = new SimpleStringProperty(traits);
-    }
-    
-    public Entity(Entity e) {
-        if(e == null) {
-            this.id = "placeholder";
-            this.name = new SimpleStringProperty("blank");
-            this.active = new SimpleBooleanProperty(false);
-            this.busy = new SimpleBooleanProperty(false);
-            this.location = new SimpleStringProperty("nowhere");
-            this.traits = new SimpleStringProperty("none");
-        }
-        else {
-            this.id = e.getID();
-            this.name = new SimpleStringProperty(e.getName());
-            this.active = new SimpleBooleanProperty(e.isActive());
-            this.busy = new SimpleBooleanProperty(false);
-            this.location = new SimpleStringProperty(e.getLocation());
-            this.traits = new SimpleStringProperty(e.getTraits());
-        }
-    }
-    
-    /**
-     * @return the Entity's ID as a String
-     */
-    public String getID() {
-        return id;
-    }
+    public void setId(String newID);
             
     /**
      * @return the Entity's name as a String
      */
-    public String getName() {
-        return name.get();
-    }
+    public String getName();
     
     /**
      * @return the Entity's name SimpleStringProperty
      */
-    public SimpleStringProperty getNameProp() {
-        return name;
-    }
-    
-    public void setName(String newName) {
-        name.set(newName);
-    }
+    public SimpleStringProperty getNameProp();
     
     /**
-     * @return the Entity's "active" SimpleBooleanProperty
+     * Sets the Entity's name
+     * @param newName 
      */
-    public SimpleBooleanProperty getActiveProp() {
-        return active;
-    }
+    public void setName(String newName);
     
     /**
-     * Used to check if the Entity can act
-     * @return true if the Entity is an active one
+     * @return the traits as a List
      */
-    public boolean isActive() {
-        return active.get();
-    }
+    public List<Trait> getTraits();
     
     /**
-     * @return the Entity's "busy" SimpleBooleanProperty
+     * @param newTraits the traits to set
      */
-    public SimpleBooleanProperty getBusyProp() {
-        return busy;
-    }
+    public void setTraits(List<Trait> newTraits);    
     
     /**
-     * Used to check if the Entity is busy
-     * @return true if the Entity is busy
+     * Returns true if any of the Strings in this.getId().split(",") equals idFragment.
+     * If idFragment contains commas, there's gonna be no luck.
+     * @param idFragment 
+     * @return 
      */
-    public boolean isBusy() {
-        return busy.get();
-    }
-    
-    /**
-     * Set the Entity's status to busy
-     */
-    public void setBusy() {
-        busy.set(true);
-    }
-    
-    /**
-     * Set the Entity's status to not busy.
-     */
-    public void setNotBusy() {
-        busy.set(false);
-    }
-    
-    /**
-     * @return the Entity's location as a String
-     */
-    public String getLocation() {
-        return location.get();
-    }
-    
-    /**
-     * Set the Entity's location to newLocation
-     * @param newLocation 
-     */
-    public void setLocation(String newLocation) {
-        location.set(newLocation);
-    }
-    
-    /**
-     * @return the Entity's "location" SimpleStringProperty
-     */
-    public SimpleStringProperty getLocationProp() {
-        return location;
-    }
-    
-    /**
-     * @return the traits as a String
-     */
-    public String getTraits() {
-        return traits.get();
-    }
+    public boolean idMatch(String idFragment);
 
     /**
-     * @return the Entity's "trait" SimpleStringProperty
+     * @return the traitDisplayPriority
      */
-    public SimpleStringProperty getTraitsProp() {
-        return traits;
-    }
+    public Trait.trait_type[] getTraitDisplayPriority();
+
+    /**
+     * @param newDisplayPriority the traitDisplayPriority to set
+     */
+    public void setTraitDisplayPriority(Trait.trait_type[] newDisplayPriority);
     
     /**
-     * @param traits the traits to set
+     * Adds the given trait to the Entity. If the Trait List already contains a Trait with the same name, 
+     * it adds their values. If it does not have one, it does nothing. 
+     * Negative values are allowed.
+     * 
+     * @param name the name of the Trait
+     * @param value the value of the Trait
      */
-    public void setTraits(SimpleStringProperty traits) {
-        this.traits = traits;
-    }    
+    public void addTraitValue(String name, int value);
+    
+    /**
+     * Searches the Trait List for a Trait with a matching name, and returns true if found.
+     * Returns false, otherwise.
+     * @param name
+     * @return 
+     */
+    public boolean hasTrait(String name);
+    
+    /**
+     * Searches the Trait List for a Trait with a matching name, and returns its value if found.
+     * Returns zero, otherwise.
+     * @param name
+     * @return 
+     */
+    public int getTraitValue(String name);
+    
+    /**
+     * Adds the given trait to the Entity. If the Trait List already contains a Trait with the 
+     * same name, it adds their values. If it does not have one, it adds the Trait to the pool.
+     * Negative values are allowed.
+     * 
+     * @param t the Trait
+     */
+    public void addTrait(Trait t);
+    
+    /**
+     * If the Entity has a predetermined entry in a builder, returns a String to identify it. If the Entity does not
+     * have such an entry, this returns null;
+     * @return 
+     */
+    public String getBuilderBadge();
+    
+    /**
+     * Sets the Entity's builderBadge
+     * @param newBadge 
+     */
+    public void setBuilderBadge(String newBadge);
+    
 }

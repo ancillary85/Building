@@ -90,6 +90,8 @@ public class CaveBuilding extends Application {
             loader2.setController(controller);
             FXMLLoader loader3 = new FXMLLoader(CaveBuilding.class.getResource("roomWindow.fxml"));
             loader3.setController(controller);
+            FXMLLoader loader4 = new FXMLLoader(CaveBuilding.class.getResource("eventWindow.fxml"));
+            loader4.setController(controller);
             
             Scene mainScene = new Scene(loader1.load());
             primaryStage.setScene(mainScene);
@@ -103,6 +105,11 @@ public class CaveBuilding extends Application {
             Stage roomStage = new Stage();
             roomStage.setScene(roomScene);
             controller.setRoomDetailStage(roomStage);
+            
+            Scene eventScene = new Scene(loader4.load());
+            Stage eventStage = new Stage();
+            eventStage.setScene(eventScene);
+            controller.setEventDetailStage(eventStage);
             
             primaryStage.setTitle("CaveBuilding");
             primaryStage.show();
@@ -161,19 +168,19 @@ public class CaveBuilding extends Application {
         ants.get(3).setTaskTimerFromCurrentTask();
         
         for(int i = 0; i < ants.size(); i++) {
-            ants.get(i).entityUpdate(null);
+            ants.get(i).activeUpdate(null);
         }
         System.out.println("NEW TIME STEP");
         for(int i = 0; i < ants.size(); i++) {
-            ants.get(i).entityUpdate(null);
+            ants.get(i).activeUpdate(null);
         }
         System.out.println("NEW TIME STEP");
         for(int i = 0; i < ants.size(); i++) {
-            ants.get(i).entityUpdate(null);
+            ants.get(i).activeUpdate(null);
         }
         System.out.println("NEW TIME STEP");
         for(int i = 0; i < ants.size(); i++) {
-            ants.get(i).entityUpdate(null);
+            ants.get(i).activeUpdate(null);
         }
         
     }

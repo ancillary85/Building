@@ -7,6 +7,7 @@ package ancillary.cavebuilding;
 
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
@@ -25,11 +26,33 @@ public class RoomSummary {
     public static VBox getSummary(Room room){
         VBox labels = new VBox();
         Label name = new Label();
-        name.textProperty().bind(room.getRoomNameProp());
+        name.textProperty().bind(room.getNameProp());
         Label status = new Label();
         
+        room.getBusyProp().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> {
+            if(newValue.booleanValue()) {
+                status.setText(room.getCurrentTask().getGerund());
+            }
+            else {
+                //status.setText(entity.getIdleText());
+                status.setText("");
+            }
+        });
+                
+        Label timer = new Label();
+        room.getTaskTimerProp().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
+            if(room.getTaskTimer() > 0) {
+                timer.setText("(" + room.getTaskTimer() + ")");
+            }
+            else {
+                timer.setText("");
+            }
+            
+        });
+        
         HBox statusBox = new HBox();
-        statusBox.getChildren().addAll(status);
+        statusBox.setAlignment(Pos.CENTER);
+        statusBox.getChildren().addAll(status, timer);
         
         name.setId("room-button-name");
         status.setId("room-button-status");

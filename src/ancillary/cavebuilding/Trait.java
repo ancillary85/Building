@@ -19,9 +19,19 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class Trait {
 
-    public static enum trait_type{FLAVOR, COMBAT, RESOURCE, PRODUCTION, EACHTURN, MULTI, RESULT, ATTRIBUTE, 
-                                                PERSONAL_RESOURCE, HIDDEN_RESOURCE, CREATION, REQUIREMENT, EQUALTO,
-                                                LESSTHAN, GREATERTHAN, NOTEQUAL, GENERAL, UNCREATE, CREATION_LINK, ROOM}    
+    public static enum trait_type{FLAVOR, COMBAT, PRODUCTION,  ATTRIBUTE, GENERAL,                                                    
+    /*permanents*/                       CREATION, ROOM, PERSONAL_RESOURCE, OTHERS_RESOURCE, RESOURCE,
+    /*events*/                              EVENT, CONDITIONAL, TIMED, 
+    /*modifiers*/                           HIDDEN_RESOURCE, EACHTURN, UNCANCELABLE,
+    /*requirement conditions*/       EQUALTO, LESSTHAN, GREATERTHAN, NOTEQUAL, 
+    /*requirements only*/              CREATION_LINK, ROOM_LINK,
+    /*results only*/                       AUTOTASK, ACTIVE_CHANGE, ROOM_CHANGE, UNCREATE, ACTIVE_CHANGE_OTHER,
+    /*unused?*/                           REQUIREMENT, MULTI, RESULT,
+                                                }    
+    
+    /*
+    requirement condition
+    */
     
     
     private SimpleStringProperty name;
@@ -90,9 +100,19 @@ public class Trait {
     }
 
     /**
-     * @param newValue the value to set
+     * @param setValue the value to set
      */
-    public void setValue(int newValue) {
+    public void setValue(int setValue) {
+        int newValue = setValue;
+        
+        if(newValue <= valueMin.get()) {
+            newValue = valueMin.get();
+        }
+        
+        if(newValue >= valueMax.get()) {
+            newValue = valueMax.get();
+        }
+        
         value.set(newValue);
     }
 
@@ -164,7 +184,8 @@ public class Trait {
      */
     public void addToValue(int add) {
         
-        int newValue = Math.addExact(value.get(), add);
+        //int newValue = Math.addExact(value.get(), add);
+        int newValue = value.get() + add;
         if(newValue <= valueMin.get()) {
             newValue = valueMin.get();
         }

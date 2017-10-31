@@ -39,3 +39,28 @@ The engine should know about neighbors, validate that both rooms know about each
 -------------------------------
 
 ID's should switch to StringProperties so changed can be watched?
+
+-------------------------------
+
+Switch Lists to Sets?
+
+-------------------------------
+
+Load more into the entity and room buttons, holding their listeners and whatnot?
+
+------------------------------
+
+Room cancel task button has weird background
+
+Adding and removing rooms by tasks
+
+Make roombuilder instead of reflection using method names in trait descriptions?
+
+Let's make a dedicated room listener field in the room to be told when it changes?
+
+Tasks getting added over and over again with AntBuilder.makeEntity when given multiple IDs
+
+Would like Tasks display order to be a thing
+
+----------------------------- 
+

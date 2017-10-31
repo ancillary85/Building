@@ -5,26 +5,32 @@
  */
 package ancillary.cavebuilding;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author Mike
  */
-public class AntHillEngine extends Engine{
+public class AntHillEngine extends Engine {
 
     private ArrayList<ActiveEntity> ants;
     private ArrayList<Room> rooms;
-    private HashMap<ActiveEntity, HashSet<ActiveEntity>> entityLinks;
+    private HashMap<Active, HashSet<Active>> entityLinks;
+    
     
     public AntHillEngine(){
         setUpEntities(null);
         setUpRooms(null);
         setUpBuilder();
         setUpLinks();
+        setUpWarnings();
     }
     
     public AntHillEngine(List<Room> initRooms, List<ActiveEntity> initEntities) {
@@ -32,6 +38,7 @@ public class AntHillEngine extends Engine{
         setUpEntities(initEntities);
         setUpBuilder();
         setUpLinks();
+        setUpWarnings();
     }
        
     @Override
@@ -48,7 +55,98 @@ public class AntHillEngine extends Engine{
     public List<Room> getRooms() {
         return rooms;
     }
+    
+    @Override
+    public void setRoom(Room r, int pos) {
+        if(pos < 0 || pos >= rooms.size()) {
+            return;
+        }
+        
+        if(rooms.get(pos) == null) {
+            rooms.set(pos, r);
+        }
+        else {
+            rooms.get(pos).matchRoom(r);
+        }
+    }
+    
+    @Override
+    public void setRoomEmpty(Room r) {
+        r.setName("Empty");
+        r.setId("empty");
+        r.setType(Room.roomType.WALL);
+        r.setDescription("Unworked");
+        r.setTraits(new ArrayList<Trait>());
+        r.setTasks(new ArrayList<Task>());
+    }
+    
+    @Override
+    public List<Room> getReachableRooms() {
+        ArrayList<Room> reachableRooms = new ArrayList();
+        
+        for(Room r : rooms) {
+            if(r.isReachable()) {
+                reachableRooms.add(r);
+            }
+        }
+        
+        return reachableRooms;
+    }
 
+    @Override
+    public void setReachable(int pos, boolean reachable) {
+        rooms.get(pos).setReachable(reachable);
+    }
+    
+    @Override
+    public void changeRoom(Room r, Task t) {
+        try {
+            Class c = AntRoomBuilder.class;
+            Method m = null;
+            
+            for(Trait result : t.getResults()) {
+                if(TraitEvaluator.isRoomChangeTrait(result)) {
+                    m = c.getMethod(result.getDesc());
+                    break;
+                }
+            }
+            
+            if(m == null) {
+                return;
+            }
+            
+            r.matchRoomShallow((Room)m.invoke(c, new Object[0]));
+            r.setReachable(false);
+        } catch (Throwable ex) {
+            System.out.println(ex);
+        }
+    }
+    
+    @Override
+    public void changeActiveEntity(ActiveEntity e, Task t) {
+        String s = null;
+        for(Trait result : t.getResults()) {
+            if(TraitEvaluator.isActiveChangeTrait(result)) {
+                s = result.getDesc();
+                break;
+            }
+        }
+
+        if(s == null) {
+            return;
+        }
+
+        ActiveEntity toMatch = builder.makeEntity(s, null);
+
+        e.matchEntity(toMatch);
+        Task autoTask = super.getAutoTask(e);
+        
+        if(autoTask != null) {
+            e.setTaskAndTimer(autoTask);
+        }
+        
+    }
+    
     @Override
     public void removeRoom(Room r) {
         rooms.remove(r);
@@ -108,17 +206,16 @@ public class AntHillEngine extends Engine{
     }
     
     private void setUpRooms(List<Room> initRooms) {
-        if(initRooms == null) {
-            rooms = new ArrayList<Room>();
-        }
-        else {
-            rooms = new ArrayList<Room>(initRooms.size());
+        rooms = new ArrayList<Room>();
+        
+        if(initRooms != null) {
             for(Room r : initRooms) {
                 if(r == null) {
-                    continue;
+                    rooms.add(new Room());
                 }
-                
-                rooms.add(new Room(r));
+                else {
+                    rooms.add(new Room(r));
+                }
             }
         }
     }
@@ -143,6 +240,18 @@ public class AntHillEngine extends Engine{
         entityLinks = new HashMap();
     }
 
+    private void setUpWarnings() {
+        ArrayList<Trait> warningRequirements = new ArrayList();
+        warningRequirements.add(new Trait("Food", 0, TraitBuilder.reqGreaterThanResource()));
+        GameEvent defaultAntFoodWarning = new GameEvent("Food is Low", "The queen worries that there soon will be no more food!", "Food Warning", warningRequirements, null);
+        super.updateWarnings.add(defaultAntFoodWarning);
+        
+        warningRequirements.clear();
+        warningRequirements.add(new Trait("Machete", 0, TraitBuilder.reqGreaterThanResource()));
+        GameEvent defaultAntMacheteWarning = new GameEvent("Machete Supply Crisis", "The queen worries that there soon will be no more machetes!", "Machete Warning", warningRequirements, null);
+        super.updateWarnings.add(defaultAntMacheteWarning);
+    }
+    
     /**
      * Adds the given ActiveEntity e if it is not null, and e does not already exist 
      * @param e The ActiveEntity to add
@@ -191,15 +300,15 @@ public class AntHillEngine extends Engine{
     }
 
     @Override
-    public void linkEntities(ActiveEntity e1, ActiveEntity e2) {
-        HashSet<ActiveEntity> links1 = entityLinks.get(e1);
-        HashSet<ActiveEntity> links2 = entityLinks.get(e2);
+    public void linkActives(Active e1, Active e2) {
+        HashSet<Active> links1 = entityLinks.get(e1);
+        HashSet<Active> links2 = entityLinks.get(e2);
         if(links1 == null) {
-            links1 = new HashSet<ActiveEntity>();
+            links1 = new HashSet<Active>();
         }
         
         if(links2 == null) {
-            links2 = new HashSet<ActiveEntity>();
+            links2 = new HashSet<Active>();
         }
         
         links1.add(e2);
@@ -209,7 +318,7 @@ public class AntHillEngine extends Engine{
     }
 
     @Override
-    public boolean areLinked(ActiveEntity e1, ActiveEntity e2) {
+    public boolean areLinked(Active e1, Active e2) {
         if(entityLinks.get(e1) == null) {
             return false;
         }
@@ -222,9 +331,9 @@ public class AntHillEngine extends Engine{
     }
 
     @Override
-    public void unlinkEntities(ActiveEntity e1, ActiveEntity e2) {
-        HashSet<ActiveEntity> links1 = entityLinks.get(e1);
-        HashSet<ActiveEntity> links2 = entityLinks.get(e2);
+    public void unlinkActives(Active e1, Active e2) {
+        HashSet<Active> links1 = entityLinks.get(e1);
+        HashSet<Active> links2 = entityLinks.get(e2);
         if(links1 != null) {
             links1.remove(e2);
         }
@@ -236,16 +345,16 @@ public class AntHillEngine extends Engine{
     }
     
     @Override
-    public HashSet<ActiveEntity> unlinkAllEntities(ActiveEntity e1) {
-        HashSet<ActiveEntity> removed = new HashSet();
+    public HashSet<Active> unlinkAllActives(Active e1) {
+        HashSet<Active> removed = new HashSet();
         
         if(entityLinks.get(e1) == null) {
             return removed;
         }
         
-        for(ActiveEntity linked : getLinkedEntities(e1)) {
+        for(Active linked : getLinkedActives(e1)) {
             removed.add(linked);
-            HashSet<ActiveEntity> links = entityLinks.get(linked);
+            HashSet<Active> links = entityLinks.get(linked);
             if(links != null) {
                 links.remove(e1);
             }
@@ -256,9 +365,9 @@ public class AntHillEngine extends Engine{
     }
 
     @Override
-    public HashSet<ActiveEntity> getLinkedEntities(ActiveEntity e) {
+    public HashSet<Active> getLinkedActives(Active e) {
         if(entityLinks.get(e) == null) {
-            HashSet<ActiveEntity> links = new HashSet();
+            HashSet<Active> links = new HashSet();
             entityLinks.put(e, links);
         }
         
@@ -266,12 +375,11 @@ public class AntHillEngine extends Engine{
     }
     
     @Override
-    public boolean isLinked(ActiveEntity e) {
+    public boolean isLinked(Active e) {
         if(entityLinks.get(e) == null) {
             return false;
         }
         
         return !entityLinks.get(e).isEmpty();
     }
-
 }

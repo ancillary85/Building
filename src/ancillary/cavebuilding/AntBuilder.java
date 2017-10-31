@@ -5,16 +5,18 @@
  */
 package ancillary.cavebuilding;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import javafx.beans.value.ObservableValue;
 
 /**
  *
- * @author Alecto
+ * @author Mlaptop
  */
-public class AntBuilder implements EntityBuilder{
+public class AntBuilder extends GeneralBuilder{
     
     // ID's 
     public final static String ANT = "Ant";
@@ -26,24 +28,27 @@ public class AntBuilder implements EntityBuilder{
     public final static String LARVA = "Larva";
     public final static String PUPA = "Pupa";
     
-    private HashMap<String, Integer> counts;
-    
-    private Namer names;
-    
-    private HashMap<String, Task[]> tasks;
-    
-    private HashMap<String, Trait[]> traits;
-    
-    private Trait.trait_type[] traitDisplayPriority = {Trait.trait_type.ATTRIBUTE, Trait.trait_type.RESULT, Trait.trait_type.COMBAT, Trait.trait_type.FLAVOR};
-    
-    private HashMap<String, String> idle;
-    
     public AntBuilder() {
+        super();
         names = new Namer();
+        setUpIDS();
         setUpCounts();
         setUpTraits();
         setUpTasks();
         setUpIdle();
+        setUpBadges();
+    }
+    
+    private void setUpIDS() {
+        IDs = new HashSet();
+        IDs.add(ANT);
+        IDs.add(WORKER);
+        IDs.add(SOLDIER);
+        IDs.add(DRONE);
+        IDs.add(QUEEN);
+        IDs.add(EGG);
+        IDs.add(LARVA);
+        IDs.add(PUPA);
     }
     
     private void setUpCounts() {
@@ -102,7 +107,16 @@ public class AntBuilder implements EntityBuilder{
         idle.put(PUPA, "Zzzzz.");
     }
     
-     
+    private void setUpBadges() {
+        for(String ant : IDs) {
+            badgesToEntities.put(ant, this.makeEntity(ant, null));
+        }
+        
+        for(String ant : IDs) {
+            resetEntityCount(ant);
+        }
+    } 
+    
     public ActiveEntity makeWorker(String name, String location) {
         counts.put(ANT, counts.get(ANT) + 1);
         counts.put(WORKER, counts.get(WORKER) + 1);
@@ -111,7 +125,7 @@ public class AntBuilder implements EntityBuilder{
         if(name == null || name.equals("")) {tempName = "Random Worker";}
         if(location == null || location.equals("")) {tempLoc = "somewhere";}
         List<Task> defaultTasks = Arrays.asList(tasks.get(WORKER));
-        ActiveEntity w = new ActiveEntity(WORKER, tempName, tempLoc, defaultTasks, idle.get(WORKER), traits.get(WORKER));
+        ActiveEntity w = new ActiveEntity(WORKER + "," + ANT, tempName, tempLoc, defaultTasks, idle.get(WORKER), traits.get(WORKER));
         w.setTraitDisplayPriority(traitDisplayPriority);
         return w;
     }
@@ -122,7 +136,18 @@ public class AntBuilder implements EntityBuilder{
         if(name == null || name.equals("")) {name = "Random Soldier";}
         if(location == null || location.equals("")) {location = "somewhere";}
         List<Task> defaultTasks = Arrays.asList(tasks.get(SOLDIER));
-        ActiveEntity s = new ActiveEntity(SOLDIER, name, location, defaultTasks, idle.get(SOLDIER), traits.get(SOLDIER));
+        ActiveEntity s = new ActiveEntity(SOLDIER + "," + ANT, name, location, defaultTasks, idle.get(SOLDIER), traits.get(SOLDIER));
+        s.setTraitDisplayPriority(traitDisplayPriority);
+        return s;
+    }
+    
+    public ActiveEntity makeQueen(String name, String location) {
+        counts.put(ANT, counts.get(ANT) + 1);
+        counts.put(QUEEN, counts.get(QUEEN) + 1);
+        if(name == null || name.equals("")) {name = "Random Queen";}
+        if(location == null || location.equals("")) {location = "somewhere";}
+        List<Task> defaultTasks = Arrays.asList(tasks.get(QUEEN));
+        ActiveEntity s = new ActiveEntity(QUEEN + "," + ANT, name, location, defaultTasks, idle.get(QUEEN), traits.get(QUEEN));
         s.setTraitDisplayPriority(traitDisplayPriority);
         return s;
     }
@@ -137,26 +162,58 @@ public class AntBuilder implements EntityBuilder{
     }
 
     @Override
-    public ActiveEntity makeEntity(String id, String name, String location) {
+    public ActiveEntity makeEntity(String id, String name) {
         String parsed = parseId(id);
-        List<Task> defaultTasks = Arrays.asList(tasks.get(parsed));
         String tempName = name;
-        String tempLoc = location;
-        if(name == null || name.equals("")) {tempName = defaultName(parsed);}
-        if(location == null || location.equals("")) {tempLoc = "somewhere";}
-        ActiveEntity result = new ActiveEntity(parsed, tempName, tempLoc, defaultTasks, idle.get(parsed), traits.get(parsed));
-        result.setTraitDisplayPriority(traitDisplayPriority);
-        return result;
-    }
-
-    public String defaultName(String parsed) {
-        if(counts.containsKey(parsed)) {
-            counts.put(ANT, counts.get(ANT) + 1);
-            counts.put(parsed, counts.get(parsed) + 1);
-            return parsed + " " + counts.get(parsed);
+        if(name == null) {
+            tempName = defaultName(parsed);
         }
         
-        return parsed;
+        List<Task> groupedTasks;
+        List<Trait> groupedTraits;
+        
+        if(parsed.equals(EGG) || parsed.equals(LARVA))
+        {
+            groupedTasks = Arrays.asList(tasks.get(parsed));
+            groupedTraits = Arrays.asList(traits.get(parsed));
+        }
+        else if(parsed.equals(PUPA)) {
+            groupedTasks = Arrays.asList(AntTaskBuilder.getPupaTask(parsePupa(id)));
+            groupedTraits = Arrays.asList(traits.get(PUPA));
+        }
+        else {
+            groupedTasks = super.combineTasks(id);
+            groupedTraits = super.combineTraits(id);
+        }
+        
+        ActiveEntity result = new ActiveEntity(id, tempName, null, groupedTasks, idle.get(parsed), groupedTraits);
+        result.setTraitDisplayPriority(traitDisplayPriority);
+        result.clearTask();
+        
+        return result;
+    }
+    
+    @Override
+    public ActiveEntity makeEntity(String badge) {
+        if(!badgesToEntities.containsKey(badge)) {
+            return null;
+        }
+        
+        ActiveEntity result = badgesToEntities.get(badge);
+        result.setName(defaultName(badge));
+        return result;
+    }
+    
+    public String defaultName(String id) {
+        if(counts.containsKey(id)) {
+            if(!id.equals(EGG) && !id.equals(LARVA) && !id.equals(PUPA)) {
+                counts.put(ANT, counts.get(ANT) + 1);
+            }
+            counts.put(id, counts.get(id) + 1);
+            return id + " " + counts.get(id);
+        }
+        
+        return id;
     }
     
     /**
@@ -166,52 +223,60 @@ public class AntBuilder implements EntityBuilder{
      */
     @Override
     public String parseId(String id) {
-        String[] parts = id.split(" ");
-        for(String s : parts) {
-            if(s.equalsIgnoreCase(WORKER)) {return WORKER;}
-            if(s.equalsIgnoreCase(SOLDIER)) {return SOLDIER;}
-            if(s.equalsIgnoreCase(DRONE)) {return DRONE;}
-            if(s.equalsIgnoreCase(QUEEN)) {return QUEEN;}
+        String result = WORKER;
+        for(String s : id.split(",")) {
+            if(s.equalsIgnoreCase(QUEEN)) {
+                result = QUEEN;
+                break;
+            }
+            if(s.equalsIgnoreCase(DRONE)) {
+                if(!result.equals(QUEEN)) {
+                    result = DRONE;
+                }
+            }
+            if(s.equalsIgnoreCase(SOLDIER)) {
+                if(!result.equals(QUEEN) && !result.equals(DRONE)) {
+                    result = SOLDIER;
+                }
+            }
+            if(s.equalsIgnoreCase(WORKER)) {
+                if(!result.equals(QUEEN) && !result.equals(DRONE) && !result.equals(SOLDIER)) {
+                    result = WORKER;
+                }
+            }
+                
             if(s.equalsIgnoreCase(EGG)) {return EGG;}
             if(s.equalsIgnoreCase(LARVA)) {return LARVA;}
             if(s.equalsIgnoreCase(PUPA)) {return PUPA;}
         }
         
+        return result;
+    }
+    
+    /**
+     * Pulls out what kind of ant the pupa should become from the id. Returns WORKER if unsure.
+     * @param id
+     * @return 
+     */
+    public String parsePupa(String id) {
+        String[] parts = id.split(",");
+        if(parts.length != 2) {
+            return WORKER;
+        }
+        
+        if(parts[0].equalsIgnoreCase(PUPA)) {
+            return parts[1];
+        }
+        
+        if(parts[1].equalsIgnoreCase(PUPA)) {
+            return parts[0];
+        }
+        
         return WORKER;
     }
-    
-    @Override
-    public Namer getNamer() {
-        return names;
-    }
 
     @Override
-    public void setNamer(Namer newNamer) {
-        names = newNamer;
-    }
-
-    @Override
-    public int getEntityCount(String id) {
-        return counts.get(id).intValue();
-    }
-
-    @Override
-    public Set<String> getIds() {
-        return idle.keySet();
-    }
-
-    @Override
-    public Trait[] getTraits(String id) {
-        return traits.get(id);
-    }
-
-    @Override
-    public Task[] getTasks(String id) {
-        return tasks.get(id);
-    }
-    
-    @Override
-    public String getIdle(String id) {
-        return idle.get(id);
+    public String getBuilderID() {
+        return "Ant Builder";
     }
 }

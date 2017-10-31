@@ -40,6 +40,14 @@ public class AntTaskBuilder {
             "Hunt for food");
         return HUNT;
     }
+    public static Task weave() {
+        Task WEAVE = new Task("Weave silk", 3, "Weaving",
+            null,
+            null,
+            new Trait[]{new Trait("Silk", 1, TraitBuilder.resource())},
+            "Produce silk for crafting");
+        return WEAVE;
+    }
     public static Task larvaCare() {
         Task LARVA_CARE = new Task("Tend to Larva", 1, "Larva tending",
             new Trait[]{new Trait("Food", -1, TraitBuilder.resource())}, 
@@ -93,41 +101,155 @@ public class AntTaskBuilder {
         return EATEGG;
     }
     
+    public static Task eggHatch() {
+        Trait result = new Trait("Larva", 1, TraitBuilder.autoActiveChangeUncan());
+        result.setDesc(AntBuilder.LARVA);
+        Task eggGrow = new Task("Hatch", 1, "Incubating", 
+            null,
+            null,
+            new Trait[]{result},
+            "This egg will hatch soon");
+        
+        return eggGrow;
+    }
+    
+    public static Task workerPupaHatch() {
+        Trait result = new Trait("Worker", 1, TraitBuilder.autoActiveChangeUncan());
+        result.setDesc(AntBuilder.WORKER + "," + AntBuilder.ANT);
+        Task eggGrow = new Task("Metamorphose", 1, "Worker Metamorphosizing", 
+            null,
+            null,
+            new Trait[]{result},
+            "This pupa will hatch soon");
+        
+        return eggGrow;
+    }
+    
+    public static Task pupateWorker() {
+        Trait result = new Trait("Pupa", 1, TraitBuilder.active_change());
+        result.setDesc(AntBuilder.PUPA + "," + AntBuilder.WORKER);
+        Task eggGrow = new Task("Pupate to Worker", 1, "Cocooning", 
+            null,
+            null,
+            new Trait[]{result},
+            "Spin a cocoon to change to a worker");
+        
+        return eggGrow;
+    }
+    
+    public static Task soldierPupaHatch() {
+        Trait result = new Trait("Soldier", 1, TraitBuilder.autoActiveChangeUncan());
+        result.setDesc(AntBuilder.SOLDIER + "," + AntBuilder.ANT);
+        Task eggGrow = new Task("Metamorphose", 1, "Soldier Metamorphosizing", 
+            null,
+            null,
+            new Trait[]{result},
+            "This pupa will hatch soon");
+        
+        return eggGrow;
+    }
+    
+    public static Task pupateSoldier() {
+        Trait result = new Trait("Pupa", 1, TraitBuilder.active_change());
+        result.setDesc(AntBuilder.PUPA + "," + AntBuilder.SOLDIER);
+        Task eggGrow = new Task("Pupate to Soldier", 1, "Cocooning", 
+            null,
+            null,
+            new Trait[]{result},
+            "Spin a cocoon to change to a soldier");
+        
+        return eggGrow;
+    }
+    
+    public static Task dronePupaHatch() {
+        Trait result = new Trait("Drone", 1, TraitBuilder.autoActiveChangeUncan());
+        result.setDesc(AntBuilder.DRONE + "," + AntBuilder.ANT);
+        Task eggGrow = new Task("Metamorphose", 1, "Drone Metamorphosizing", 
+            null,
+            null,
+            new Trait[]{result},
+            "This pupa will hatch soon");
+        
+        return eggGrow;
+    }
+    
+    public static Task pupateDrone() {
+        Trait result = new Trait("Pupa", 1, TraitBuilder.active_change());
+        result.setDesc(AntBuilder.PUPA + "," + AntBuilder.DRONE);
+        Task eggGrow = new Task("Pupate to Drone", 1, "Cocooning", 
+            null,
+            null,
+            new Trait[]{result},
+            "Spin a cocoon to change to a drone");
+        
+        return eggGrow;
+    }
+    
+    public static Task queenPupaHatch() {
+        Trait result = new Trait("Queen", 1, TraitBuilder.autoActiveChangeUncan());
+        result.setDesc(AntBuilder.QUEEN + "," + AntBuilder.ANT);
+        Task eggGrow = new Task("Metamorphose", 1, "Queen Metamorphosizing", 
+            null,
+            null,
+            new Trait[]{result},
+            "This pupa will hatch soon");
+        
+        return eggGrow;
+    }
+    
+    public static Task pupateQueen() {
+        Trait result = new Trait("Pupa", 1, TraitBuilder.active_change());
+        result.setDesc(AntBuilder.PUPA + "," + AntBuilder.QUEEN);
+        Task eggGrow = new Task("Pupate to Queen", 1, "Cocooning", 
+            null,
+            null,
+            new Trait[]{result},
+            "Spin a cocoon to change to a queen");
+        
+        return eggGrow;
+    }
+    
     public static Task[] antTasks() {
         return new Task[]{dig(), forage(), hunt(), eat(), rest()};
     }
     
     public static Task[] workerTasks() {
-        Task[] workTasks = Arrays.copyOf(antTasks(), antTasks().length + 1);
-        workTasks[workTasks.length - 1] = larvaCare();
-        return workTasks;
+        return new Task[]{larvaCare()};
     }
     
     public static Task[] soldierTasks() {
-        Task[] soldierTasks = Arrays.copyOf(antTasks(), antTasks().length + 1);
-        soldierTasks[soldierTasks.length - 1] = fight();
-        return soldierTasks;
+        return new Task[]{fight()};
     }
 
-    static Task[] droneTasks() {
+    public static Task[] droneTasks() {
         return antTasks();
     }
 
-    static Task[] queenTasks() {
-        Task[] queenTasks = new Task[]{dig(), eat(), rest(), brood(), eatEgg()};
+    public static Task[] queenTasks() {
+        Task[] queenTasks = new Task[]{brood(), eatEgg()};
         
         return queenTasks;
     }
 
-    static Task[] eggTasks() {
-        return antTasks();
+    public static Task[] eggTasks() {
+        return new Task[]{eggHatch()};
     }
 
-    static Task[] larvaTasks() {
-        return antTasks();
+    public static Task[] larvaTasks() {
+        return new Task[]{pupateWorker(), pupateSoldier(), pupateDrone(), pupateQueen(), eat(), rest(), weave()};
     }
 
-    static Task[] pupaTasks() {
-        return antTasks();
+    public static Task[] pupaTasks() {
+        return new Task[]{workerPupaHatch(), soldierPupaHatch(), dronePupaHatch(), queenPupaHatch()};
+    }
+    
+    public static Task[] getPupaTask(String id) {
+        switch(id) {
+            case AntBuilder.WORKER: return new Task[]{workerPupaHatch()};
+            case AntBuilder.SOLDIER: return new Task[]{soldierPupaHatch()};
+            case AntBuilder.DRONE: return new Task[]{dronePupaHatch()};
+            case AntBuilder.QUEEN: return new Task[]{queenPupaHatch()};
+            default: return new Task[]{workerPupaHatch()};
+        }
     }
 }

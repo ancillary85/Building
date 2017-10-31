@@ -43,7 +43,7 @@
       </ToolBar>
    </top>
    <center>
-      <ScrollPane fx:id="centerScroll" fitToHeight="true" fitToWidth="true" focusTraversable="false" BorderPane.alignment="CENTER">
+      <ScrollPane fx:id="centerScroll" fitToHeight="true" fitToWidth="true" focusTraversable="false" pannable="true" BorderPane.alignment="CENTER">
          <content>
             <GridPane id="centerGrid" fx:id="centerGrid">
                <columnConstraints>
@@ -73,6 +73,13 @@
       </ScrollPane>
    </left>
    <bottom>
-      <HBox fx:id="resBox" alignment="CENTER" minHeight="30.0" BorderPane.alignment="CENTER" />
+      <ScrollPane vbarPolicy="NEVER" BorderPane.alignment="CENTER">
+         <content>
+            <HBox fx:id="resBox" alignment="CENTER" minHeight="30.0" />
+         </content>
+         <padding>
+            <Insets left="5.0" right="5.0" />
+         </padding>
+      </ScrollPane>
    </bottom>
 </BorderPane>

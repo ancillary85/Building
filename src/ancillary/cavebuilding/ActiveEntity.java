@@ -19,7 +19,7 @@ import javafx.beans.property.SimpleStringProperty;
  * @author Mike
  */
 
-public class ActiveEntity {
+public class ActiveEntity implements Active {
 
     /**
      * The Entity's id
@@ -30,11 +30,6 @@ public class ActiveEntity {
      * The Entity's name, to be displayed to the player
      */
     protected SimpleStringProperty name;
-    
-    /**
-     * Whether the Entity can act
-     */
-    protected final SimpleBooleanProperty active;
     
     /**
      * Whether the Entity is busy
@@ -55,12 +50,16 @@ public class ActiveEntity {
     protected Task currentTask;
     protected SimpleBooleanProperty taskCompleted;
     protected SimpleStringProperty idleText;
-    private Trait.trait_type[] traitDisplayPriority = {Trait.trait_type.ATTRIBUTE, Trait.trait_type.RESULT, Trait.trait_type.COMBAT, Trait.trait_type.FLAVOR};
+    protected Trait.trait_type[] traitDisplayPriority = {Trait.trait_type.ATTRIBUTE, Trait.trait_type.PRODUCTION, Trait.trait_type.COMBAT, Trait.trait_type.FLAVOR};
+    
+    /**
+     * The Entity's builderBadge, for looking it up in a Builder. This is null if there is no predefined entry for the Entity
+     */
+    protected String builderBadge = null;
     
     public ActiveEntity() {
         this.id = "placeholder";
         this.name = new SimpleStringProperty("blank");
-        this.active = new SimpleBooleanProperty(true);
         this.busy = new SimpleBooleanProperty(false);
         this.location = new SimpleStringProperty("nowhere");
         this.tasks = new ArrayList<Task>();
@@ -78,11 +77,12 @@ public class ActiveEntity {
      * @param name
      * @param location
      * @param newTasks 
+     * @param idleText 
+     * @param traits 
      */
     public ActiveEntity(String id, String name, String location, List<Task> newTasks, String idleText, List<Trait> traits) {
         this.id = id;
         this.name = new SimpleStringProperty(name);
-        this.active = new SimpleBooleanProperty(true);
         this.busy = new SimpleBooleanProperty(false);
         this.location = new SimpleStringProperty(location);        
         this.setUpTasks(newTasks);
@@ -96,7 +96,6 @@ public class ActiveEntity {
     public ActiveEntity(String id, String name, String location, List<Task> newTasks, String idleText, Trait[] traits) {
         this.id = id;
         this.name = new SimpleStringProperty(name);
-        this.active = new SimpleBooleanProperty(true);
         this.busy = new SimpleBooleanProperty(false);
         this.location = new SimpleStringProperty(location);        
         this.setUpTasks(newTasks);
@@ -141,10 +140,12 @@ public class ActiveEntity {
      * Attempts to modify it will get an UnsupportedOperationException
      * @return an unmodifiable List
      */
+    @Override
     public List<Task> getTasks() {
         return Collections.unmodifiableList(tasks);
     }
     
+    @Override
     public void setTasks(List<Task> newTasks) {
         if(newTasks == null) {
             tasks = new ArrayList<Task>();
@@ -163,11 +164,9 @@ public class ActiveEntity {
         }
     }
     
+    @Override
     public void addTask(Task newTask){
-        if(newTask == null) {
-            tasks.add(new Task());
-        }
-        else {
+        if(newTask != null) {
             tasks.add(newTask);
         }
     }
@@ -188,6 +187,7 @@ public class ActiveEntity {
      * current Task is set to "no task," and the Entity is marked not busy.
      * @param oldTask 
      */
+    @Override
     public void removeTask(Task oldTask) {
         tasks.remove(oldTask);
         if(currentTask.equals(oldTask)) {
@@ -196,14 +196,17 @@ public class ActiveEntity {
         }       
     }
     
+    @Override
     public SimpleIntegerProperty getTaskTimerProp() {
         return taskTimer;
     }
     
+    @Override
     public int getTaskTimer() {
         return taskTimer.get();
     }
     
+    @Override
     public void setTaskTimer(int newTime) {
         taskTimer.set(newTime);
     }
@@ -211,10 +214,12 @@ public class ActiveEntity {
     /**
      * Sets the taskTimer by looking up the duration of the current Task
      */
+    @Override
     public void setTaskTimerFromCurrentTask() {
         taskTimer.set(currentTask.getDuration());
     }
     
+    @Override
     public Task getCurrentTask() {
         return currentTask;
     }
@@ -226,6 +231,7 @@ public class ActiveEntity {
      * The Entity's taskTimer IS set by this method. 
      * @param t the Task to use
      */
+    @Override
     public void setTaskAndTimer(Task t) {
         
         if(t == null || !tasks.contains(t)) {return;}
@@ -265,6 +271,7 @@ public class ActiveEntity {
      * Alternatively, use setTaskAndTimer()
      * @param newTask the Task to use
      */
+    @Override
     public void setCurrentTask(Task newTask) {
         
         if(newTask == null || !tasks.contains(newTask)) {return;}
@@ -295,13 +302,30 @@ public class ActiveEntity {
         setBusy();
         taskCompleted.set(false);
     }
+
+    @Override
+    public void matchActive(Active toMatch) {
+        this.busy.set(toMatch.isBusy());
+        this.currentTask.setToNewTask(toMatch.getCurrentTask());
+        this.taskCompleted.set(toMatch.getTaskCompleted());
+        this.taskTimer.set(toMatch.getTaskTimer());
+        this.setTasks(toMatch.getTasks());
+        this.setTraits(toMatch.getTraits());
+    }
+    
+    public void matchEntity(ActiveEntity e) {
+        this.setId(e.getId());
+        this.setName(e.getName());
+        this.setTraits(e.getTraits());
+    }
     
     /**
      * Links this entity with another for a task. It's task timer is set to match the task's duration.
      * @param t
      * @param e 
      */
-    public void setLinked(Task t, ActiveEntity e) {
+    @Override
+    public void setLinked(Task t, Active e) {
         currentTask.setLinkTask(t, e);
         setNotBusy();
         setBusy();
@@ -312,6 +336,7 @@ public class ActiveEntity {
     /**
      * @return taskCompleted as a boolean 
      */
+    @Override
     public boolean getTaskCompleted() {
         return taskCompleted.get();
     }
@@ -319,6 +344,7 @@ public class ActiveEntity {
     /**
      * @return the Entity's "taskCompleted" property
      */
+    @Override
     public SimpleBooleanProperty getTaskCompletedProp() {
         return taskCompleted;
     }
@@ -327,6 +353,7 @@ public class ActiveEntity {
      * Sets the Entity's taskCompleted property
      * @param taskStatus 
      */
+    @Override
     public void setTaskCompleted(boolean taskStatus) {
         taskCompleted.set(taskStatus);
     }
@@ -334,6 +361,7 @@ public class ActiveEntity {
     /**
      * Presently does nothing!
      */
+    @Override
     public void idle() {
         
     }
@@ -343,7 +371,8 @@ public class ActiveEntity {
     * taskTimer is decremented. If it reaches zero, completeTask() is called.
      * @param args 
      */
-    public void entityUpdate(String[] args) {
+    @Override
+    public void activeUpdate(String[] args) {
         //If it isn't doing anything, move on
         if(!isBusy() || taskTimer.get() < 0) {
             idle();
@@ -364,6 +393,7 @@ public class ActiveEntity {
     /**
      * Sets the Entity's taskTimer to zero, leaves currentTask alone, taskCompleted to true, and marks it not busy
      */
+    @Override
     public void completeTask() {
         taskTimer.set(0);
         this.setNotBusy();
@@ -373,6 +403,7 @@ public class ActiveEntity {
     /**
      * Sets the Entity's taskTimer to zero, currentTask to "no task," taskCompleted to false, and marks it not busy
      */
+    @Override
     public void clearTask() {
         taskTimer.set(0);
         currentTask.setNoTask();
@@ -403,6 +434,7 @@ public class ActiveEntity {
     /**
      * @return the Entity's name as a String
      */
+    @Override
     public String getName() {
         return name.get();
     }
@@ -414,6 +446,7 @@ public class ActiveEntity {
         return name;
     }
     
+    @Override
     public void setName(String newName) {
         name.set(newName);
     }
@@ -421,6 +454,7 @@ public class ActiveEntity {
     /**
      * @return the id
      */
+    @Override
     public String getId() {
         return id;
     }
@@ -428,6 +462,7 @@ public class ActiveEntity {
     /**
      * @param id the id to set
      */
+    @Override
     public void setId(String id) {
         this.id = id;
     }
@@ -438,6 +473,7 @@ public class ActiveEntity {
      * @param idFragment 
      * @return 
      */
+    @Override
     public boolean idMatch(String idFragment) {
         for(String piece : id.split(",")) {
             if(piece.equalsIgnoreCase(idFragment)) {
@@ -448,23 +484,9 @@ public class ActiveEntity {
     }
     
     /**
-     * @return the Entity's "active" SimpleBooleanProperty
-     */
-    public SimpleBooleanProperty getActiveProp() {
-        return active;
-    }
-    
-    /**
-     * Used to check if the Entity can act
-     * @return true if the Entity is an active one
-     */
-    public boolean isActive() {
-        return active.get();
-    }
-    
-    /**
      * @return the Entity's "busy" SimpleBooleanProperty
      */
+    @Override
     public SimpleBooleanProperty getBusyProp() {
         return busy;
     }
@@ -473,6 +495,7 @@ public class ActiveEntity {
      * Used to check if the Entity is busy
      * @return true if the Entity is busy
      */
+    @Override
     public boolean isBusy() {
         return busy.get();
     }
@@ -480,6 +503,7 @@ public class ActiveEntity {
     /**
      * Set the Entity's status to busy
      */
+    @Override
     public void setBusy() {
         busy.set(true);
     }
@@ -487,6 +511,7 @@ public class ActiveEntity {
     /**
      * Set the Entity's status to not busy.
      */
+    @Override
     public void setNotBusy() {
         busy.set(false);
     }
@@ -516,6 +541,7 @@ public class ActiveEntity {
     /**
      * @return the traits as a List
      */
+    @Override
     public List<Trait> getTraits() {
         return traits;
     }
@@ -523,6 +549,7 @@ public class ActiveEntity {
     /**
      * @param newTraits the traits to set
      */
+    @Override
     public void setTraits(List<Trait> newTraits) {
         this.traits = new ArrayList<Trait>(newTraits);
     }
@@ -530,6 +557,7 @@ public class ActiveEntity {
     /**
      * @return the traitDisplayPriority
      */
+    @Override
     public Trait.trait_type[] getTraitDisplayPriority() {
         return traitDisplayPriority;
     }
@@ -537,6 +565,7 @@ public class ActiveEntity {
     /**
      * @param traitDisplayPriority the traitDisplayPriority to set
      */
+    @Override
     public void setTraitDisplayPriority(Trait.trait_type[] traitDisplayPriority) {
         this.traitDisplayPriority = traitDisplayPriority;
     }
@@ -549,6 +578,7 @@ public class ActiveEntity {
      * @param name the name of the Trait
      * @param value the value of the Trait
      */
+    @Override
     public void addTraitValue(String name, int value) {
         
         for(Trait res : traits) {
@@ -559,6 +589,7 @@ public class ActiveEntity {
         }
     }
     
+    @Override
     public boolean hasTrait(String name) {
         for(Trait t : traits) {
             if(t.getName().equalsIgnoreCase(name)) {
@@ -568,6 +599,7 @@ public class ActiveEntity {
         return false;
     }
     
+    @Override
     public int getTraitValue(String name) {
         for(Trait t : traits) {
             if(t.getName().equalsIgnoreCase(name)) {
@@ -584,6 +616,7 @@ public class ActiveEntity {
      * 
      * @param t the Trait
      */
+    @Override
     public void addTrait(Trait t) {
         
         for(Trait res : traits) {
@@ -594,6 +627,16 @@ public class ActiveEntity {
         }
         
         traits.add(new Trait(t));
+    }
+
+    @Override
+    public String getBuilderBadge() {
+        return builderBadge;
+    }
+    
+    @Override
+    public void setBuilderBadge(String newBadge) {
+        builderBadge = newBadge;
     }
     
     /**

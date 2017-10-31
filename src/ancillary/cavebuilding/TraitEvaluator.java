@@ -89,9 +89,8 @@ public class TraitEvaluator {
     public static boolean validResourceTrait(Trait t)  {
         boolean production = t.getTypes().contains(Trait.trait_type.PRODUCTION);
         boolean resource = t.getTypes().contains(Trait.trait_type.RESOURCE);
-        boolean result = t.getTypes().contains(Trait.trait_type.RESULT);
         
-        return production && resource && result;
+        return production && resource;
     }
     
     public static Trait.trait_type highestPriorityType(Trait t, Trait.trait_type[] priorities) {
@@ -135,12 +134,32 @@ public class TraitEvaluator {
         return t.getTypes().contains(type);
     }
     
+    public static boolean isActiveChangeTrait(Trait t) {
+        return t.getTypes().contains(Trait.trait_type.ACTIVE_CHANGE);
+    }
+    
+    public static boolean isActiveChangeOther(Trait t) {
+        return t.getTypes().contains(Trait.trait_type.ACTIVE_CHANGE_OTHER);
+    }
+    
+    public static boolean isAutoTaskTrait(Trait t) {
+        return t.getTypes().contains(Trait.trait_type.AUTOTASK);
+    }
+    
     public static boolean isCreationTrait(Trait t) {
         return t.getTypes().contains(Trait.trait_type.CREATION);
     }
     
     public static boolean isCreationLinkTrait(Trait t) {
         return t.getTypes().contains(Trait.trait_type.CREATION_LINK);
+    }
+    
+    public static boolean isEachTurnTrait(Trait t) {
+        return t.getTypes().contains(Trait.trait_type.EACHTURN);
+    }
+    
+    public static boolean isEventTrait(Trait t) {
+        return t.getTypes().contains(Trait.trait_type.EVENT);
     }
     
     public static boolean isUncreateTrait(Trait t) {
@@ -167,6 +186,10 @@ public class TraitEvaluator {
         return t.getTypes().contains(Trait.trait_type.PERSONAL_RESOURCE);
     }
     
+    public static boolean isOthersResource(Trait t) {
+        return t.getTypes().contains(Trait.trait_type.OTHERS_RESOURCE);
+    }
+    
     public static boolean isHiddenResource(Trait t) {
         return t.getTypes().contains(Trait.trait_type.HIDDEN_RESOURCE);
     }
@@ -175,8 +198,20 @@ public class TraitEvaluator {
         return t.getTypes().contains(Trait.trait_type.ROOM);
     }
     
+    public static boolean isRoomLinkTrait(Trait t) {
+        return t.getTypes().contains(Trait.trait_type.ROOM_LINK);
+    }
+    
+    public static boolean isRoomChangeTrait(Trait t) {
+        return t.getTypes().contains(Trait.trait_type.ROOM_CHANGE);
+    }
+    
     public static boolean isRequirement(Trait t) {
         return t.getTypes().contains(Trait.trait_type.REQUIREMENT);
+    }
+  
+    public static boolean isUncancelable(Trait t) {
+        return t.getTypes().contains(Trait.trait_type.UNCANCELABLE);
     }
     
     /**
@@ -204,9 +239,11 @@ public class TraitEvaluator {
         if(t.getTypes().contains(Trait.trait_type.RESOURCE)) {return Trait.trait_type.RESOURCE;}
         if(t.getTypes().contains(Trait.trait_type.CREATION)) {return Trait.trait_type.CREATION;}
         if(t.getTypes().contains(Trait.trait_type.PERSONAL_RESOURCE)) {return Trait.trait_type.PERSONAL_RESOURCE;}
+        if(t.getTypes().contains(Trait.trait_type.OTHERS_RESOURCE)) {return Trait.trait_type.OTHERS_RESOURCE;}
         if(t.getTypes().contains(Trait.trait_type.CREATION_LINK)) {return Trait.trait_type.CREATION_LINK;}
         if(t.getTypes().contains(Trait.trait_type.ROOM)) {return Trait.trait_type.ROOM;}
-        
+        if(t.getTypes().contains(Trait.trait_type.ROOM_LINK)) {return Trait.trait_type.ROOM_LINK;}
+        if(t.getTypes().contains(Trait.trait_type.ROOM_CHANGE)) {return Trait.trait_type.ROOM_CHANGE;}
         return null;
     }
     

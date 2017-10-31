@@ -1,0 +1,35 @@
+Want to handle both predefined and arbitray actives. Currently, Rooms and ActiveEntities are both Active. This allows 
+Rooms to have Tasks and behave similarly to the ActiveEntities. Rooms should possibly implement another interface
+called "Location" for their x and y positions, neighbors, etc. Entity currently has id, name, and traits.
+
+I am presently making ActiveEntities through both arbitrary means builders. Let's standardize the builders better.
+The Engine can maintain the various builders (AntBuilder, GoblinBuilder, etc) and ask them for a relevant entity. A builder
+just for arbitraty ActiveEntities may be needed.
+
+-How to tell the Engine what builder to use? I say I want a Worker Ant. The Ant should know identifying info for the builder 
+to use? A Builder id String, that the Engine can use to pick a Builder. Then, ask the builder for something with the Ant's info.
+Need to add builderID number or String to ActiveEntities
+
+So, I can ask the Engine to use the Builder with id "foo" to make a "baz," which could be very different from asking 
+Builder "bar" for a "baz." 
+
+-How to handle naming? Can specify a name when asking the Builder for something. Ask the Builder's Namer what to do
+in case of duplicate names?
+    
+-Should we use some queue of events to process at turn end? The Engine would update and pass relevant results to some 
+turn-end-summary helper class. This helper class could help evaluate things, or it might just organize things for the Controller
+to go through and report on. This could be a way to handle GameEvents.
+    Should it evaluate anything on its own? I think not; it can just be for storage and organizing. 
+
+-I'd like GameEvents that can be brought up at end of turn, start of turn, in response to actions, when certain conditions are met, etc.
+A thing can have a GameEvent as a Result Trait, and that GameEvent can be stored.
+
+Example: Display "The queen is worried about running out of food!" when food supply first hits 1 or less. This could be generated
+at the start, and wait for its condition to be met, then it tells the controller it is ready to go. The controller chooses what to do with it.
+In order for this to have its conditions evaluated appropriately, they would have to be checked in response to anything that 
+alters the food count. I think that such a thing would be fine as a end/start of turn thing. Like, the warning pop ups in response to 
+the update, and interrupts it. In this way, it could be an "Are you sure?" sort of message. Most other things can be tied to the 
+Tasks that started them, as messages when begun/finished.
+
+
+-LARVA BEING WEIRD!
