@@ -44,7 +44,7 @@ public class Trait {
     private SimpleBooleanProperty showValue = new SimpleBooleanProperty(true);
     
     public Trait() {
-        this.name = new SimpleStringProperty("none");
+        this.name = new SimpleStringProperty("No name");
         this.value = new SimpleIntegerProperty(0);
         this.description = new SimpleStringProperty("");        
         this.types = EnumSet.noneOf(Trait.trait_type.class);
@@ -281,6 +281,15 @@ public class Trait {
     @Override
     public String toString() {
         return name.get() + ": " + value.get();
+    }
+    
+    public String toStringVerbose() {
+        String stringTypes = "";
+        for(Trait.trait_type t : types) {
+            stringTypes += t.name() + " ";
+        }
+        
+        return name.get() + ": " + value.get() + "\n" + stringTypes + "\n" + description.get();
     }
     
     @Override

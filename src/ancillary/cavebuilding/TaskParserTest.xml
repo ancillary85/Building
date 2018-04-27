@@ -6,6 +6,25 @@ and open the template in the editor.
 -->
 
 <root>
-    <task name = "Dig" duration = "2" costs = "apples:2,shovels:2" requirements = "hands" results = "space:1,dirt:2">Chop, chop, dig, dig!</task>
-    <task name = "Feet" duration = "2" costs = "apples:2,shovels:2" requirements = "footsies" results = "space:1,dirt:2">Chop, chop, dig, dig!</task>
+    <task
+        name = "Eat Test" duration = "1" gerund = "eating" flavor = "Enjoy some food">
+        <costs>
+            <trait name = "Food" value = "-1" types = "resource"></trait>
+        </costs>
+        <requirements>
+            <trait name = "Food" value = "0" types = "resource, greaterthan"></trait>
+        </requirements>
+        <results>
+            <trait name = "Stamina" value = "4" types = "personal_resource"></trait>
+        </results>
+    </task>
+    <task
+        name = "default flavor" duration = "-5" gerund = "foobaring">
+        <costs>
+            <trait name = "Alice" value = "fiddlesticks" description = "should have zero value" types = "resource"></trait>
+            <trait name = "Bob" value = "-9" description = "filler" types = "resource, flavor"></trait>
+        </costs>
+        <requirements></requirements>
+        <results></results>
+    </task>
 </root>

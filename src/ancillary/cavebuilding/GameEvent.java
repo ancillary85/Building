@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * 
  * @author MLaptop
  */
 public class GameEvent {
@@ -22,6 +22,9 @@ public class GameEvent {
     protected ArrayList<Trait> requirements = new ArrayList();
     protected ArrayList<Trait> results = new ArrayList();
     protected String badge = null;
+    protected boolean suppressed = false;
+    protected boolean skippable = true;
+    
     
     public GameEvent() {
         //NOTHING
@@ -117,6 +120,22 @@ public class GameEvent {
     
     public void setBadge(String newBadge) {
         badge = newBadge;
+    }
+    
+    public boolean isSuppressed() {
+        return suppressed;
+    }
+    
+    public void setSuppressed(boolean newSuppression) {
+        suppressed = newSuppression;
+    }
+    
+    public boolean isSkippable() {
+        return skippable;
+    }
+    
+    public void setSkippable(boolean newSkipping) {
+        skippable = newSkipping;
     }
     
     @Override

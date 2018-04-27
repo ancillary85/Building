@@ -39,6 +39,12 @@
             <Separator layoutX="69.0" layoutY="10.0" orientation="VERTICAL" />
             <Button mnemonicParsing="false" onAction="#exitFired" text="Exit" />
             <Separator layoutX="157.0" layoutY="10.0" orientation="VERTICAL" />
+            <MenuButton fx:id="warningsMenuButton" mnemonicParsing="false" text="Warnings">
+              <items>
+                <MenuItem mnemonicParsing="false" text="Action 1" />
+                <MenuItem mnemonicParsing="false" text="Action 2" />
+              </items>
+            </MenuButton>
         </items>
       </ToolBar>
    </top>

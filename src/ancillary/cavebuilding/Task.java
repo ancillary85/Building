@@ -383,11 +383,19 @@ public class Task {
         return requirements;
     }
 
+    public void setRequirements(Trait[] newRequirements) {
+        requirements.set(FXCollections.observableList(Arrays.asList(newRequirements)));
+    }
+            
+    public void setRequirementsList(List<Trait> newRequirements) {
+        requirements.set(FXCollections.observableList(newRequirements));
+    }
+    
     /**
-     * @param requirements the requirements to set
+     * @param newRequirements the requirements to set
      */
-    public void setRequirementsProp(SimpleListProperty<Trait> requirements) {
-        this.requirements.set(requirements);
+    public void setRequirementsProp(SimpleListProperty<Trait> newRequirements) {
+        this.requirements.set(newRequirements);
     }
 
     /**

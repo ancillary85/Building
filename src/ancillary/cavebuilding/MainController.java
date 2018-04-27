@@ -82,6 +82,8 @@ public class MainController implements Initializable, CaveController {
     @FXML
     private ToolBar topToolBar;
     @FXML
+    private MenuButton warningsMenuButton;
+    @FXML
     private ScrollPane centerScroll;
     @FXML
     private GridPane centerGrid;
@@ -147,7 +149,7 @@ public class MainController implements Initializable, CaveController {
     private boolean init = false;
     private Trait.trait_type[] defaultPriorities = {Trait.trait_type.ATTRIBUTE, Trait.trait_type.PRODUCTION, Trait.trait_type.COMBAT, Trait.trait_type.FLAVOR};
     private StringProperty stringProp;
-    private boolean mustOfferUpdateWarnings = true;
+    private boolean offerFirstUpdateWarnings = true;
     
     public MainController(Stage initPrimary) {
         primaryStage = initPrimary;
@@ -203,6 +205,7 @@ public class MainController implements Initializable, CaveController {
         setUpCenterGrid();
         setUpResBox();
         setUpResourceListener();
+        setUpWarningMenu();
         
         init = true;
     }    
@@ -247,6 +250,19 @@ public class MainController implements Initializable, CaveController {
         
         
     }
+    
+    private void setUpWarningMenu() {
+        ListChangeListener warningListener = new ListChangeListener() {
+            @Override
+            public void onChanged(ListChangeListener.Change c) {
+                fillWarnings();
+            }
+        };
+        
+        motor.getUpdateWarnings().addListener(warningListener);
+        
+        fillWarnings();
+    }
 
     private void setUpCenterGrid() {        
         for(Node n : centerGrid.getChildren()) {
@@ -272,7 +288,7 @@ public class MainController implements Initializable, CaveController {
             centerGrid.getRowConstraints().add(r);
         }
         
-        populate();
+        populate2();
         populateRooms();
         
         centerGrid.setGridLinesVisible(false);
@@ -729,6 +745,38 @@ public class MainController implements Initializable, CaveController {
         motor.getGlobalResources().addListener(resListener);
     }
     
+    private void fillWarnings() {
+        warningsMenuButton.getItems().clear();
+    //currently the text of the warnings have to be clicked or moused over, rather than the MenuItems themselves            
+        for(GameEvent warning : motor.getUpdateWarnings()) {
+            //check for unskippables and continue loop if found
+            if(!warning.isSkippable()) {
+                Label unSuppressable = new Label(warning.getName());
+                unSuppressable.setTooltip(new Tooltip("Cannot be ignored"));
+                warningsMenuButton.getItems().add(new CustomMenuItem(unSuppressable));
+                continue;
+            }
+            
+            CheckBox warningBox = new CheckBox("Suppress " + warning.getName());
+            
+            if(warning.isSuppressed()) {
+                warningBox.setSelected(true);
+            }
+            CustomMenuItem potentialSelector = new CustomMenuItem(warningBox);
+            potentialSelector.setHideOnClick(false);
+            warningBox.setOnAction((ActionEvent click) -> {
+                if(warningBox.isSelected()) {
+                    warning.setSuppressed(true);
+                }
+                else {
+                    warning.setSuppressed(false);
+                }
+            });
+
+            warningsMenuButton.getItems().add(potentialSelector);
+        }
+    }
+    
     private void resBoxFill() {
         
         resBox.getChildren().clear();
@@ -819,9 +867,18 @@ public class MainController implements Initializable, CaveController {
     
     @Override
     public void updateFired(ActionEvent e) {
-        motor.checkUpdateWarnings();
         
-        if(!motor.getUnresolvedUpdateWarnings().isEmpty() && mustOfferUpdateWarnings) {
+        if(offerFirstUpdateWarnings) {
+            motor.checkUpdateWarnings();
+            
+            if(!motor.getUnresolvedUpdateWarnings().isEmpty()) {
+                offerUpdateWarnings();
+                return;
+            }
+        }
+        
+        motor.checkUnskippableWarnings();
+        if(!motor.getUnresolvedUpdateWarnings().isEmpty()) {
             offerUpdateWarnings();
             return;
         }
@@ -829,12 +886,10 @@ public class MainController implements Initializable, CaveController {
         motor.update();
         updateNeighborhood();
         
-        mustOfferUpdateWarnings = true;
+        offerFirstUpdateWarnings = true;
     }
     
     public void offerUpdateWarnings() {
-        boolean continueUpdateWarnings = false;
-        
         eventBodySplitB.toFront();
         eventBodySplitB.setVisible(true);
         
@@ -850,14 +905,7 @@ public class MainController implements Initializable, CaveController {
             eventDetail.showAndWait();
         }
         
-        mustOfferUpdateWarnings = false;
-//        for(GameEvent warning : motor.getUnresolvedUpdateWarnings()) {
-//            for(Trait result : warning.getResults()) {
-//                if(TraitEvaluator.isUncancelable(result)) {
-//                    continueUpdateWarnings = true;
-//                }
-//            }
-//        }
+        offerFirstUpdateWarnings = false;
     }
     
     @Override

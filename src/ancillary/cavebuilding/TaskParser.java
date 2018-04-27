@@ -6,6 +6,7 @@
 package ancillary.cavebuilding;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -24,17 +25,47 @@ public class TaskParser {
     public static final String DELIM = ":";
     
     public static Task parseTask(Node n) {
+        //check for null
         NamedNodeMap map = n.getAttributes();
+        Task result = new Task();
         
-        String name = map.getNamedItem("name").getNodeValue();
-        int duration = Integer.parseInt(map.getNamedItem("duration").getNodeValue());
-        String[] costs = map.getNamedItem("costs").getNodeValue().split(",");
-        String[] requirements = map.getNamedItem("requirements").getNodeValue().split(",");
-        String[] results = map.getNamedItem("results").getNodeValue().split(",");
-        String flavor = n.getTextContent().trim();
-        Task t = new Task(name, duration, parseCosts(costs), parseRequirements(requirements), parseResults(results), flavor);
+        if(map.getNamedItem("name") != null) {
+            result.setName(map.getNamedItem("name").getNodeValue());
+        }
         
-        return t;
+        if(map.getNamedItem("duration") != null) {
+            try {
+                result.setDuration(Integer.parseInt(map.getNamedItem("duration").getNodeValue()));
+            }
+            catch(NumberFormatException e) {
+                //Leave at default value
+            }
+        }
+        
+        ArrayList<Trait> costsList = parseByName(n, "costs");
+        if(costsList != null) {
+            result.setCostsList(costsList);
+        }
+        
+        ArrayList<Trait> reqsList = parseByName(n, "requirements");
+        if(reqsList != null) {
+            result.setRequirementsList(reqsList);
+        }
+        
+        ArrayList<Trait> resultsList = parseByName(n, "results");
+        if(resultsList != null) {
+            result.setResultsList(resultsList);
+        }
+        
+        if(map.getNamedItem("gerund") != null) {
+            result.setGerund(map.getNamedItem("gerund").getNodeValue());
+        }
+        
+        if(map.getNamedItem("flavor") != null) {
+            result.setFlavor(map.getNamedItem("flavor").getNodeValue());
+        }
+        //Task t = new Task(name, duration, parseCosts(costs), parseRequirements(requirements), parseResults(results), flavor);
+        return result;
     }
     
     public static Task[] parseTasks(String file) throws ParserConfigurationException, SAXException, IOException {
@@ -70,7 +101,42 @@ public class TaskParser {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    private static Trait[] parseCosts(String[] inCosts) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    
+    //needs more sanitizing
+    public static ArrayList<Trait> parseByName(Node n, String name) {
+        
+        NodeList nChildren = n.getChildNodes();
+        Node desiredChildNode = null;
+        for(int i = 0; i < nChildren.getLength(); i++) {
+            if(nChildren.item(i).getNodeName().equals(name)) {
+                desiredChildNode = nChildren.item(i);
+                break;
+            }
+        }
+        
+        if(desiredChildNode == null) {
+            return null;
+        }
+        
+        NodeList listFromChild = desiredChildNode.getChildNodes();
+        ArrayList<Trait> parsedTraits = new ArrayList<>();
+            
+        for(int i = 0; i < listFromChild.getLength(); i++) {
+            //There had better only be traits in my list of costs. I'm going to ignore anything else
+            if(!listFromChild.item(i).getNodeName().equals("trait")) {
+                continue;
+            }
+
+            parsedTraits.add(TraitParser.parseTrait(listFromChild.item(i)));
+        }
+        
+        if(parsedTraits.size() > 0) {
+            return parsedTraits;
+        }
+        else {
+            return null;
+        }
     }
+    
+    
 }

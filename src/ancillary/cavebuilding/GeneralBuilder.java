@@ -19,6 +19,8 @@ import java.util.Set;
  */
 public class GeneralBuilder implements ActiveEntityBuilder {
 
+    protected String builderID = "General Builder";
+    
     protected HashSet<String> IDs = new HashSet();
     
     protected HashMap<String, ActiveEntity> badgesToEntities = new HashMap();
@@ -64,9 +66,9 @@ public class GeneralBuilder implements ActiveEntityBuilder {
     
     @Override
     public String getBuilderID() {
-        return "General Builder";
+        return builderID;
     }
-
+    
     @Override
     public ActiveEntity makeEntity() {
         return new ActiveEntity();

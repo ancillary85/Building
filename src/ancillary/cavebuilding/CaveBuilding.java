@@ -5,6 +5,8 @@
  */
 package ancillary.cavebuilding;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -37,10 +39,12 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javax.xml.bind.JAXB;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -113,7 +117,13 @@ public class CaveBuilding extends Application {
             
             primaryStage.setTitle("CaveBuilding");
             primaryStage.show();
-        } catch (IOException ex) {
+            
+            //TaskParseTest();
+            //XMLParseTest();
+            
+        } catch(Exception ex) {
+
+//catch (IOException | ParserConfigurationException | SAXException ex) {
             Logger.getLogger(CaveBuilding.class.getName()).log(Level.SEVERE, null, ex);
         }
 
@@ -185,6 +195,15 @@ public class CaveBuilding extends Application {
         
     }
     
+    private void XMLParseTest() throws IOException {
+//        AntBuilder ab = new AntBuilder();
+//        ActiveEntity testPilot = ab.makeQueen("Victoria", "the ether");
+//        File testBed = new File("marshallingTest.xml");
+//        JAXB.marshal(testPilot, testBed);
+        ActiveEntity rebuild = JAXB.unmarshal(new File("marshallingTest.xml"), ActiveEntity.class);
+        System.out.println(rebuild.getName());
+    }
+    
     private void TaskParseTest() throws SAXException, ParserConfigurationException, IOException {
         DocumentBuilderFactory fact = DocumentBuilderFactory.newInstance();
         DocumentBuilder dB = fact.newDocumentBuilder();
@@ -192,18 +211,47 @@ public class CaveBuilding extends Application {
         doc.normalize();
         NodeList nL = doc.getElementsByTagName("task");
         
-        Task t1 = TaskParser.parseTask(nL.item(0));
-        Task t2 = TaskParser.parseTask(nL.item(1));
-        System.out.println(t1.toString());
-        System.out.println(t2.toString());
-        System.out.println(t1.equals(t2));
-        
+        for(int i = 0; i < nL.getLength(); i++) {
+            Task t = TaskParser.parseTask(nL.item(i));
+            
+            System.out.println("Name: " + t.getName() + "; Duration: " + t.getDuration() + "; Gerund: " + t.getGerund() + "; Flavor: " + t.getFlavor());
+            System.out.println("COSTS: " + t.getCosts().size());
+            for(Trait cost : t.getCosts()) {
+                System.out.println(cost.toStringVerbose());
+            }
+            
+            System.out.println("REQS: " + t.getRequirements().size());
+            for(Trait req : t.getRequirements()) {
+                System.out.println(req.toStringVerbose());
+            }
+            
+            System.out.println("RESULTS: " + t.getResults().size());
+            for(Trait result : t.getResults()) {
+                System.out.println(result.toStringVerbose());
+            }
+        }
+       
+        /*
         System.out.println("M-m-multi parse!");
         
         Task[] tasks = TaskParser.parseTasks("TaskParserTest.xml");
         
         for(int i = 0; i < tasks.length; i++) {
             System.out.println(tasks[i].toString());
+        }
+        */
+    }
+    
+    private void TraitParseTest() throws ParserConfigurationException, SAXException, IOException {
+        DocumentBuilderFactory fact = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dB = fact.newDocumentBuilder();
+        Document doc = dB.parse(CaveBuilding.class.getResourceAsStream("TraitParserTest.xml"));
+        doc.normalize();
+        NodeList nL = doc.getElementsByTagName("trait");
+        
+        for(int i = 0; i < nL.getLength(); i++) {
+            System.out.println(TraitParser.parseTrait(nL.item(i)).toStringVerbose());
+            System.out.println("---");
         }
     }
     

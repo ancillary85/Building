@@ -136,13 +136,12 @@ public class ActiveEntity implements Active {
     }*/
     
     /**
-     * Return an unmodifiable List of the Entity's tasks.
-     * Attempts to modify it will get an UnsupportedOperationException
-     * @return an unmodifiable List
+     * Return a List of the Entity's tasks.
+     * @return a List
      */
     @Override
     public List<Task> getTasks() {
-        return Collections.unmodifiableList(tasks);
+        return tasks;
     }
     
     @Override
@@ -305,6 +304,8 @@ public class ActiveEntity implements Active {
 
     @Override
     public void matchActive(Active toMatch) {
+        this.setId(toMatch.getId());
+        this.setName(toMatch.getName());
         this.busy.set(toMatch.isBusy());
         this.currentTask.setToNewTask(toMatch.getCurrentTask());
         this.taskCompleted.set(toMatch.getTaskCompleted());

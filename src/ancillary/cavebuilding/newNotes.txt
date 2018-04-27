@@ -31,5 +31,3 @@ alters the food count. I think that such a thing would be fine as a end/start of
 the update, and interrupts it. In this way, it could be an "Are you sure?" sort of message. Most other things can be tied to the 
 Tasks that started them, as messages when begun/finished.
 
-
--LARVA BEING WEIRD!

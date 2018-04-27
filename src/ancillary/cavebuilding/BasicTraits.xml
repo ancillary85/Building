@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+
+<root>
+    <trait num = "0" name = "Attribute" value = "0" description = "base attributes" types = "attribute"></trait>
+    <trait num = "1" name = "Strength" value = "0" description = "Sheer muscle power" types = "attribute"></trait>
+    <trait num = "2" name = "Stamina" value = "0" description = "Health, endurance, and physical resilience, applies to Toughness and Fortitude" types = "attribute"></trait>
+    <trait num = "3" name = "Agility" value = "0" description = "Balance, grace, and speed, applies to  Initiative and Dodge" types = "attribute"></trait>
+    <trait num = "4" name = "Dexterity" value = "0" description = "Physical coordination and precision, applies to ranged Attack" types = "attribute"></trait>
+    <trait num = "5" name = "Intellect" value = "0" description = "Reasoning and learning" types = "attribute"></trait>
+    <trait num = "6" name = "Awareness" value = "0" description = "Intuition and understanding, applies to Will" types = "attribute"></trait>
+    <trait num = "7" name = "Presence" value = "0" description = "Force of personality" types = "attribute"></trait>
+    <trait num = "8" name = "Fighting" value = "0" description = "Close combat ability, applies to close Attack and Parry" types = "attribute"></trait>
+    <trait num = "9" name = "Dodge" value = "0" description = "Defense against ranged attacks and area effects" types = "attribute"></trait>
+    <trait num = "10" name = "Parry" value = "0" description = "Defense against close attacks" types = "attribute"></trait>
+    <trait num = "11" name = "Fortitude" value = "0" description = "Defense that applies to constitution and health" types = "attribute"></trait>
+    <trait num = "12" name = "Will" value = "0" description = "Defense that applies to mind and spirit" types = "attribute"></trait>
+    <trait num = "13" name = "Attribute" value = "0" description = "Defense against damage" types = "attribute"></trait>
+    <trait num = "14" name = "Initiative" value = "0" description = "Used to determine turn order" types = "attribute"></trait>
+</root>

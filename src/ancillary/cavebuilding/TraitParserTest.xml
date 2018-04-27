@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<root>
+    <trait name = "Cuteness" value = "2" description = "uguu" types = "attribute,flavor"></trait>
+    <trait name = "Tsun" value = "-2" description = "b-baka!" types = "attribute,flavor"></trait>
+    <trait name = "Tsun Test" value = "apple" description = "b-baka!" types = "attribute,flavor"></trait>
+</root>

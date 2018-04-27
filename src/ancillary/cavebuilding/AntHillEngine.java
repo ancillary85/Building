@@ -138,7 +138,7 @@ public class AntHillEngine extends Engine {
 
         ActiveEntity toMatch = builder.makeEntity(s, null);
 
-        e.matchEntity(toMatch);
+        e.matchActive(toMatch);
         Task autoTask = super.getAutoTask(e);
         
         if(autoTask != null) {
@@ -242,14 +242,23 @@ public class AntHillEngine extends Engine {
 
     private void setUpWarnings() {
         ArrayList<Trait> warningRequirements = new ArrayList();
-        warningRequirements.add(new Trait("Food", 0, TraitBuilder.reqGreaterThanResource()));
+        warningRequirements.add(new Trait("Food", 2, TraitBuilder.reqGreaterThanResource()));
         GameEvent defaultAntFoodWarning = new GameEvent("Food is Low", "The queen worries that there soon will be no more food!", "Food Warning", warningRequirements, null);
-        super.updateWarnings.add(defaultAntFoodWarning);
         
         warningRequirements.clear();
         warningRequirements.add(new Trait("Machete", 0, TraitBuilder.reqGreaterThanResource()));
         GameEvent defaultAntMacheteWarning = new GameEvent("Machete Supply Crisis", "The queen worries that there soon will be no more machetes!", "Machete Warning", warningRequirements, null);
-        super.updateWarnings.add(defaultAntMacheteWarning);
+        
+        warningRequirements.clear();
+        warningRequirements.add(new Trait("Food", 0, TraitBuilder.reqGreaterThanResource()));
+        GameEvent unskippableFoodWarning = new GameEvent("Food!!", "Cannot be skipped", "Wuh-oh", warningRequirements, null);
+        unskippableFoodWarning.setSkippable(false);
+        
+        ArrayList<GameEvent> temp = new ArrayList();
+        temp.add(defaultAntFoodWarning);
+        temp.add(defaultAntMacheteWarning);
+        temp.add(unskippableFoodWarning);
+        super.setUpdateWarnings(temp);
     }
     
     /**

@@ -25,9 +25,9 @@ public abstract class Engine {
     protected TraitEvaluator traitEval;
     protected ActiveEntityBuilder builder;
     protected CaveController controller;
-    protected ArrayList<GameEvent> timedEvents = new ArrayList();
-    protected ArrayList<GameEvent> untimedEvents = new ArrayList();
-    protected ArrayList<GameEvent> updateWarnings = new ArrayList();
+    protected SimpleListProperty<GameEvent> timedEvents = new SimpleListProperty();
+    protected SimpleListProperty<GameEvent> untimedEvents = new SimpleListProperty();
+    protected SimpleListProperty<GameEvent> updateWarnings = new SimpleListProperty();
     protected ArrayList<GameEvent> unresolvedUpdateWarnings = new ArrayList();
     protected int turnCount = 0;
     
@@ -152,28 +152,28 @@ public abstract class Engine {
         turnCount = newTurnCount;
     }
     
-    public ArrayList<GameEvent> getTimedEvents() {
+    public SimpleListProperty<GameEvent> getTimedEvents() {
         return timedEvents;
     }
     
     public void setTimedEvents(ArrayList<GameEvent> newTimed) {
-        timedEvents = newTimed;
+        timedEvents.set(FXCollections.observableArrayList(newTimed));
     }
     
-    public ArrayList<GameEvent> getUntimedEvents() {
+    public SimpleListProperty<GameEvent> getUntimedEvents() {
         return untimedEvents;
     }
     
     public void setUntimedEvents(ArrayList<GameEvent> newUntimed) {
-        untimedEvents = newUntimed;
+        untimedEvents.set(FXCollections.observableArrayList(newUntimed));
     }
     
-    public ArrayList<GameEvent> getUpdateWarnings() {
+    public SimpleListProperty<GameEvent> getUpdateWarnings() {
         return updateWarnings;
     }
     
     public void setUpdateWarnings(ArrayList<GameEvent> newWarnings) {
-        updateWarnings = newWarnings;
+        updateWarnings.set(FXCollections.observableArrayList(newWarnings));
     }
     
     public ArrayList<GameEvent> getUnresolvedUpdateWarnings() {
@@ -364,6 +364,27 @@ public abstract class Engine {
         unresolvedUpdateWarnings.clear();
         
         for(GameEvent warning : updateWarnings) {
+            if(warning.isSuppressed()) {
+                continue;
+            }
+            
+            for(Trait req : warning.getRequirements()) {
+                if(!requirementMet(req, null)) {
+                    unresolvedUpdateWarnings.add(warning);
+                    break; // move to next warning
+                }
+            }
+        }
+    }
+    
+    public void checkUnskippableWarnings() {
+        unresolvedUpdateWarnings.clear();
+        
+        for(GameEvent warning : updateWarnings) {
+            if(warning.isSkippable()) {
+                continue;
+            }
+            
             for(Trait req : warning.getRequirements()) {
                 if(!requirementMet(req, null)) {
                     unresolvedUpdateWarnings.add(warning);
