@@ -25,17 +25,17 @@ public class TraitParser {
         
         NamedNodeMap map = n.getAttributes();
         
-        if(map.getNamedItem("name") != null) {
-            result.setName(map.getNamedItem("name").getNodeValue());
-        }
-        
-        if(map.getNamedItem("value") != null) {
+        if(map.getNamedItem("idnum") != null) {
             try {
-                result.setValue(Integer.parseInt(map.getNamedItem("value").getNodeValue()));
+                result.setIdNum(Integer.parseInt(map.getNamedItem("idnum").getNodeValue()));
             }
             catch(NumberFormatException e) {
-                result.setValue(0);
+                result.setIdNum(-1);
             }
+        }
+        
+        if(map.getNamedItem("name") != null) {
+            result.setName(map.getNamedItem("name").getNodeValue());
         }
         
         if(map.getNamedItem("valueMin") != null) {
@@ -53,6 +53,19 @@ public class TraitParser {
             }
             catch(NumberFormatException e) {
                 result.setValueMax(Integer.MAX_VALUE);
+            }
+        }
+        
+        if(map.getNamedItem("value") != null) {
+            try {
+                int value = Integer.parseInt(map.getNamedItem("value").getNodeValue());
+                
+                if(value <= result.getValueMax() && value >= result.getValueMin()) {
+                    result.setValue(value);
+                }
+            }
+            catch(NumberFormatException e) {
+                result.setValue(0);
             }
         }
         

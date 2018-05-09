@@ -29,6 +29,9 @@ public abstract class Engine {
     protected SimpleListProperty<GameEvent> untimedEvents = new SimpleListProperty();
     protected SimpleListProperty<GameEvent> updateWarnings = new SimpleListProperty();
     protected ArrayList<GameEvent> unresolvedUpdateWarnings = new ArrayList();
+    private HashMap<String, ArrayList<Trait>> defaultTraits = new HashMap();
+    private HashMap<String, ArrayList<Task>> defaultTasks = new HashMap();
+    private HashMap<String, ArrayList<ActiveEntity>> defaultActiveEntities = new HashMap();
     protected int turnCount = 0;
     
     public Engine() {
@@ -658,6 +661,132 @@ public abstract class Engine {
             case ROOM: return getRoomCount(req.getName()) > req.getValue();
             default: return false;
         }
+    }
+    
+    /**
+     * @return the defaultTraits
+     */
+    public HashMap<String, ArrayList<Trait>> getDefaultTraits() {
+        return defaultTraits;
+    }
+    
+    /**
+     * Asks the defaultTraits HashMap to return the ArrayList of Traits that matches the key traitListName
+     * @param traitListName
+     * @return null if nothing in the map
+     */
+    public ArrayList<Trait> getThisTraitList(String traitListName) {
+        return defaultTraits.get(traitListName);
+    }
+
+    /**
+     * Gets an ArrayList from the HashMap, and then returns the given index
+     * @param traitListName
+     * @param idnum
+     * @return null if nothing in the map
+     */
+    public Trait getTraitByNum(String traitListName, int idnum) {
+        ArrayList<Trait> temp = defaultTraits.get(traitListName);
+        if(temp == null || idnum < 0 || idnum >= temp.size()) {
+            return null;
+        }
+        
+        return temp.get(idnum);
+    }
+    
+    public void addDefaultTraits(String listName, ArrayList<Trait> traitsList) {
+        defaultTraits.put(listName, traitsList);
+    }
+    
+    /**
+     * @param defaultTraits the defaultTraits to set
+     */
+    public void setDefaultTraits(HashMap<String, ArrayList<Trait>> defaultTraits) {
+        this.defaultTraits = defaultTraits;
+    }
+
+    /**
+     * @return the defaultTasks
+     */
+    public HashMap<String, ArrayList<Task>> getDefaultTasks() {
+        return defaultTasks;
+    }
+
+    /**
+     * Asks the defaultTasks HashMap to return the ArrayList of Tasks that matches the key taskListName
+     * @param taskListName
+     * @return null if nothing in the map
+     */
+    public ArrayList<Task> getThisTaskList(String taskListName) {
+        return defaultTasks.get(taskListName);
+    }
+
+    /**
+     * Gets an ArrayList from the HashMap, and then returns the given index
+     * @param taskListName
+     * @param idnum
+     * @return null if nothing in the map
+     */
+    public Task getTaskByNum(String taskListName, int idnum) {
+        ArrayList<Task> temp = defaultTasks.get(taskListName);
+        if(temp == null) {
+            return null;
+        }
+        
+        return temp.get(idnum);
+    }
+    
+    public void addDefaultTasks(String listName, ArrayList<Task> tasksList) {
+        defaultTasks.put(listName, tasksList);
+    }
+    
+    /**
+     * @param defaultTasks the defaultTasks to set
+     */
+    public void setDefaultTasks(HashMap<String, ArrayList<Task>> defaultTasks) {
+        this.defaultTasks = defaultTasks;
+    }
+
+    /**
+     * @return the defaultActiveEntities
+     */
+    public HashMap<String, ArrayList<ActiveEntity>> getDefaultActiveEntities() {
+        return defaultActiveEntities;
+    }
+
+    /**
+     * Asks the defaultActiveEntities HashMap to return the ArrayList that matches the key activeEntityListName
+     * @param activeEntityListName
+     * @return null if nothing in the map
+     */
+    public ArrayList<ActiveEntity> getThisActiveEntityList(String activeEntityListName) {
+        return defaultActiveEntities.get(activeEntityListName);
+    }
+
+    /**
+     * Gets an ArrayList from the HashMap, and then returns the given index
+     * @param activeEntityListName
+     * @param idnum
+     * @return null if nothing in the map
+     */
+    public ActiveEntity getActiveEntityByNum(String activeEntityListName, int idnum) {
+        ArrayList<ActiveEntity> temp = defaultActiveEntities.get(activeEntityListName);
+        if(temp == null) {
+            return null;
+        }
+        
+        return temp.get(idnum);
+    }
+    
+    public void addDefaultActiveEntities(String listName, ArrayList<ActiveEntity> entityList) {
+        defaultActiveEntities.put(listName, entityList);
+    }
+    
+    /**
+     * @param defaultActiveEntities the defaultActiveEntities to set
+     */
+    public void setDefaultActiveEntities(HashMap<String, ArrayList<ActiveEntity>> defaultActiveEntities) {
+        this.defaultActiveEntities = defaultActiveEntities;
     }
     
     public abstract void addRoom(Room r);

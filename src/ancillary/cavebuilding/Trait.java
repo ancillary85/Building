@@ -41,6 +41,7 @@ public class Trait {
     private SimpleStringProperty description;
     private EnumSet<trait_type> types;
     private int sortingPriority = -1;
+    private int idNum = -1;
     private SimpleBooleanProperty showValue = new SimpleBooleanProperty(true);
     
     public Trait() {
@@ -64,11 +65,35 @@ public class Trait {
         this.types = initTypes;
     }
 
+    public Trait(String name, int value, String description, EnumSet<trait_type> initTypes, int id) {
+        this.name = new SimpleStringProperty(name);
+        this.value = new SimpleIntegerProperty(value);    
+        this.description = new SimpleStringProperty(description);
+        this.types = initTypes;
+        this.idNum = id;
+    }
+    
     public Trait(Trait t) {
         this.name = new SimpleStringProperty(t.getName());
         this.value = new SimpleIntegerProperty(t.getValue());
         this.description = new SimpleStringProperty(t.getDesc());
         this.types = EnumSet.copyOf(t.getTypes());
+        this.idNum = t.idNum;
+    }
+    
+    /**
+     * @return the id number, with -1 being used for custom Traits
+     */
+    public int getIdNum() {
+        return idNum;
+    }
+    
+    /**
+     * Sets the id number. Should generally not be used when not setting up default Traits by number
+     * @param id 
+     */
+    public void setIdNum(int id) {
+       this.idNum = id; 
     }
     
     /**

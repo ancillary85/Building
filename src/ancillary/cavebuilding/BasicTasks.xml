@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+
+<root>
+    <task
+        idnum = "0" name = "Eat Test" duration = "1" gerund = "eating" flavor = "Enjoy some food">
+        <costs>
+            <trait name = "Food" value = "-1" types = "resource"></trait>
+        </costs>
+        <requirements>
+            <trait name = "Food" value = "0" types = "resource, greaterthan"></trait>
+        </requirements>
+        <results>
+            <trait name = "Stamina" value = "4" types = "personal_resource"></trait>
+        </results>
+    </task>
+</root>

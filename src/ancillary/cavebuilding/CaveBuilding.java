@@ -9,6 +9,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
@@ -44,6 +48,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -53,21 +58,8 @@ import org.xml.sax.SAXException;
  * @author MM
  */
 public class CaveBuilding extends Application {
-       
-    private Text texty;
-    private static final int SQUARESIZE = 100;
-    private final int BUTTON_PREF_WIDTH = 70;
-    private final int BUTTON_PREF_HEIGHT = 20;
     
-    private BorderPane mainPane;
-    private ToolBar topToolBar;
-    private ScrollPane centerScroll;
-    private GridPane centerGrid;
-    private HBox resBox;
-    private ListChangeListener resListener;
-    
-    private ArrayList<MenuButton> buttons;
-    
+    private MainController controller;
     private AntHillEngine motor;
 
     //this is just for experimenting
@@ -76,6 +68,7 @@ public class CaveBuilding extends Application {
     @Override
     public void init() throws Exception {
         System.out.println("Hello!");        
+        initializeEngine();
     }
     
     @Override
@@ -86,8 +79,7 @@ public class CaveBuilding extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            motor = new AntHillEngine();
-            MainController controller = new MainController(primaryStage, motor);
+            controller = new MainController(primaryStage, motor);
             FXMLLoader loader1 = new FXMLLoader(CaveBuilding.class.getResource("mainWindow.fxml"));
             loader1.setController(controller);
             FXMLLoader loader2 = new FXMLLoader(CaveBuilding.class.getResource("detailWindow.fxml"));
@@ -129,10 +121,6 @@ public class CaveBuilding extends Application {
 
     }
     
-    public void showThisAndWait(Stage s) {
-        s.showAndWait();
-    }
-    
     /**
      * @param args the command line arguments
      */
@@ -140,13 +128,132 @@ public class CaveBuilding extends Application {
         launch(args);
     }
     
-
-    public void setEngine(AntHillEngine e) {
-        motor = e;
+    private void initializeEngine() throws ParserConfigurationException, SAXException, IOException {
+        motor = new AntHillEngine();
+        
+        //Read XML file with some number of "list" nodes, each containing one type of thing.
+        //A "list" should have a "type" to say if it is a list of Traits, Tasks, etc., and it should have a "name" so we know 
+        //how to organize things.
+        DocumentBuilder docBuild = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document docTraits = docBuild.parse(CaveBuilding.class.getResourceAsStream("BasicTraits.xml"));
+        docTraits.normalize();
+        NodeList nL = docTraits.getElementsByTagName("list");
+        
+        //Loop through my NodeList of "list"'s to sort their contents appropriately by "type" and "name"
+        for(int nLIndex = 0; nLIndex < nL.getLength(); nLIndex++) {
+            Node currentNode = nL.item(nLIndex);
+            //Skip empty ones
+            if(!currentNode.hasChildNodes()) {
+                continue;
+            }
+            
+            String currentName = currentNode.getAttributes().getNamedItem("name").getNodeValue();
+            String currentType = currentNode.getAttributes().getNamedItem("type").getNodeValue();
+            NodeList children = currentNode.getChildNodes();
+            
+            prepareDefaultsArrayList(currentName, currentType, children);
+        }
+        
+        defaultsTesting();
+        
     }
     
-    public AntHillEngine getEngine() {
-        return motor; 
+    //Scans the id nums of the elements in the NodeList, in order to see how big the ArrayList needs to be.
+    //The ArrayList is padded with nulls to reach that size
+    //Then the Nodes are read into the ArrayList, and that ArrayList is given to the Engine with its listName
+    //I'm assuming that the NodeList is for Traits, Tasks, ActiveEntities, etc that have an idnum
+    private void prepareDefaultsArrayList(String listName, String listType, NodeList nL) {
+        int targetSize = 0;
+        
+        for(int i = 0; i < nL.getLength(); i++) {
+                       
+            Node tempNode = nL.item(i);
+            if(tempNode == null || !tempNode.hasAttributes()) {
+                continue;
+            }
+            
+            Node possibleIDNum = tempNode.getAttributes().getNamedItem("idnum");
+            
+            if(possibleIDNum != null) {
+                int size = Integer.parseInt(possibleIDNum.getNodeValue());
+                if(size > targetSize) {
+                    targetSize = size;
+                }
+            }
+        }
+        
+        //Increase by 1 so that the array is the correct size. If my largest idnum is 4, the array has an index 4, but is size 5
+        targetSize++;
+        
+        if(listType.equalsIgnoreCase("trait")) {
+            ArrayList<Trait> traitsList = new ArrayList();
+            for(int nullPad = 0; nullPad < targetSize; nullPad++) {
+                traitsList.add(null);
+            }
+            
+            for(int traitListIndex = 0; traitListIndex < nL.getLength(); traitListIndex++) {
+                Node temp = nL.item(traitListIndex);
+                if(!temp.hasAttributes() || !temp.getNodeName().equals("trait")) {
+                    continue;
+                }
+                
+                Trait currentTrait = TraitParser.parseTrait(nL.item(traitListIndex));
+                traitsList.set(currentTrait.getIdNum(), currentTrait);
+            }
+            
+            motor.addDefaultTraits(listName, traitsList);
+        }
+        else if(listType.equalsIgnoreCase("task")) {
+            ArrayList<Task> tasksList = new ArrayList();
+            for(int nullPad = 0; nullPad < targetSize; nullPad++) {
+                tasksList.add(null);
+            }
+            
+            for(int taskListIndex = 0; taskListIndex < nL.getLength(); taskListIndex++) {
+                Node temp = nL.item(taskListIndex);
+                if(!temp.hasAttributes()) {
+                    continue;
+                }
+                
+                Task currentTask = TaskParser.parseTask(temp);
+                tasksList.set(currentTask.getIdNum(), currentTask);
+            }
+            
+            motor.addDefaultTasks(listName, tasksList);
+        }
+        
+    }
+    
+    private void defaultsTesting() {
+        HashMap<String, ArrayList<Trait>> foo = motor.getDefaultTraits();
+        
+        System.out.println("Keys");
+        for(String s : foo.keySet()) {
+            System.out.print(s + " ");
+        }
+        System.out.println();
+        
+        for(String s : foo.keySet()) {
+            System.out.println(s + " contents:");
+            for(Trait t : foo.get(s)) {
+                if(t == null) {
+                    continue;
+                }
+                
+                System.out.print(t + "; ");
+            }
+            System.out.println();
+        }
+        
+        System.out.println(motor.getTraitByNum("skills", -2));
+        System.out.println(motor.getTraitByNum("skills", 0));
+        System.out.println(motor.getTraitByNum("skills", 1));
+        System.out.println(motor.getTraitByNum("skills", 2));
+        System.out.println(motor.getTraitByNum("skills", 3));
+        System.out.println(motor.getTraitByNum("skills", 4));
+        System.out.println(motor.getTraitByNum("skills", 5));
+        System.out.println(motor.getTraitByNum("skills", 6));
+        System.out.println(motor.getTraitByNum("skills", 23));
     }
     
     private void EntityTesting() {

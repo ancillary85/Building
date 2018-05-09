@@ -21,6 +21,7 @@ import javafx.collections.ObservableList;
  * @author Mike
  */
 public class Task {
+
 //public static enum trait_type{FLAVOR, COMBAT, RESOURCE, PRODUCTION, EACHTURN, MULTI}
     public final static String RESOURCE = "r";
     public final static String PERSONAL_RESOURCE = "pr";
@@ -37,6 +38,7 @@ public class Task {
     private SimpleListProperty<Trait> requirements;
     private SimpleListProperty<Trait> results;
     private SimpleStringProperty flavor;
+    private int idNum = -1;
     
     public Task() {
         name = new SimpleStringProperty("no task");
@@ -262,6 +264,20 @@ public class Task {
         return name;
     }
     
+    /**
+     * @return the idNum
+     */
+    public int getIdNum() {
+        return idNum;
+    }
+
+    /**
+     * @param idNum the idNum to set
+     */
+    public void setIdNum(int idNum) {
+        this.idNum = idNum;
+    }
+
     /**
      * @return the duration as an int
      */
