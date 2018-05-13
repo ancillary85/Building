@@ -32,4 +32,13 @@ and open the template in the editor.
     </list>
     <list name = "advantages" type = "trait">
     </list>
+    <traitDefaults ID = "goblin">
+        <default listName = "skills" listIndex = "4" value = "10"></default>
+        <default listName = "basics" listIndex = "-1" value = "2"></default>
+    </traitDefaults>
+    <traitDefaults ID = "bugbear">
+        <default listName = "skills" listIndex = "0" value = "5"></default>
+        <default listName = "skills" listIndex = "2" value = "50"></default>
+        <default listName = "basics" listIndex = "-1" value = "4"></default>
+    </traitDefaults>
 </root>

@@ -45,6 +45,11 @@ public class GeneralBuilder implements ActiveEntityBuilder {
         names = n;
     }
     
+    public GeneralBuilder(Namer n, String givenID) {
+        names = n;
+        builderID = givenID;
+    }
+    
     public void addID(String newID) {
         IDs.add(newID);
     }
@@ -76,12 +81,30 @@ public class GeneralBuilder implements ActiveEntityBuilder {
 
     @Override
     public ActiveEntity makeEntity(String id, String name) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String parsed = parseId(id);
+        String tempName = name;
+        if(name == null || name.equals("")) {
+            tempName = defaultName(parsed);
+        }
+        
+        List<Task> groupedTasks;
+        List<Trait> groupedTraits;
+        
+        groupedTasks = combineTasks(id);
+        groupedTraits = combineTraits(id);
+        
+        ActiveEntity result = new ActiveEntity(id, tempName, null, groupedTasks, idle.get(parsed), groupedTraits);
+        result.setTraitDisplayPriority(traitDisplayPriority);
+        result.clearTask();
+        
+        return result;
     }
 
     @Override
     public ActiveEntity makeEntity(String badge) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ActiveEntity temp = badgesToEntities.get(badge);
+        temp.setName(defaultName(temp.getId()));
+        return temp;
     }
     
     @Override
@@ -94,6 +117,17 @@ public class GeneralBuilder implements ActiveEntityBuilder {
         names = newNamer;
     }
 
+    //Could use some specifics
+    @Override
+    public String defaultName(String id) {
+        if(id == null || id.equals("")) {
+            return names.makeNameKOL();
+        }
+        else {
+            return names.makeNameKOL();
+        }
+    }
+    
     @Override
     public int getEntityCount(String id) {
         if(counts.containsKey(id)) {
@@ -151,12 +185,20 @@ public class GeneralBuilder implements ActiveEntityBuilder {
 
     @Override
     public void setTraits(String id, List<Trait> newTraits) {
-        traits.put(id, (Trait[])newTraits.toArray());
+        traits.put(id, newTraits.toArray(new Trait[0]));
+        
+        if(!IDs.contains(id)) {
+            IDs.add(id);
+        }
     }
 
     @Override
     public void setTasks(String id, List<Task> newTasks) {
-        tasks.put(id, (Task[])newTasks.toArray());
+        tasks.put(id, newTasks.toArray(new Task[0]));
+        
+        if(!IDs.contains(id)) {
+            IDs.add(id);
+        }
     }
 
     @Override

@@ -57,6 +57,13 @@ public interface ActiveEntityBuilder {
     void setNamer(Namer newNamer);
     
     /**
+     * Gets the default name to use for an ActiveEntity with the given id
+     * @param id
+     * @return 
+     */
+    String defaultName(String id);
+    
+    /**
      * Returns a count of how many ActiveEntities with the given id this Builder has made
      * @param id
      * @return 

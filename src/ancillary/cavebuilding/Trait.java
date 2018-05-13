@@ -78,7 +78,11 @@ public class Trait {
         this.value = new SimpleIntegerProperty(t.getValue());
         this.description = new SimpleStringProperty(t.getDesc());
         this.types = EnumSet.copyOf(t.getTypes());
+        this.valueMin = new SimpleIntegerProperty(t.getValueMin());
+        this.valueMax = new SimpleIntegerProperty(t.getValueMax());
         this.idNum = t.idNum;
+        this.sortingPriority = t.getSortingPriority();
+        this.showValue = new SimpleBooleanProperty(t.getShowValue());
     }
     
     /**

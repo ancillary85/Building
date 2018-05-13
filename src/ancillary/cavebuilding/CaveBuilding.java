@@ -1,4 +1,4 @@
-/*
+/*4.7333/3.8444
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -154,7 +154,8 @@ public class CaveBuilding extends Application {
             prepareDefaultsArrayList(currentName, currentType, children);
         }
         
-        defaultsTesting();
+        //defaultsTesting();
+        predefinedToBuilder(docTraits.getElementsByTagName("traitDefaults"));
         
     }
     
@@ -201,7 +202,7 @@ public class CaveBuilding extends Application {
                 traitsList.set(currentTrait.getIdNum(), currentTrait);
             }
             
-            motor.addDefaultTraits(listName, traitsList);
+            motor.getPredefinedData().addDefaultTraits(listName, traitsList);
         }
         else if(listType.equalsIgnoreCase("task")) {
             ArrayList<Task> tasksList = new ArrayList();
@@ -219,13 +220,57 @@ public class CaveBuilding extends Application {
                 tasksList.set(currentTask.getIdNum(), currentTask);
             }
             
-            motor.addDefaultTasks(listName, tasksList);
+            motor.getPredefinedData().addDefaultTasks(listName, tasksList);
         }
         
     }
     
+    //Uses the PredefinedData to populate some of the ID->traits map that the Builder has
+    private void predefinedToBuilder(NodeList defaultTraits) {
+            
+        for(int i = 0; i < defaultTraits.getLength(); i++) {
+            Node currentIDNode = defaultTraits.item(i);
+            if(!currentIDNode.hasAttributes() || !currentIDNode.hasChildNodes()) {
+                continue;
+            }
+            
+            String currentIDName = currentIDNode.getAttributes().getNamedItem("ID").getNodeValue();
+            ArrayList<Trait> traitsList = new ArrayList();
+            NodeList traitsOfCurrentID = currentIDNode.getChildNodes();
+            
+            for(int childIndex = 0; childIndex < traitsOfCurrentID.getLength(); childIndex++) {
+                if(traitsOfCurrentID.item(childIndex).hasAttributes()) {
+                    NamedNodeMap targets = traitsOfCurrentID.item(childIndex).getAttributes();
+                    String targetList = targets.getNamedItem("listName").getNodeValue();
+                    int targetIndex = Integer.parseInt(targets.getNamedItem("listIndex").getNodeValue());
+                    int defaultValue = Integer.parseInt(targets.getNamedItem("value").getNodeValue());
+                    
+                    //targetIndex < 0 means we want the whole list
+                    if(targetIndex < 0) {
+                        for(int targetListIndex = 0; targetListIndex < motor.getPredefinedData().getThisTraitList(targetList).size(); targetListIndex++) {
+                            if(motor.getPredefinedData().getTraitByNum(targetList, targetListIndex) != null) {
+                                Trait result = new Trait(motor.getPredefinedData().getTraitByNum(targetList, targetListIndex));
+                                result.setValue(defaultValue);
+                                traitsList.add(result);
+                            }
+                        }
+                    }
+                    else {
+                        if(motor.getPredefinedData().getTraitByNum(targetList, targetIndex) != null) {
+                            Trait result = new Trait(motor.getPredefinedData().getTraitByNum(targetList, targetIndex));
+                            result.setValue(defaultValue);
+                            traitsList.add(result);
+                        }
+                    }
+                }
+            }
+            
+            motor.getBuilder().setTraits(currentIDName, traitsList);
+        }
+    }
+    
     private void defaultsTesting() {
-        HashMap<String, ArrayList<Trait>> foo = motor.getDefaultTraits();
+        HashMap<String, ArrayList<Trait>> foo = motor.getPredefinedData().getDefaultTraits();
         
         System.out.println("Keys");
         for(String s : foo.keySet()) {
@@ -245,15 +290,15 @@ public class CaveBuilding extends Application {
             System.out.println();
         }
         
-        System.out.println(motor.getTraitByNum("skills", -2));
-        System.out.println(motor.getTraitByNum("skills", 0));
-        System.out.println(motor.getTraitByNum("skills", 1));
-        System.out.println(motor.getTraitByNum("skills", 2));
-        System.out.println(motor.getTraitByNum("skills", 3));
-        System.out.println(motor.getTraitByNum("skills", 4));
-        System.out.println(motor.getTraitByNum("skills", 5));
-        System.out.println(motor.getTraitByNum("skills", 6));
-        System.out.println(motor.getTraitByNum("skills", 23));
+        System.out.println(motor.getPredefinedData().getTraitByNum("skills", -2));
+        System.out.println(motor.getPredefinedData().getTraitByNum("skills", 0));
+        System.out.println(motor.getPredefinedData().getTraitByNum("skills", 1));
+        System.out.println(motor.getPredefinedData().getTraitByNum("skills", 2));
+        System.out.println(motor.getPredefinedData().getTraitByNum("skills", 3));
+        System.out.println(motor.getPredefinedData().getTraitByNum("skills", 4));
+        System.out.println(motor.getPredefinedData().getTraitByNum("skills", 5));
+        System.out.println(motor.getPredefinedData().getTraitByNum("skills", 6));
+        System.out.println(motor.getPredefinedData().getTraitByNum("skills", 23));
     }
     
     private void EntityTesting() {

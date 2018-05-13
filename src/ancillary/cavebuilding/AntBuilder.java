@@ -77,6 +77,8 @@ public class AntBuilder extends GeneralBuilder{
     
     private void setUpTraits() {
         traits = new HashMap();
+        traits.put(ANT, new Trait[] {        new Trait("Eyes", 2, "The better to see you with", TraitBuilder.attribute()), 
+                                                       new Trait("Legs", 6, "Creepy crawly", TraitBuilder.attribute())});
         traits.put(WORKER, new Trait[] {new Trait("Cuteness", 4, "Will Soldier-sempai notice me?", TraitBuilder.flavor()), 
                                                        new Trait("Dedication", 7, "I will do my best!", TraitBuilder.flavor()), 
                                                        new Trait("Poop test", 1, "Poop +1\nWhat else do ants always do?", TraitBuilder.resourceProductionResult()), 
@@ -204,6 +206,7 @@ public class AntBuilder extends GeneralBuilder{
         return result;
     }
     
+    @Override
     public String defaultName(String id) {
         if(counts.containsKey(id)) {
             if(!id.equals(EGG) && !id.equals(LARVA) && !id.equals(PUPA)) {
