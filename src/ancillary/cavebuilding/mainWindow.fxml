@@ -19,7 +19,16 @@
    <top>
       <ToolBar fx:id="topToolBar" BorderPane.alignment="CENTER">
         <items>
-          <Button mnemonicParsing="false" onAction="#updateFired" text="Update" />
+            <VBox>
+               <children>
+                <Button mnemonicParsing="false" onAction="#updateFired" text="Update" />
+                  <Label fx:id="turnCounter" text="NUM">
+                     <graphic>
+                        <Label text="Turn" />
+                     </graphic>
+                  </Label>
+               </children>
+            </VBox>
             <Separator orientation="VERTICAL" />
             <MenuButton alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false">
               <items>

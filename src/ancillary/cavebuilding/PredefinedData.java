@@ -15,10 +15,12 @@ import java.util.HashMap;
 public class PredefinedData {
     private HashMap<String, ArrayList<Trait>> defaultTraits;
     private HashMap<String, ArrayList<Task>> defaultTasks;
+    private HashMap<String, ArrayList<GameEvent>> defaultEvents;
     
     public PredefinedData() {
         defaultTraits = new HashMap();
         defaultTasks = new HashMap();
+        defaultEvents = new HashMap();
     }
     
     /**
@@ -103,5 +105,47 @@ public class PredefinedData {
      */
     public void setDefaultTasks(HashMap<String, ArrayList<Task>> defaultTasks) {
         this.defaultTasks = defaultTasks;
+    }
+    
+    /**
+     * @return the defaultEvents
+     */
+    public HashMap<String, ArrayList<GameEvent>> getDefaultevents() {
+        return defaultEvents;
+    }
+    
+    /**
+     * Asks the defaultEvents HashMap to return the ArrayList of GameEvents that matches the key eventListName
+     * @param eventListName
+     * @return null if nothing in the map
+     */
+    public ArrayList<GameEvent> getThisEventList(String eventListName) {
+        return defaultEvents.get(eventListName);
+    }
+
+    /**
+     * Gets an ArrayList from the HashMap, and then returns the given index
+     * @param eventListName
+     * @param idnum
+     * @return null if nothing in the map
+     */
+    public GameEvent getEventByNum(String eventListName, int idnum) {
+        ArrayList<GameEvent> temp = defaultEvents.get(eventListName);
+        if(temp == null || idnum < 0 || idnum >= temp.size()) {
+            return null;
+        }
+        
+        return temp.get(idnum);
+    }
+    
+    public void addDefaultEvents(String listName, ArrayList<GameEvent> eventsList) {
+        defaultEvents.put(listName, eventsList);
+    }
+    
+    /**
+     * @param defaultEvents the defaultEvents to set
+     */
+    public void setDefaultEvents(HashMap<String, ArrayList<GameEvent>> defaultEvents) {
+        this.defaultEvents = defaultEvents;
     }
 }

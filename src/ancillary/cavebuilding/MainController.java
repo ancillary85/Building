@@ -19,6 +19,7 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -131,7 +132,8 @@ public class MainController implements Initializable, CaveController {
     private ListView<GameEvent> eventBodyListB;
     @FXML
     private VBox eventBodyVBoxB;
-    
+    @FXML
+    private Label turnCounter;
     
     private Stage eventDetail;
     private Stage roomDetail;
@@ -206,6 +208,7 @@ public class MainController implements Initializable, CaveController {
         setUpResBox();
         setUpResourceListener();
         setUpWarningMenu();
+        setUpTurnCounter();
         
         init = true;
     }    
@@ -218,6 +221,9 @@ public class MainController implements Initializable, CaveController {
         motor.addResource("Morale", -3, "Meh");
     }
     
+    /**
+     * Sets up the SplitPane window and its list to show GameEvents with their Titles on one side, and the body text on the other
+     */
     private void setUpUpdateWarningListener() {
         eventBodyListB.getFocusModel().focusedItemProperty().addListener((ObservableValue<? extends GameEvent> observable, GameEvent oldValue, GameEvent newValue) -> {
             eventBodyVBoxB.getChildren().clear();
@@ -262,6 +268,10 @@ public class MainController implements Initializable, CaveController {
         motor.getUpdateWarnings().addListener(warningListener);
         
         fillWarnings();
+    }
+    
+    private void setUpTurnCounter() {
+        turnCounter.textProperty().bind(motor.getTurnCountProp().asString());
     }
 
     private void setUpCenterGrid() {        
@@ -865,6 +875,30 @@ public class MainController implements Initializable, CaveController {
         motor.addResource(new Trait("Foo", -1, EnumSet.of(Trait.trait_type.RESOURCE)));
     }
     
+    public void updateEvents() {
+        ArrayList<GameEvent> completed = new ArrayList();
+        
+        for(GameEvent e : motor.getPendingEvents()) {
+            if(e.getOddsTail() > 0) {
+                e.turnHasPassed();
+            }
+            
+            if(motor.isEventReady(e)) {
+                motor.processEventResults(e);
+                showEventWindow(e);
+                                
+                if(!e.isRepeatable()) {
+                    completed.add(e);
+                }
+                else {
+                    e.setTurnsMissed(0);
+                }
+            }
+        }
+        
+        motor.getPendingEvents().removeAll(completed);
+    }
+    
     @Override
     public void updateFired(ActionEvent e) {
         
@@ -884,6 +918,7 @@ public class MainController implements Initializable, CaveController {
         }
         
         motor.update();
+        updateEvents();
         updateNeighborhood();
         
         offerFirstUpdateWarnings = true;

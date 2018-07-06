@@ -155,8 +155,8 @@ public class CaveBuilding extends Application {
         }
         
         //defaultsTesting();
-        predefinedToBuilder(docTraits.getElementsByTagName("traitDefaults"));
-        
+        predefinedTraitsToBuilder(docTraits.getElementsByTagName("traitDefaults"));
+        gameEventsTest();
     }
     
     //Scans the id nums of the elements in the NodeList, in order to see how big the ArrayList needs to be.
@@ -198,7 +198,7 @@ public class CaveBuilding extends Application {
                     continue;
                 }
                 
-                Trait currentTrait = TraitParser.parseTrait(nL.item(traitListIndex));
+                Trait currentTrait = TraitParser.parseTrait(temp);
                 traitsList.set(currentTrait.getIdNum(), currentTrait);
             }
             
@@ -222,11 +222,27 @@ public class CaveBuilding extends Application {
             
             motor.getPredefinedData().addDefaultTasks(listName, tasksList);
         }
+        else if(listType.equalsIgnoreCase("event")) {
+            ArrayList<GameEvent> eventsList = new ArrayList();
+            for(int nullPad = 0; nullPad < targetSize; nullPad++) {
+                eventsList.add(null);
+            }
+            
+            for(int eventListIndex = 0; eventListIndex < nL.getLength(); eventListIndex++) {
+                Node temp = nL.item(eventListIndex);
+                if(!temp.hasAttributes()) {
+                    continue;
+                }
+                
+                GameEvent currentEvent = GameEventParser.parseEvent(temp);
+                eventsList.set(currentEvent.getIdNum(), currentEvent);
+            }
+        }
         
     }
     
     //Uses the PredefinedData to populate some of the ID->traits map that the Builder has
-    private void predefinedToBuilder(NodeList defaultTraits) {
+    private void predefinedTraitsToBuilder(NodeList defaultTraits) {
             
         for(int i = 0; i < defaultTraits.getLength(); i++) {
             Node currentIDNode = defaultTraits.item(i);
@@ -345,6 +361,22 @@ public class CaveBuilding extends Application {
             ants.get(i).activeUpdate(null);
         }
         
+    }
+    
+    private void gameEventsTest() {
+        //public GameEvent(String initTitle, String initBody, String initName, List<Trait> initReq, List<Trait> initRes) {
+        //public Trait(String name, int value, EnumSet<trait_type> initTypes) {
+        ArrayList<Trait> results = new ArrayList();
+        results.add(new Trait("Machete", 4, TraitBuilder.resource()));
+        GameEvent foo = new GameEvent("This Is a Test", "We are trying out non-warnings, and you also get some machetes!", "Test Event", null, results);
+        foo.setTargetTurn(2);
+        motor.getPendingEvents().add(foo);
+        
+        GameEvent bar = new GameEvent("This Is a Random Test", "We are trying out probability", "Random Test Event", null, null);
+        bar.setTargetTurn(0);
+        bar.setOddsTail(5);
+        bar.setOddsToOccur(0.333);
+        motor.getPendingEvents().add(bar);
     }
     
     private void XMLParseTest() throws IOException {

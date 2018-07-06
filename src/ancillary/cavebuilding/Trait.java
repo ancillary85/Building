@@ -23,9 +23,10 @@ public class Trait {
     /*permanents*/                       CREATION, ROOM, PERSONAL_RESOURCE, OTHERS_RESOURCE, RESOURCE,
     /*events*/                              EVENT, CONDITIONAL, TIMED, 
     /*modifiers*/                           HIDDEN_RESOURCE, EACHTURN, UNCANCELABLE,
-    /*requirement conditions*/       EQUALTO, LESSTHAN, GREATERTHAN, NOTEQUAL, 
+    /*requirement conditions*/       EQUALTO, LESSTHAN, GREATERTHAN, NOTEQUAL, EXISTS, NOTEXISTS,
     /*requirements only*/              CREATION_LINK, ROOM_LINK,
     /*results only*/                       AUTOTASK, ACTIVE_CHANGE, ROOM_CHANGE, UNCREATE, ACTIVE_CHANGE_OTHER,
+                                                ADD_TRAIT, REMOVE_TRAIT, ADD_TASK, REMOVE_TASK,
     /*unused?*/                           REQUIREMENT, MULTI, RESULT,
                                                 }    
     

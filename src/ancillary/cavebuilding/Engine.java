@@ -11,8 +11,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.Initializable;
 
 /**
@@ -25,16 +27,22 @@ public abstract class Engine {
     protected TraitEvaluator traitEval;
     protected ActiveEntityBuilder builder;
     protected CaveController controller;
-    protected SimpleListProperty<GameEvent> timedEvents = new SimpleListProperty();
-    protected SimpleListProperty<GameEvent> untimedEvents = new SimpleListProperty();
+    protected SimpleListProperty<GameEvent> pendingEvents = new SimpleListProperty();
     protected SimpleListProperty<GameEvent> updateWarnings = new SimpleListProperty();
     protected ArrayList<GameEvent> unresolvedUpdateWarnings = new ArrayList();
     protected PredefinedData defaultData = new PredefinedData();
-    protected int turnCount = 0;
+    protected SimpleIntegerProperty turnCount = new SimpleIntegerProperty(0);
     
     public Engine() {
         this.global_resources = new SimpleListProperty<>(FXCollections.observableArrayList());
         this.traitEval = new TraitEvaluator();
+        
+        //SimpleListProperty will be an empty wrapper if we don't initialize it with something
+        ObservableList<GameEvent> pendingEventList = FXCollections.observableArrayList(new ArrayList<GameEvent>());
+        this.pendingEvents = new SimpleListProperty<GameEvent>(pendingEventList);
+        
+        ObservableList<GameEvent> warningsList = FXCollections.observableArrayList(new ArrayList<GameEvent>());
+        this.updateWarnings = new SimpleListProperty<GameEvent>(warningsList);
     }
     
     /**
@@ -146,27 +154,27 @@ public abstract class Engine {
     }
     
     public int getTurnCount() {
-        return turnCount;
+        return turnCount.get();
     }
     
     public void setTurnCount(int newTurnCount) {
-        turnCount = newTurnCount;
+        turnCount.set(newTurnCount);
     }
     
-    public SimpleListProperty<GameEvent> getTimedEvents() {
-        return timedEvents;
+    public void incrementTurnCount() {
+        turnCount.set(turnCount.get() + 1);
     }
     
-    public void setTimedEvents(ArrayList<GameEvent> newTimed) {
-        timedEvents.set(FXCollections.observableArrayList(newTimed));
+    public SimpleIntegerProperty getTurnCountProp() {
+        return turnCount;
     }
     
-    public SimpleListProperty<GameEvent> getUntimedEvents() {
-        return untimedEvents;
+    public SimpleListProperty<GameEvent> getPendingEvents() {
+        return pendingEvents;
     }
     
-    public void setUntimedEvents(ArrayList<GameEvent> newUntimed) {
-        untimedEvents.set(FXCollections.observableArrayList(newUntimed));
+    public void setPendingEvents(ArrayList<GameEvent> newPending) {
+        pendingEvents.set(FXCollections.observableArrayList(newPending));
     }
     
     public SimpleListProperty<GameEvent> getUpdateWarnings() {
@@ -347,18 +355,77 @@ public abstract class Engine {
             controller.removeByID(id);
         }
         
-        checkTimedEvents();
-        checkUntimedEvents();
-        
-        turnCount++;
+        incrementTurnCount();
     }
     
-    public void checkTimedEvents() {
+    public boolean isEventReady(GameEvent e) {
+        if(e == null || turnCount.get() < e.getTargetTurn() || e.getRequirements() == null) {
+            return false;
+        }
         
+        for(Trait t : e.getRequirements()) {
+            if(!requirementMet(t, null)) {
+                return false;
+            }
+        }
+        
+        //check for randomness
+        if(e.getTurnsMissed() < e.getOddsTail() && Math.random() > e.getOddsToOccur()) {
+            return false;
+        }
+        
+        return true;
     }
+    
+    public void processEventResults(GameEvent e) {
+        ArrayList<ActiveEntity> entitiesToAdd = new ArrayList();
+        ArrayList<String> IDsToRemove = new ArrayList();
+        HashMap<ActiveEntity,Task> activesToChange = new HashMap();
+        ArrayList<Room> roomsToChange = new ArrayList();
         
-    public void checkUntimedEvents() {
+        for(Trait result : e.getResults()) {
+            if(TraitEvaluator.isCreationTrait(result)) {
+                for(int i = 0; i < result.getValue(); i++) {
+                    ActiveEntity newlyMade;
+                    newlyMade = builder.makeEntity(result.getName(), null);
+
+                    entitiesToAdd.add(newlyMade);
+                }
+            }                                        
+            // Check for changing Rooms
+            else if(TraitEvaluator.isRoomChangeTrait(result)) {
+                System.out.println("Looks like we're making a room!");
+            }
+            // Check for resources
+            else if(TraitEvaluator.isResourceTrait(result)) {
+                this.addResource(result.getName(), result.getValue(), result.getDesc());
+            }
+            // Check for removing things
+            else if(TraitEvaluator.isUncreateTrait(result)) {
+                IDsToRemove.add(result.getName());
+            }     
+        } // end of looping through the Task's results
+                
+        // Add any created things
+        for(ActiveEntity justCreated : entitiesToAdd) {
+            Task autoTask = this.getAutoTask(justCreated);
+                
+            if(autoTask != null) {
+                justCreated.setTaskAndTimer(autoTask);
+            }
+            
+            controller.addActive(justCreated);
+        }
         
+        // Remove any removed things
+        for(String id : IDsToRemove) {
+            controller.removeByID(id);
+        }
+        
+        // Change others, not currently used
+        for(ActiveEntity toChange : activesToChange.keySet()) {
+            changeActiveEntity(toChange, activesToChange.get(toChange));
+        }
     }
     
     public void checkUpdateWarnings() {
